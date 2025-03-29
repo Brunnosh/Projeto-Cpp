@@ -2,3 +2,4 @@ main.exe
 
 .vscode/*
 !.vscode/tasks.json
+!.vscode/launch.json
