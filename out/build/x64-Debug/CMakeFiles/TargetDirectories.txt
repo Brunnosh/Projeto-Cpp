@@ -1,0 +1,3 @@
+C:/Users/bruno/Desktop/Projeto-Cpp/out/build/x64-Debug/CMakeFiles/ProjetoCpp.dir
+C:/Users/bruno/Desktop/Projeto-Cpp/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/bruno/Desktop/Projeto-Cpp/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

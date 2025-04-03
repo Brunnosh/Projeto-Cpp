@@ -6,8 +6,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 1280;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int DEF_SCR_WIDTH = 1280;
+const unsigned int DEF_SCR_HEIGHT = 720;
 
 int main()
 {
@@ -17,7 +17,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(DEF_SCR_WIDTH, DEF_SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -33,21 +33,27 @@ int main()
         return -1;
     }    
 
-    glViewport(0,0,SCR_WIDTH,SCR_HEIGHT);
+    glViewport(0,0, DEF_SCR_WIDTH, DEF_SCR_HEIGHT);
 
     //LOOP JANELA
     while (!glfwWindowShouldClose(window))
     {
         // input
         // -----
+
+
+
+
         processInput(window);
         // -----
         // render
         // ------
 
+
+
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
         // ------
         glfwSwapBuffers(window);
         glfwPollEvents();
