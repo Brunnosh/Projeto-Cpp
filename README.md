@@ -10,6 +10,6 @@ Pequeno projeto para aprender como openGL e C++ funcionam no desenvolvimento de 
 
 
 ## Build
-### Build com Cmake
+### Build com Cmake + VS 22
 
 
