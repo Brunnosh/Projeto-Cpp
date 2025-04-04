@@ -8,6 +8,7 @@ project(ProjetoCpp)
 set(CMAKE_CXX_STANDARD 17)
 
 # Definindo o diretório de inclusão
+include_directories(${PROJECT_SOURCE_DIR}/include/dev)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Definindo os diretórios de bibliotecas
@@ -24,4 +25,8 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # Adicionando as dependências (GLFW, GLAD)
 target_link_libraries(${PROJECT_NAME} glfw3)
+
+add_custom_command(TARGET ProjetoCpp POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:ProjetoCpp>/shaders)
 
