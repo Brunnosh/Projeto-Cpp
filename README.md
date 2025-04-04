@@ -10,7 +10,6 @@ Projeto ainda não decidido, por enquanto apenas um experimento com OpenGL
 
 
 ## Build
-### Build com VSCode
-Clone o repositorio, abra com VSCode e certifique-se que glfw3.dll está na root e pressione "CTRL+SHIFT+B"
+### Build com Cmake
 
 
