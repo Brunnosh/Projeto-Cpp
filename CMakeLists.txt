@@ -20,6 +20,7 @@ set(SOURCE_FILES
     src/main.cpp
     src/glad.c
     src/camera.cpp
+    src/world.cpp
 )
 
 # Criando o executável do projeto
