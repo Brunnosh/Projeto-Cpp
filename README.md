@@ -1,6 +1,6 @@
-# Projeto CPP Indefinido
+# Experiência jogo Voxel
 
-Projeto ainda não decidido, por enquanto apenas um experimento com OpenGL
+Pequeno projeto para aprender como openGL e C++ funcionam no desenvolvimento de um jogo 3D baseado em voxels (Cubos) tipo minecraft.
 
 
 ## Inspirações / Materiais
