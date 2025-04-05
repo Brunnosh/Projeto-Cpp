@@ -50,6 +50,15 @@ int main()
 
     //global opengl state
     glEnable(GL_DEPTH_TEST);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
+
+
+
 
     // build shader 
     Shader ourShader("shaders/vertexshader.glsl", "shaders/fragmentshader.glsl");
@@ -71,63 +80,81 @@ int main()
 
 
     float block[] = {
-        // face trás
-        -0.5f, -0.5f, -0.5f,  uMin, vMin,
-         0.5f, -0.5f, -0.5f,  uMax, vMin,
-         0.5f,  0.5f, -0.5f,  uMax, vMax,
-         0.5f,  0.5f, -0.5f,  uMax, vMax,
-        -0.5f,  0.5f, -0.5f,  uMin, vMax,
-        -0.5f, -0.5f, -0.5f,  uMin, vMin,
+        // Face traseira
+        -0.5f, -0.5f, -0.5f,  uMin, vMin, // 0
+         0.5f, -0.5f, -0.5f,  uMax, vMin, // 1
+         0.5f,  0.5f, -0.5f,  uMax, vMax, // 2
+        -0.5f,  0.5f, -0.5f,  uMin, vMax, // 3
 
-        // face frente
-        -0.5f, -0.5f,  0.5f,  uMin, vMin,
-         0.5f, -0.5f,  0.5f,  uMax, vMin,
-         0.5f,  0.5f,  0.5f,  uMax, vMax,
-         0.5f,  0.5f,  0.5f,  uMax, vMax,
-        -0.5f,  0.5f,  0.5f,  uMin, vMax,
-        -0.5f, -0.5f,  0.5f,  uMin, vMin,
+        // Face frontal
+        -0.5f, -0.5f,  0.5f,  uMin, vMin, // 4
+         0.5f, -0.5f,  0.5f,  uMax, vMin, // 5
+         0.5f,  0.5f,  0.5f,  uMax, vMax, // 6
+        -0.5f,  0.5f,  0.5f,  uMin, vMax, // 7
 
-        // face esquerda
-        -0.5f,  0.5f,  0.5f,  uMax, vMin,
-        -0.5f,  0.5f, -0.5f,  uMax, vMax,
-        -0.5f, -0.5f, -0.5f,  uMin, vMax,
-        -0.5f, -0.5f, -0.5f,  uMin, vMax,
-        -0.5f, -0.5f,  0.5f,  uMin, vMin,
-        -0.5f,  0.5f,  0.5f,  uMax, vMin,
+        // Face esquerda
+        -0.5f, -0.5f, -0.5f,  uMin, vMin, // 8
+        -0.5f, -0.5f,  0.5f,  uMax, vMin, // 9
+        -0.5f,  0.5f,  0.5f,  uMax, vMax, //10
+        -0.5f,  0.5f, -0.5f,  uMin, vMax, //11
 
-        // face direita
-         0.5f,  0.5f,  0.5f,  uMax, vMin,
-         0.5f,  0.5f, -0.5f,  uMax, vMax,
-         0.5f, -0.5f, -0.5f,  uMin, vMax,
-         0.5f, -0.5f, -0.5f,  uMin, vMax,
-         0.5f, -0.5f,  0.5f,  uMin, vMin,
-         0.5f,  0.5f,  0.5f,  uMax, vMin,
+        // Face direita
+         0.5f, -0.5f, -0.5f,  uMin, vMin, //12
+         0.5f, -0.5f,  0.5f,  uMax, vMin, //13
+         0.5f,  0.5f,  0.5f,  uMax, vMax, //14
+         0.5f,  0.5f, -0.5f,  uMin, vMax, //15
 
-         // face baixo
-         -0.5f, -0.5f, -0.5f,  uMin, vMax,
-          0.5f, -0.5f, -0.5f,  uMax, vMax,
-          0.5f, -0.5f,  0.5f,  uMax, vMin,
-          0.5f, -0.5f,  0.5f,  uMax, vMin,
-         -0.5f, -0.5f,  0.5f,  uMin, vMin,
-         -0.5f, -0.5f, -0.5f,  uMin, vMax,
+         // Face inferior
+         -0.5f, -0.5f, -0.5f,  uMin, vMax, //16
+          0.5f, -0.5f, -0.5f,  uMax, vMax, //17
+          0.5f, -0.5f,  0.5f,  uMax, vMin, //18
+         -0.5f, -0.5f,  0.5f,  uMin, vMin, //19
 
-         // face cima
-         -0.5f,  0.5f, -0.5f,  uMin, vMax,
-          0.5f,  0.5f, -0.5f,  uMax, vMax,
-          0.5f,  0.5f,  0.5f,  uMax, vMin,
-          0.5f,  0.5f,  0.5f,  uMax, vMin,
-         -0.5f,  0.5f,  0.5f,  uMin, vMin,
-         -0.5f,  0.5f, -0.5f,  uMin, vMax
+         // Face superior
+         -0.5f,  0.5f, -0.5f,  uMin, vMax, //20
+          0.5f,  0.5f, -0.5f,  uMax, vMax, //21
+          0.5f,  0.5f,  0.5f,  uMax, vMin, //22
+         -0.5f,  0.5f,  0.5f,  uMin, vMin  //23
     };
 
-    unsigned int VBO, VAO;
+    unsigned int indices[] = {
+        // Face traseira
+        0, 1, 2,
+        2, 3, 0,
+
+        // Face frontal
+        4, 5, 6,
+        6, 7, 4,
+
+        // Face esquerda
+        8, 9,10,
+       10,11, 8,
+
+       // Face direita
+      12,13,14,
+      14,15,12,
+
+      // Face inferior
+     16,17,18,
+     18,19,16,
+
+     // Face superior
+    20,21,22,
+    22,23,20
+    };
+
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(block), block, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -219,7 +246,8 @@ int main()
            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
            ourShader.setMat4("model", model);
 
-           glDrawArrays(GL_TRIANGLES, 0, 36);
+           glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+           //glDrawArrays(GL_TRIANGLES, 0, 36);
         
 
 
