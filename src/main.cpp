@@ -72,49 +72,46 @@ int main()
     //vertex test (all this verices are just one box)
 
     const Block& dirtBlock = blockList[static_cast<int>(BlockType::DIRT)];
-    float uMin, uMax, vMin, vMax;
-    uMin = dirtBlock.getUVXMin();
-    uMax = dirtBlock.getUVXMax();
-    vMin = dirtBlock.getUVYMin();
-    vMax = dirtBlock.getUVYMax();
+    const UV& uvDirtTop = getBlock(BlockType::DIRT).getUV(BlockFace::TOP);
+    
 
 
     float block[] = {
         // Face traseira
-        -0.5f, -0.5f, -0.5f,  uMin, vMin, // 0
-         0.5f, -0.5f, -0.5f,  uMax, vMin, // 1
-         0.5f,  0.5f, -0.5f,  uMax, vMax, // 2
-        -0.5f,  0.5f, -0.5f,  uMin, vMax, // 3
+        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
         // Face frontal
-        -0.5f, -0.5f,  0.5f,  uMin, vMin, // 4
-         0.5f, -0.5f,  0.5f,  uMax, vMin, // 5
-         0.5f,  0.5f,  0.5f,  uMax, vMax, // 6
-        -0.5f,  0.5f,  0.5f,  uMin, vMax, // 7
+        -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+        -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
         // Face esquerda
-        -0.5f, -0.5f, -0.5f,  uMin, vMin, // 8
-        -0.5f, -0.5f,  0.5f,  uMax, vMin, // 9
-        -0.5f,  0.5f,  0.5f,  uMax, vMax, //10
-        -0.5f,  0.5f, -0.5f,  uMin, vMax, //11
+        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+        -0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+        -0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
         // Face direita
-         0.5f, -0.5f, -0.5f,  uMin, vMin, //12
-         0.5f, -0.5f,  0.5f,  uMax, vMin, //13
-         0.5f,  0.5f,  0.5f,  uMax, vMax, //14
-         0.5f,  0.5f, -0.5f,  uMin, vMax, //15
+         0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+         0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
          // Face inferior
-         -0.5f, -0.5f, -0.5f,  uMin, vMax, //16
-          0.5f, -0.5f, -0.5f,  uMax, vMax, //17
-          0.5f, -0.5f,  0.5f,  uMax, vMin, //18
-         -0.5f, -0.5f,  0.5f,  uMin, vMin, //19
+         -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+          0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+          0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
 
          // Face superior
-         -0.5f,  0.5f, -0.5f,  uMin, vMax, //20
-          0.5f,  0.5f, -0.5f,  uMax, vMax, //21
-          0.5f,  0.5f,  0.5f,  uMax, vMin, //22
-         -0.5f,  0.5f,  0.5f,  uMin, vMin  //23
+         -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+          0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+          0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin
     };
 
     unsigned int indices[] = {
@@ -246,8 +243,8 @@ int main()
            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
            ourShader.setMat4("model", model);
 
-           glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-           //glDrawArrays(GL_TRIANGLES, 0, 36);
+           glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);//36 per block.
+           
         
 
 
