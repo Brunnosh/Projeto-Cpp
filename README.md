@@ -11,5 +11,6 @@ Pequeno projeto para aprender como openGL e C++ funcionam no desenvolvimento de 
 
 ## Build
 ### Build com Cmake + VS 22
+Apenas abra a pasta no visual studio, compile com "CTRL + SHIFT + B" e procure a pasta "out/build/x64-Debug/"nome".exe " 
 
 
