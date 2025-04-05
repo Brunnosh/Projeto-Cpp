@@ -11,6 +11,7 @@
 
 #include <dev/shader.h>
 #include <camera.h>
+#include <block.h>
 
 #include <iostream>
 
@@ -60,52 +61,63 @@ int main()
     //dir side -> (0.0625, 1) até (0.125, 0.9375)
 
     //vertex test (all this verices are just one box)
+
+    const Block& dirtBlock = blockList[static_cast<int>(BlockType::DIRT)];
+    float uMin, uMax, vMin, vMax;
+    uMin = dirtBlock.getUVXMin();
+    uMax = dirtBlock.getUVXMax();
+    vMin = dirtBlock.getUVYMin();
+    vMax = dirtBlock.getUVYMax();
+
+
     float block[] = {
-    //  {  X      Y     Z    ,    UV     }
+        // face trás
+        -0.5f, -0.5f, -0.5f,  uMin, vMin,
+         0.5f, -0.5f, -0.5f,  uMax, vMin,
+         0.5f,  0.5f, -0.5f,  uMax, vMax,
+         0.5f,  0.5f, -0.5f,  uMax, vMax,
+        -0.5f,  0.5f, -0.5f,  uMin, vMax,
+        -0.5f, -0.5f, -0.5f,  uMin, vMin,
 
-        //face tras
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // face frente
+        -0.5f, -0.5f,  0.5f,  uMin, vMin,
+         0.5f, -0.5f,  0.5f,  uMax, vMin,
+         0.5f,  0.5f,  0.5f,  uMax, vMax,
+         0.5f,  0.5f,  0.5f,  uMax, vMax,
+        -0.5f,  0.5f,  0.5f,  uMin, vMax,
+        -0.5f, -0.5f,  0.5f,  uMin, vMin,
 
-        //face frente
-        -0.5f, -0.5f,  0.5f,  0.0625f, 0.9375f, // bot left
-         0.5f, -0.5f,  0.5f,  0.125f, 0.9375f, // bot right
-         0.5f,  0.5f,  0.5f,  0.125f, 1.0f, // top right
-         0.5f,  0.5f,  0.5f,  0.125f, 1.0f, // top right
-        -0.5f,  0.5f,  0.5f,  0.0625f, 1.0f, //top left
-        -0.5f, -0.5f,  0.5f,  0.0625f, 0.9375f, // bot left
+        // face esquerda
+        -0.5f,  0.5f,  0.5f,  uMax, vMin,
+        -0.5f,  0.5f, -0.5f,  uMax, vMax,
+        -0.5f, -0.5f, -0.5f,  uMin, vMax,
+        -0.5f, -0.5f, -0.5f,  uMin, vMax,
+        -0.5f, -0.5f,  0.5f,  uMin, vMin,
+        -0.5f,  0.5f,  0.5f,  uMax, vMin,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        // face direita
+         0.5f,  0.5f,  0.5f,  uMax, vMin,
+         0.5f,  0.5f, -0.5f,  uMax, vMax,
+         0.5f, -0.5f, -0.5f,  uMin, vMax,
+         0.5f, -0.5f, -0.5f,  uMin, vMax,
+         0.5f, -0.5f,  0.5f,  uMin, vMin,
+         0.5f,  0.5f,  0.5f,  uMax, vMin,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         // face baixo
+         -0.5f, -0.5f, -0.5f,  uMin, vMax,
+          0.5f, -0.5f, -0.5f,  uMax, vMax,
+          0.5f, -0.5f,  0.5f,  uMax, vMin,
+          0.5f, -0.5f,  0.5f,  uMax, vMin,
+         -0.5f, -0.5f,  0.5f,  uMin, vMin,
+         -0.5f, -0.5f, -0.5f,  uMin, vMax,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+         // face cima
+         -0.5f,  0.5f, -0.5f,  uMin, vMax,
+          0.5f,  0.5f, -0.5f,  uMax, vMax,
+          0.5f,  0.5f,  0.5f,  uMax, vMin,
+          0.5f,  0.5f,  0.5f,  uMax, vMin,
+         -0.5f,  0.5f,  0.5f,  uMin, vMin,
+         -0.5f,  0.5f, -0.5f,  uMin, vMax
     };
 
     unsigned int VBO, VAO;
@@ -158,6 +170,10 @@ int main()
     // -------------------------------------------------------------------------------------------
     ourShader.use();
     ourShader.setInt("atlas", 0);
+    
+
+
+
     
 
 
@@ -232,6 +248,10 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)

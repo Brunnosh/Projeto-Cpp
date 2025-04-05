@@ -1,24 +1,48 @@
-#pragma once
+#ifndef BLOCK_H
+#define BLOCK_H
+
 #include <string>
+#include <vector>
+
+enum class Face { FRONT, BACK, LEFT, RIGHT, TOP, BOTTOM };
 
 enum class BlockType {
     AIR,
-    DIRT,
     GRASS,
-
-    COUNT // usado pra saber quantos blocos existem
+    DIRT,
+    
+    AMOUNT
 };
 
 
-struct Block {
-    BlockType type;
+class Block {
+private:
+    float uvxmin;
+    float uvxmax;
+    float uvymin;
+    float uvymax;
+
     std::string name;
-    //coordenadas UV no atlas
-    float uvxMin, uvyMin;
-    float uvxMax, uvyMax;
+    BlockType type;
+
+
+public:
+
+
+    Block(std::string name, BlockType type, float uvxmin, float uvxmax, float uvymin, float uvymax)
+        : name(name), type(type), uvxmin(uvxmin), uvxmax(uvxmax), uvymin(uvymin), uvymax(uvymax) {
+    }
+    float getUVXMin() const { return uvxmin; }
+    float getUVXMax() const { return uvxmax; }
+    float getUVYMin() const { return uvymin; }
+    float getUVYMax() const { return uvymax; }
+
+    std::string getName() const { return name; }
+    BlockType getType() const { return type; }
+
+
 };
 
-//Falando pro compilador que esse array existe, nao precisa criar outro
-extern const Block BLOCKS[static_cast<int>(BlockType::COUNT)];
+extern std::vector<Block> blockList;
 
-const Block& getBlock(BlockType type);
+#endif // BLOCK_H
