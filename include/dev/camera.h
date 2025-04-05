@@ -23,7 +23,7 @@ const float YAW = -90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
-const float ZOOM = 45.0f;
+const float FOV = 75.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -31,22 +31,22 @@ class Camera
 {
 public:
     // camera Attributes
-    glm::vec3 Position;
-    glm::vec3 Front;
-    glm::vec3 Up;
-    glm::vec3 Right;
-    glm::vec3 WorldUp;
+    glm::vec3 Position; //camera worldpos
+    glm::vec3 Front; // where camera is looking
+    glm::vec3 Up; //vector directly up from where the camera is looking.
+    glm::vec3 Right; //vector diretly sideways from where the camera is
+    glm::vec3 WorldUp; //absolute Y coordinate.
     // euler Angles
     float Yaw;
     float Pitch;
     // camera options
     float MovementSpeed;
     float MouseSensitivity;
-    float Zoom;
+    float FoV;
 
 
     // constructor with vectors
-    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), FoV(FOV)
     {
         Position = position;
         WorldUp = up;
@@ -56,7 +56,7 @@ public:
         updateCameraVectors();
     }
     // constructor with scalar values
-    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+    Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), FoV(FOV)
     {
         Position = glm::vec3(posX, posY, posZ);
         WorldUp = glm::vec3(upX, upY, upZ);
@@ -75,18 +75,22 @@ public:
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
         float velocity = MovementSpeed * deltaTime;
-        if (direction == FORWARD)
-            Position += Front * velocity;
-        if (direction == BACKWARD)
-            Position -= Front * velocity;
+        if (direction == FORWARD) {
+            glm::vec3 horizontalFront = glm::normalize(glm::vec3(Front.x, 0.0f, Front.z));
+            Position += horizontalFront * velocity;
+        }
+        if (direction == BACKWARD) {
+            glm::vec3 horizontalFront = glm::normalize(glm::vec3(Front.x, 0.0f, Front.z));
+            Position -= horizontalFront * velocity;
+        }
         if (direction == LEFT)
             Position -= Right * velocity;
         if (direction == RIGHT)
             Position += Right * velocity;
         if (direction == UP)
-            Position += Up * velocity;
+            Position += WorldUp * velocity;
         if (direction == DOWN)
-            Position -= Up * velocity;
+            Position -= WorldUp * velocity;
     }
 
     // processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -114,11 +118,11 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset)
     {
-        Zoom -= (float)yoffset;
-        if (Zoom < 1.0f)
-            Zoom = 1.0f;
-        if (Zoom > 45.0f)
-            Zoom = 45.0f;
+        FoV -= (float)yoffset;
+        if (FoV < 1.0f)
+            FoV = 1.0f;
+        if (FoV > 75.0f)
+            FoV = 75.0f;
     }
 
 

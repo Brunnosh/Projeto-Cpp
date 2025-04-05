@@ -34,6 +34,10 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+bool menu = false;
+
+//key checks
+bool escDown = false;
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -228,7 +232,7 @@ int main()
         ourShader.use();
 
         // pass projection matrix to shader (note that in this case it could change every frame)
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.FoV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("projection", projection);
 
         // camera/view transformation
@@ -262,9 +266,24 @@ int main()
 
 void processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        if (escDown) return;
 
+        escDown = true;
+        menu = !menu;
+        firstMouse = true;
+        glfwSetInputMode(window, GLFW_CURSOR, menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        
+
+    }
+    else {
+        escDown = false;
+    }
+
+
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -285,7 +304,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
+    
 {
+    if (menu) return;
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
