@@ -57,9 +57,9 @@ int main()
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
-    //glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
 
 
@@ -81,17 +81,22 @@ int main()
 
 
     float block[] = {
-        // Face traseira
-        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+        //TEXTURE COORDS -> BOTTOM LEFT VERTEX = MIN UV \ TOP RIGHT VERTEX -> MAX UV
 
         // Face frontal
         -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
          0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
          0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
         -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+
+
+        // Face traseira
+        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+
+
 
         // Face esquerda
         -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
@@ -106,42 +111,44 @@ int main()
          0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
          // Face inferior
-         -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-          0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-          0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+          0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+          0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+         -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
          // Face superior
-         -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-          0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-          0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin
+         -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+          0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+          0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+         -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax
     };
 
+
+    //MAKE CCW DRAWING
     unsigned int indices[] = {
-        // Face traseira
+        // Face frontal (olhando para +Z)
         0, 1, 2,
         2, 3, 0,
 
-        // Face frontal
-        4, 5, 6,
-        6, 7, 4,
+        // Face traseira (olhando para -Z) - invertido
+        4,7,6,
+        6,5,4,
 
-        // Face esquerda
-        8, 9,10,
-       10,11, 8,
+        // Face esquerda (olhando para -X) - invertido
+        8, 9, 10,
+        10, 11, 8, 
 
-       // Face direita
-      12,13,14,
-      14,15,12,
+        // Face direita (olhando para +X)
+        13, 12, 15,
+        15, 14, 13,
 
-      // Face inferior
-     16,17,18,
-     18,19,16,
+        // Face inferior (olhando para -Y)
+        16,17,18,
+        18,19,16,
 
-     // Face superior
-    20,21,22,
-    22,23,20
+        // Face superior (olhando para +Y) - invertido
+        23,22,21,
+        21,20,23
     };
 
     unsigned int VBO, VAO, EBO;
