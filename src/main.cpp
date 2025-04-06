@@ -34,10 +34,15 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
+
+//toggles
 bool menu = false;
+bool wireframe = false;
 
 //key checks
 bool escDown = false;
+bool lDown = false;
 
 // timing
 float deltaTime = 0.0f;	// time between current frame and last frame
@@ -75,80 +80,19 @@ int main()
 
     //vertex test (all this verices are just one box)
 
-    const Block& dirtBlock = blockList[static_cast<int>(BlockType::DIRT)];
-    const UV& uvDirtTop = getBlock(BlockType::DIRT).getUV(BlockFace::TOP);
     
 
-
-    float block[] = {
-        //TEXTURE COORDS -> BOTTOM LEFT VERTEX = MIN UV \ TOP RIGHT VERTEX -> MAX UV
-
-        // Face frontal
-        -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-        -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-
-
-        // Face traseira
-        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-
-
-
-        // Face esquerda
-        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-        -0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-        -0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-
-        // Face direita
-         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-
-         // Face inferior
-         -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-          0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-          0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-         -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
-
-         // Face superior
-         -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-          0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-          0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-         -0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax
-    };
-
+    float block[] = {0};
+    float indices[] = { 0 };
 
     //MAKE CCW DRAWING
-    unsigned int indices[] = {
-        // Face frontal (olhando para +Z)
-        0, 1, 2,
-        2, 3, 0,
 
-        // Face traseira (olhando para -Z) - invertido
-        5,4,7,
-        7,6,5,
 
-        // Face esquerda (olhando para -X) - invertido
-        8, 9, 10,
-        10, 11, 8, 
+    glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(1.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  0.0f,  0.0f)
 
-        // Face direita (olhando para +X)
-        13, 12, 15,
-        15, 14, 13,
-
-        // Face inferior (olhando para -Y)
-        16,17,18,
-        18,19,16,
-
-        // Face superior (olhando para +Y) - invertido
-        23,22,21,
-        21,20,23
     };
 
     unsigned int VBO, VAO, EBO;
@@ -249,12 +193,15 @@ int main()
         // render boxes
         glBindVertexArray(VAO);
 
+        for (int i = 0; i < 3; i++) {
             // calculate the model matrix for each object and pass it to shader before drawing
-           glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-           model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-           ourShader.setMat4("model", model);
+            glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+            model = glm::translate(model, cubePositions[i]);
+            ourShader.setMat4("model", model);
 
-           glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);//36 per block.
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);//36 per block.
+        }
+
            
         
 
@@ -285,6 +232,17 @@ void processInput(GLFWwindow* window)
     }
     else {
         escDown = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if (lDown) return;
+
+        lDown = true;
+        wireframe = !wireframe;
+        glPolygonMode(GL_FRONT_AND_BACK, wireframe ?  GL_FILL : GL_LINE);
+
+    }
+    else {
+        lDown = false;
     }
 
 

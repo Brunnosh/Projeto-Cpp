@@ -1,20 +1,107 @@
 #include "block.h"
-#include <vector>
 
-//ATLAS TEXTURE ORDER ->
-    //DIRT BOTTOM = X( 0-> 1) Y(1 -> 0.9375)
-    //GRASS BLOCK SIDE = 2
-    //GRASS BLOCK TOP = 3
+//declarar blocos
+/*
 
 
-    //                              topx, topy  sidex  sidey   botx   boty
-    //Block("Grass", BlockType::GRASS,  3    ,3 ,  2    , 2     , 1    , 1),
 
-std::vector<Block> blockList = {
- 
-    Block("AIR", BlockType::AIR, 0,0),
-    Block("Grass", BlockType::GRASS,3,3,2,2,1,1),
-    Block("Dirt Block", BlockType::DIRT, 1,1)
-    
+
+
+float block[] = {
+    //TEXTURE COORDS -> BOTTOM LEFT VERTEX = MIN UV \ TOP RIGHT VERTEX -> MAX UV
+
+    // Face frontal
+    -0.5f, -0.5f,  0.5f,  uvGrassSide.uMin, uvGrassSide.vMin,
+     0.5f, -0.5f,  0.5f,  uvGrassSide.uMax, uvGrassSide.vMin,
+     0.5f,  0.5f,  0.5f,  uvGrassSide.uMax, uvGrassSide.vMax,
+    -0.5f,  0.5f,  0.5f,  uvGrassSide.uMin, uvGrassSide.vMax,
+
+
+    // Face traseira
+    -0.5f, -0.5f, -0.5f,  uvGrassSide.uMax, uvGrassSide.vMin,
+     0.5f, -0.5f, -0.5f,  uvGrassSide.uMin, uvGrassSide.vMin,
+     0.5f,  0.5f, -0.5f,  uvGrassSide.uMin, uvGrassSide.vMax,
+    -0.5f,  0.5f, -0.5f,  uvGrassSide.uMax, uvGrassSide.vMax,
+
+
+
+    // Face esquerda
+    -0.5f, -0.5f, -0.5f,  uvGrassSide.uMin, uvGrassSide.vMin,
+    -0.5f, -0.5f,  0.5f,  uvGrassSide.uMax, uvGrassSide.vMin,
+    -0.5f,  0.5f,  0.5f,  uvGrassSide.uMax, uvGrassSide.vMax,
+    -0.5f,  0.5f, -0.5f,  uvGrassSide.uMin, uvGrassSide.vMax,
+
+    // Face direita
+     0.5f, -0.5f, -0.5f,  uvGrassSide.uMax, uvGrassSide.vMin,
+     0.5f, -0.5f,  0.5f,  uvGrassSide.uMin, uvGrassSide.vMin,
+     0.5f,  0.5f,  0.5f,  uvGrassSide.uMin, uvGrassSide.vMax,
+     0.5f,  0.5f, -0.5f,  uvGrassSide.uMax, uvGrassSide.vMax,
+
+     // Face inferior
+     -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+      0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+      0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
+     -0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+
+     // Face superior
+     -0.5f,  0.5f, -0.5f,  uvGrassTop.uMin, uvGrassTop.vMin,
+      0.5f,  0.5f, -0.5f,  uvGrassTop.uMax, uvGrassTop.vMin,
+      0.5f,  0.5f,  0.5f,  uvGrassTop.uMax, uvGrassTop.vMax,
+     -0.5f,  0.5f,  0.5f,  uvGrassTop.uMin, uvGrassTop.vMax
 };
 
+
+      //indices para desenhar as faces CCW
+
+        unsigned int indices[] = {
+        // Face frontal (olhando para +Z)
+        0, 1, 2,
+        2, 3, 0,
+
+        // Face traseira (olhando para -Z) - invertido
+        5,4,7,
+        7,6,5,
+
+        // Face esquerda (olhando para -X) - invertido
+        8, 9, 10,
+        10, 11, 8, 
+
+        // Face direita (olhando para +X)
+        13, 12, 15,
+        15, 14, 13,
+
+        // Face inferior (olhando para -Y)
+        16,17,18,
+        18,19,16,
+
+        // Face superior (olhando para +Y) - invertido
+        23,22,21,
+        21,20,23
+    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/

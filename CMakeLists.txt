@@ -21,6 +21,7 @@ set(SOURCE_FILES
     src/glad.c
     src/camera.cpp
     src/block.cpp
+    src/chunk.cpp
     
 )
 
