@@ -91,10 +91,10 @@ int main()
 
 
         // Face traseira
-        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+        -0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+        -0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
 
 
 
@@ -105,10 +105,10 @@ int main()
         -0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
 
         // Face direita
-         0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
-         0.5f, -0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
-         0.5f,  0.5f,  0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
-         0.5f,  0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+         0.5f, -0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMin,
+         0.5f, -0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
+         0.5f,  0.5f,  0.5f,  uvDirtTop.uMin, uvDirtTop.vMax,
+         0.5f,  0.5f, -0.5f,  uvDirtTop.uMax, uvDirtTop.vMax,
 
          // Face inferior
          -0.5f, -0.5f, -0.5f,  uvDirtTop.uMin, uvDirtTop.vMin,
@@ -131,8 +131,8 @@ int main()
         2, 3, 0,
 
         // Face traseira (olhando para -Z) - invertido
-        4,7,6,
-        6,5,4,
+        5,4,7,
+        7,6,5,
 
         // Face esquerda (olhando para -X) - invertido
         8, 9, 10,
