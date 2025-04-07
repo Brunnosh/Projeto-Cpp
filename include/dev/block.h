@@ -20,19 +20,15 @@ enum class BlockType {
 class Block {
 private:
     BlockType type;
-    bool active;
 
 public:
-    Block(BlockType type, bool active ):type(type), active(active){}
+    Block(BlockType type ):type(type){}
 
     
+    BlockType getType() {
+        return type;
+    }
 
-    bool isActive() {
-        return active;
-    }
-    void setActive(bool state) {
-        active = state;
-    }
         
 
 };

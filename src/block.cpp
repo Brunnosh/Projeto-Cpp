@@ -2,8 +2,8 @@
 #include <vector>
 
 std::vector<Block> Blocks = {
-    Block(BlockType::GRASS, true),
-    Block(BlockType::DIRT, true)
+    Block(BlockType::GRASS),
+    Block(BlockType::DIRT)
 };
 
 

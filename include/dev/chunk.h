@@ -28,7 +28,7 @@ class Chunk {
 public:
 	bool generated;
 	bool ready;
-	std::vector<unsigned short> chunkData; //
+	std::vector<Block> chunkData; //
 
 private:
 	unsigned int VBO, VAO, EBO;

@@ -116,9 +116,7 @@ int main()
 
     Chunk teste;
     teste.genChunk();
-    for (int i = 0; i < teste.chunkData.size(); i++) {
-        std::cout << teste.chunkData[i] << "";
-    }
+
 
 
     // render loop

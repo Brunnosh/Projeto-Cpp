@@ -1,5 +1,7 @@
 #include <chunk.h>
 
+#include <chrono>
+#include <iostream>
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,9 +11,11 @@
 
 void Chunk::genChunk() {
 
+    auto start = std::chrono::high_resolution_clock::now();
+
 	//teste chunk 15x15x15 só de dirt, sem meshing nenhum
     for (int i = 0; i < pow(CHUNKSIZE, 3); i++) {
-        chunkData.push_back(1);
+        chunkData.push_back(Block(BlockType::DIRT));
     }
 
     
@@ -21,13 +25,15 @@ void Chunk::genChunk() {
 		for (int z = 0; z < CHUNKSIZE; z++) {
 			for (int y = 0; y < CHUNKSIZE; y++) {
 
-
                 //escolher bloco no chunkdata[i]
                 int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y;
-                if (chunkData[index] == 0)
+                Block storedBlock = chunkData[index];
+                
+                
+                if (storedBlock.getType() == BlockType::AIR)
                     continue;
 
-                Block storedBlock = Blocks[chunkData[index]];
+                
 
 				//north
 
@@ -132,6 +138,26 @@ void Chunk::genChunk() {
 	}
 
     this->generated = true;
+
+
+    // Fim da medição de tempo
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+    // Estimativa de memória (em bytes)
+    size_t chunkDataMem = chunkData.capacity() * sizeof(uint8_t);
+    size_t verticesMem = vertices.capacity() * sizeof(Vertex);
+    size_t indicesMem = indices.capacity() * sizeof(unsigned int);
+
+    size_t totalMemory = chunkDataMem + verticesMem + indicesMem;
+
+    // Log
+    std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
+    std::cout << "Memoria usada:\n";
+    std::cout << "  chunkData: " << chunkDataMem / 1024.0 << " KB\n";
+    std::cout << "  vertices : " << verticesMem / 1024.0 << " KB\n";
+    std::cout << "  indices  : " << indicesMem / 1024.0 << " KB\n";
+    std::cout << "  Total    : " << totalMemory / 1024.0 << " KB\n";
 }
 
 void Chunk::render(unsigned int modelLoc) {
