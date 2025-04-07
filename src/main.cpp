@@ -13,6 +13,7 @@
 #include <camera.h>
 #include <block.h>
 #include <game.h>
+#include <chunk.h>
 
 #include <iostream>
 
@@ -73,48 +74,7 @@ int main()
     // build shader 
     Shader ourShader("shaders/vertexshader.glsl", "shaders/fragmentshader.glsl");
 
-    //UV 0 (bottom-left) -> 1 (Top-right)
 
-    //dirt bottom -> (0,1) até (0.0625, 0.9375)
-
-    //dir side -> (0.0625, 1) até (0.125, 0.9375)
-
-    //vertex test (all this verices are just one box)
-
-    
-
-    float block[] = {0};
-    float indices[] = { 0 };
-
-    //MAKE CCW DRAWING
-
-
-    glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
-    glm::vec3(1.0f,  0.0f,  0.0f),
-    glm::vec3(2.0f,  0.0f,  0.0f)
-
-    };
-
-    unsigned int VBO, VAO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(block), block, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
 
     // load and create a texture 
@@ -154,7 +114,11 @@ int main()
 
 
 
-    
+    Chunk teste;
+    teste.genChunk();
+    for (int i = 0; i < teste.chunkData.size(); i++) {
+        std::cout << teste.chunkData[i] << "";
+    }
 
 
     // render loop
@@ -189,17 +153,11 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
 
-        // render boxes
-        glBindVertexArray(VAO);
 
-        for (int i = 0; i < 3; i++) {
-            // calculate the model matrix for each object and pass it to shader before drawing
-            glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-            model = glm::translate(model, cubePositions[i]);
-            ourShader.setMat4("model", model);
 
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);//36 per block.
-        }
+        unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+
+        teste.render(modelLoc);
 
            
         
@@ -210,8 +168,7 @@ int main()
     }
 
 
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+
     glfwTerminate();
     return 0;
 }

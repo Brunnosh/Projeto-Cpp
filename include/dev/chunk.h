@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <block.h>
+#include <glad/glad.h>
 
 #define CHUNKSIZE 15
 
@@ -12,7 +13,7 @@ struct Vertex
 	uint8_t X,Y,Z;
 	uint8_t uvX, uvY;
 
-	Vertex(float _posX, float _posY, float _posZ, float _texGridX, float _texGridY)
+	Vertex(uint8_t _posX, uint8_t _posY, uint8_t _posZ, uint8_t _texGridX, uint8_t _texGridY)
 	{
 		X = _posX;
 		Y = _posY;
@@ -25,23 +26,35 @@ struct Vertex
 
 class Chunk {
 public:
-	bool created;
+	bool generated;
 	bool ready;
 	std::vector<unsigned short> chunkData; //
 
 private:
-	unsigned int vob, vao, ebo;
+	unsigned int VBO, VAO, EBO;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
 
 
 public:
-	Chunk(bool created, bool ready): created(false), ready(false){} // AFTER: ADD REAL WORLD POS AND MODEL MATRIX TRANSFORM TO REAL WORLD
-	~Chunk();
+	Chunk(){
+		VAO, VBO, EBO = 0;
+		generated = false;
+		ready = false;
+
+
+
+		
+	} // AFTER: ADD REAL WORLD POS AND MODEL MATRIX TRANSFORM TO REAL WORLD
+	~Chunk() {
+		glDeleteBuffers(1, &VBO);
+		glDeleteBuffers(1, &EBO);
+		glDeleteVertexArrays(1, &VAO);
+	}
 
 	void genChunk();
-	void render();
+	void render(unsigned int modelLoc);
 
 };
 #endif

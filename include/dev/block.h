@@ -14,6 +14,8 @@ enum class BlockType {
 
 
 
+
+
 class Block {
 private:
     BlockType type;
@@ -22,6 +24,7 @@ private:
 public:
     Block(BlockType type, bool active ):type(type), active(active){}
 
+    
 
     bool isActive() {
         return active;
@@ -34,7 +37,7 @@ public:
 };
 
 
-
+extern std::vector<Block> Blocks;
 
 
 
