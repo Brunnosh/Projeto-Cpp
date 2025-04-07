@@ -12,6 +12,7 @@
 #include <dev/shader.h>
 #include <camera.h>
 #include <block.h>
+#include <game.h>
 
 #include <iostream>
 
@@ -179,8 +180,6 @@ int main()
         glBindTexture(GL_TEXTURE_2D, atlas);
 
 
-        // activate shader
-        ourShader.use();
 
         // pass projection matrix to shader (note that in this case it could change every frame)
         glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);

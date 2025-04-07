@@ -22,6 +22,7 @@ set(SOURCE_FILES
     src/camera.cpp
     src/block.cpp
     src/chunk.cpp
+    src/game.cpp
     
 )
 
