@@ -3,18 +3,19 @@
 #include <window.h>
 #include <world.h>
 #include <camera.h>
+#include <chunk.h>
 
 class Game {
 private:
     Window window;
-    World world;
+    World currentWorld;
     Camera camera = (glm::vec3(0.0f, 17.0f, 0.0f)); //CErto seria inicializar a camera quando entrar no mundo, mas agora vou inicializar pora qui mesmo
     
     float lastFrameTime = 0.0f;
 
 private:
-    void tick();
-    void render();
+    //void tick();
+    
 
 public:
     //Storage

@@ -19,11 +19,13 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 set(SOURCE_FILES 
     src/main.cpp
     src/game.cpp
-     
+    src/block.cpp
+    src/chunk.cpp
     src/shader.cpp
     src/window.cpp
     src/glad.c
     src/camera.cpp
+    src/world.cpp
 )
 
 # Criando o executável do projeto

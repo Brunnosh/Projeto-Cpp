@@ -3,6 +3,7 @@
 #include <game.h>
 #include <iostream>
 #include <chrono>
+#include <world.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -40,13 +41,13 @@ bool Game::init() {
 
 
 void Game::run() {
+    //setup
     Game* gameInstance = static_cast<Game*>(glfwGetWindowUserPointer(window.getNativeWindow()));
     
     glfwSetWindowUserPointer(window.getNativeWindow(), this);
-    //setup
     glfwMakeContextCurrent(window.getNativeWindow());
     glfwSetFramebufferSizeCallback(window.getNativeWindow(), framebuffer_size_callback);
-    //glfwSetCursorPosCallback(window.getNativeWindow(), mouse_callback);
+    glfwSetCursorPosCallback(window.getNativeWindow(), mouse_callback);
     glfwSetScrollCallback(window.getNativeWindow(), scroll_callback);
     glfwSetInputMode(window.getNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(VSYNC);
@@ -62,6 +63,8 @@ void Game::run() {
 
 
 
+  
+    
 
    
 
@@ -73,7 +76,7 @@ void Game::run() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-
+        
   
 
         std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
@@ -92,10 +95,16 @@ void Game::run() {
 
 
 
+        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");
+    
+        
+        //teste.render(modelLoc);
 
-
-        //tick(); // Ticking of entities/ blocks
-        render(); // actual world generation
+        //world.update(modelLoc);// actual world generation & rendering
+        //world.tick(); // Ticking of entities/ blocks
+         
         //-------------
         
 
@@ -108,17 +117,7 @@ void Game::run() {
     shutdown();
 }
 
-    //World Updates
-void Game::tick() {
-    // Atualize lógica do mundo ou entrada
 
-}
-
-void Game::render() {
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //world.render(); // 
-}
 
 void Game::shutdown() {
     window.terminate();
