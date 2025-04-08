@@ -1,40 +1,38 @@
-# Definindo o mÃ­nimo requerido do CMake
+# Definindo o mínimo requerido do CMake
 cmake_minimum_required(VERSION 3.10)
 
 # Definindo o nome do projeto
-project(ProjetoCpp)
+project(VoxelGame)
 
-# Definindo a versÃ£o do C++
+# Definindo a versão do C++
 set(CMAKE_CXX_STANDARD 17)
 
-# Definindo o diretÃ³rio de inclusÃ£o
+# Definindo o diretório de inclusão
 include_directories(${PROJECT_SOURCE_DIR}/include/stb)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# Definindo os diretÃ³rios de bibliotecas
+# Definindo os diretórios de bibliotecas
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
-# Definindo os arquivos de cÃ³digo-fonte
+# Definindo os arquivos de código-fonte
 set(SOURCE_FILES 
     src/main.cpp
+    src/game.cpp
+    src/glRenderer.cpp 
+    src/shader.cpp
+    src/window.cpp
     src/glad.c
     src/camera.cpp
-    src/block.cpp
-    src/chunk.cpp
-    src/game.cpp
-    
 )
 
-# Criando o executÃ¡vel do projeto
+# Criando o executável do projeto
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Adicionando as dependÃªncias (GLFW, GLAD)
+# Adicionando as dependências (GLFW, GLAD)
 target_link_libraries(${PROJECT_NAME} glfw3)
 
 add_custom_target(copy_shaders ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:ProjetoCpp>/shaders
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/shaders $<TARGET_FILE_DIR:ProjetoCpp>/shaders
-    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:ProjetoCpp>/assets
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:ProjetoCpp>/assets
+    COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:VoxelGame>/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:VoxelGame>/assets
 )
