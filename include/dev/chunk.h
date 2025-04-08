@@ -10,17 +10,11 @@
 
 struct Vertex
 {
-	uint8_t X,Y,Z;
-	uint8_t uvX, uvY;
+	char X, Y, Z;
+	float uvX, uvY;
 
-	Vertex(uint8_t _posX, uint8_t _posY, uint8_t _posZ, uint8_t _texGridX, uint8_t _texGridY)
-	{
-		X = _posX;
-		Y = _posY;
-		Z = _posZ;
-
-		uvX = _texGridX;
-		uvY = _texGridY;
+	Vertex(char _posX, char _posY, char _posZ, float _texGridX, float _texGridY)
+		: X(_posX), Y(_posY), Z(_posZ), uvX(_texGridX), uvY(_texGridY) {
 	}
 };
 

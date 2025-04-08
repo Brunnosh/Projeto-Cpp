@@ -2,6 +2,10 @@
 #define BLOCK_H
 
 #include <vector>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+
 
 enum class BlockType {
     AIR, // = 0
@@ -11,9 +15,19 @@ enum class BlockType {
     AMOUNT
 };
 
+enum FACE {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST,
+    TOP,
+    BOTTOM
+};
 
-
-
+struct UV {
+    float uMin, vMin;
+    float uMax, vMax;
+};
 
 
 
@@ -22,6 +36,11 @@ private:
     BlockType type;
 
 public:
+    Block() : type(BlockType::AIR) {
+        std::cerr << "[ERRO] Construtor default de Block foi chamado!" << std::endl;
+        throw std::runtime_error("Uso indevido do construtor default de Block.");
+    }
+
     Block(BlockType type ):type(type){}
 
     
@@ -29,12 +48,27 @@ public:
         return type;
     }
 
-        
+    UV computeUV(short position) {
+        float step = 16.0f / 256.0f;
 
+        short index = position - 1;
+        short x = index % 16; // coluna (0 a 15)
+        short y = index / 16; // linha (0 a 15)
+
+        float uMin = x * step;
+        float uMax = (x + 1) * step;
+
+        float vMax = 1.0f - y * step;
+        float vMin = vMax - step;
+
+        return { uMin, vMin, uMax, vMax };
+    }
 };
 
 
-extern std::vector<Block> Blocks;
+extern std::unordered_map<BlockType, Block> Blocks;
+
+extern std::unordered_map<BlockType, std::vector<uint8_t>> blockTextures;
 
 
 
@@ -50,17 +84,7 @@ extern std::vector<Block> Blocks;
 
 //Funcoes para depois
 /*
-UV computeUV(short x, short y) {
-    float step = 16.0f / 256.0f;
 
-    float uMin = (x - 1) * step;
-    float uMax = x * step;
-
-    float vMax = 1.0f - ((y - 1) * step);
-    float vMin = vMax - step;
-
-    return { uMin, vMin, uMax, vMax };
-}
 
 void calculateUVs() {
     faceUVs[BlockFace::TOP] = computeUV(topX, topY);
@@ -72,10 +96,7 @@ void calculateUVs() {
 }
 
 
-struct UV {
-    float uMin, vMin;
-    float uMax, vMax;
-};
+
 
 
 
