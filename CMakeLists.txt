@@ -19,7 +19,7 @@ link_directories(${PROJECT_SOURCE_DIR}/lib)
 set(SOURCE_FILES 
     src/main.cpp
     src/game.cpp
-    src/glRenderer.cpp 
+     
     src/shader.cpp
     src/window.cpp
     src/glad.c

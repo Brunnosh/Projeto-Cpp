@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 
 enum class CameraMovement {
@@ -77,6 +78,7 @@ public:
     void processMouseScroll(float yOffset) {
         fov -= yOffset;
         fov = glm::clamp(fov, 1.0f, 75.0f);
+        
     }
 
     glm::mat4 GetViewMatrix()

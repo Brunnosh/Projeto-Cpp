@@ -37,7 +37,22 @@ bool Window::init(const std::string& title) {
     return true;
 }
 
+bool Window::glInit() {
+    glEnable(GL_DEPTH_TEST);
+    defaultShader = new Shader("assets/shaders/vertexshader.glsl", "assets/shaders/fragmentshader.glsl");
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    return true;
+}
 
+void Window::useShader() {
+    if (defaultShader) {
+        defaultShader->use();
+        
+    }
+}
 
 void Window::pollEvents() {
     glfwPollEvents();
@@ -52,12 +67,20 @@ bool Window::shouldClose() const {
 }
 
 void Window::terminate() {
+
+    delete defaultShader;
+    defaultShader = nullptr;
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 
 GLFWwindow* Window::getNativeWindow() {
     return window;
+}
+
+Shader Window::getShader() {
+    return *defaultShader;
 }
 
 

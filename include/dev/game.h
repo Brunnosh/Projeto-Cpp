@@ -1,17 +1,15 @@
 #pragma once
 
 #include <window.h>
-#include <glRenderer.h>
 #include <world.h>
 #include <camera.h>
 
 class Game {
 private:
     Window window;
-    GLRenderer renderer;
     World world;
     Camera camera = (glm::vec3(0.0f, 17.0f, 0.0f)); //CErto seria inicializar a camera quando entrar no mundo, mas agora vou inicializar pora qui mesmo
-
+    
     float lastFrameTime = 0.0f;
 
 private:
@@ -19,9 +17,15 @@ private:
     void render();
 
 public:
+    //Storage
+    
+
+
     //Control/Timing
     float deltaTime = 0.0f;	// time between current frame and last frame
     float lastFrame = 0.0f;
+    float camLastX = window.WIDHT / 2.0f;
+    float camLastY = window.HEIGHT / 2.0f;
 
     //Keys
     bool escDown = false;
@@ -31,6 +35,7 @@ public:
     bool menu = false;
     bool firstMouse = true;
     bool wireframe = false;
+    bool VSYNC = 1;
 
 public:
     Game();
@@ -40,6 +45,9 @@ public:
     void run();
     void shutdown();
     void processInput();
+    Camera &getCamera();
+    Window &getWindow();
+    void loadAtlas(unsigned int* atlas);
 
 
 
