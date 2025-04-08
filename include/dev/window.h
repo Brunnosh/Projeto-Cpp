@@ -10,7 +10,8 @@ public:
     void swapBuffers();
     bool shouldClose() const;
     void terminate();
-    
+    int WIDHT = 1280;
+    int HEIGHT = 720;
 
     GLFWwindow* getNativeWindow();
 

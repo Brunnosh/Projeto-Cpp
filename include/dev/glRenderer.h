@@ -10,6 +10,8 @@ public:
     void clear();
     void render();
     void shutdown();
+    void useShader();
+    Shader getShader();
 
 private:
     Shader* defaultShader = nullptr;

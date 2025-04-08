@@ -3,8 +3,8 @@
 #include <iostream>
 
 bool Window::init(const std::string& title) {
-    int width = 1280;
-        int height = 720;
+    
+        
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
@@ -20,7 +20,7 @@ bool Window::init(const std::string& title) {
      //width = mode->width;
      //height = mode->height;
 
-    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    window = glfwCreateWindow(WIDHT, HEIGHT, title.c_str(), nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
