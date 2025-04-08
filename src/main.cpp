@@ -1,10 +1,8 @@
-
+#define STB_IMAGE_IMPLEMENTATION
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -17,7 +15,7 @@
 
 #include <iostream>
 
-#define VSYNC 1
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -25,11 +23,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 void initGLAD();
+void loadAtlas(unsigned int * atlas);
 GLFWwindow *initGLFW();
 
 // settings
 const unsigned int SCR_WIDTH = 1280;
 const unsigned int SCR_HEIGHT = 720;
+bool VSYNC = true;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -69,8 +69,6 @@ int main()
     glFrontFace(GL_CCW);
 
 
-
-
     // build shader 
     Shader ourShader("shaders/vertexshader.glsl", "shaders/fragmentshader.glsl");
 
@@ -79,31 +77,8 @@ int main()
 
     // load and create a texture 
     unsigned int atlas;
-    glGenTextures(1, &atlas);
-    glBindTexture(GL_TEXTURE_2D, atlas);
-    // set the texture wrapping parameters
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load("assets/atlas.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
+    loadAtlas(&atlas);
+    
 
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
@@ -288,4 +263,33 @@ GLFWwindow *initGLFW() {
     glfwSwapInterval(VSYNC);
 
     return window;
+}
+
+void loadAtlas(unsigned int * atlas) {
+
+    glGenTextures(1, atlas);
+    glBindTexture(GL_TEXTURE_2D, *atlas);
+    // set the texture wrapping parameters
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data = stbi_load("assets/atlas.png", &width, &height, &nrChannels, 0);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
 }
