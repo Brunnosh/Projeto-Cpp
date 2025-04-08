@@ -9,7 +9,7 @@
 
 #include <dev/shader.h>
 #include <camera.h>
-#include <block.h>
+
 #include <game.h>
 #include <chunk.h>
 

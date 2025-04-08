@@ -22,13 +22,19 @@ bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
 
 void Chunk::genChunk() {
 
+    initBlockUVs(); // TIRAR ISSO DAQUI DEPOIS, SENÃO VAI SER CHAMADO A CADA CHUNK NOVO!!!!!!!!!!!!!!!!!!!!
+
     auto start = std::chrono::high_resolution_clock::now();
 
-	//teste chunk 15x15x15 só de dirt, sem meshing nenhum
+	//teste chunk 15x15x15 solido
     for (int i = 0; i < pow(CHUNKSIZE, 3); i++) {
         chunkData.push_back(Blocks[BlockType::GRASS]);
     }
 
+    std::cout << blockUVs[BlockType::GRASS][FACE::NORTH].uMin << "";
+    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].uMax << "";
+    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].vMin << "";
+    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].vMax << "";
     
 
     unsigned int currentVertex = 0;
@@ -50,6 +56,7 @@ void Chunk::genChunk() {
                 uint8_t northFace = blockTextures[storedBlock.getType()][FACE::NORTH];
                 UV northFaceUV = storedBlock.computeUV(northFace);
                 
+                //northFaceUV = 
 
 				//north
                 if (isAirAt(x, y, z - 1, &chunkData)) {

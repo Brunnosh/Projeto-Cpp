@@ -3,19 +3,20 @@
 
 #include <vector>
 #include <unordered_map>
+
 #include <stdexcept>
 #include <iostream>
 
 
 enum class BlockType {
-    AIR, // = 0
+    AIR = 0, 
     GRASS,
     DIRT,
     
     AMOUNT
 };
 
-enum FACE {
+enum FACE { //order used for texture index in chunk.cpp/block.cpp
     NORTH,
     SOUTH,
     EAST,
@@ -36,17 +37,20 @@ private:
     BlockType type;
 
 public:
+
     Block() : type(BlockType::AIR) {
         std::cerr << "[ERRO] Construtor default de Block foi chamado!" << std::endl;
         throw std::runtime_error("Uso indevido do construtor default de Block.");
     }
 
-    Block(BlockType type ):type(type){}
+    Block(BlockType type) :type(type) {  }
 
     
     BlockType getType() {
         return type;
     }
+
+
 
     UV computeUV(short position) {
         float step = 16.0f / 256.0f;
@@ -63,15 +67,19 @@ public:
 
         return { uMin, vMin, uMax, vMax };
     }
-};
 
+     
+
+
+};
 
 extern std::unordered_map<BlockType, Block> Blocks;
 
 extern std::unordered_map<BlockType, std::vector<uint8_t>> blockTextures;
 
+extern std::unordered_map<BlockType, std::vector<UV>> blockUVs;
 
-
+void initBlockUVs();
 //ATLAS TEXTURE ORDER ->
     //DIRT BOTTOM = X( 0-> 1) Y(1 -> 0.9375)
     //GRASS BLOCK SIDE = 2
