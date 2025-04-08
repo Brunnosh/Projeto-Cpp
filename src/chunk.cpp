@@ -31,10 +31,6 @@ void Chunk::genChunk() {
         chunkData.push_back(Blocks[BlockType::GRASS]);
     }
 
-    std::cout << blockUVs[BlockType::GRASS][FACE::NORTH].uMin << "";
-    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].uMax << "";
-    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].vMin << "";
-    //std::cout << blockUVS[BlockType::GRASS][FACE::NORTH].vMax << "";
     
 
     unsigned int currentVertex = 0;
@@ -50,20 +46,26 @@ void Chunk::genChunk() {
                 if (storedBlock.getType() == BlockType::AIR)
                     continue;
 
-
-
-
-                uint8_t northFace = blockTextures[storedBlock.getType()][FACE::NORTH];
-                UV northFaceUV = storedBlock.computeUV(northFace);
                 
-                //northFaceUV = 
 
 				//north
                 if (isAirAt(x, y, z - 1, &chunkData)) {
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, northFaceUV.uMax, northFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, northFaceUV.uMin, northFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, northFaceUV.uMin, northFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, northFaceUV.uMax, northFaceUV.vMax));
+
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, 
+                        blockUVs[BlockType::GRASS][FACE::NORTH].uMax,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].vMin));
+
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, 
+                        blockUVs[BlockType::GRASS][FACE::NORTH].uMin,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].vMin));
+
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].uMin,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].vMax));
+
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].uMax,
+                        blockUVs[BlockType::GRASS][FACE::NORTH].vMax));
 
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 0);
@@ -80,15 +82,14 @@ void Chunk::genChunk() {
 				//south
                 if(isAirAt(x,y,z+1,&chunkData)){
 
-                    uint8_t southFace = blockTextures[storedBlock.getType()][FACE::SOUTH];
-                    UV southFaceUV = storedBlock.computeUV(southFace);
 
 
+                    
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, southFaceUV.uMin, southFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, southFaceUV.uMax, southFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, southFaceUV.uMax, southFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, southFaceUV.uMin, southFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMin, blockUVs[BlockType::GRASS][FACE::SOUTH].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMax, blockUVs[BlockType::GRASS][FACE::SOUTH].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMax, blockUVs[BlockType::GRASS][FACE::SOUTH].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMin, blockUVs[BlockType::GRASS][FACE::SOUTH].vMax));
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 2);
@@ -101,13 +102,12 @@ void Chunk::genChunk() {
 
 				//east
                 if (isAirAt(x + 1, y, z, &chunkData)) {
-                    uint8_t eastFace = blockTextures[storedBlock.getType()][FACE::EAST];
-                    UV eastFaceUV = storedBlock.computeUV(eastFace);
+                    
 
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, eastFaceUV.uMax, eastFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, eastFaceUV.uMin, eastFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, eastFaceUV.uMin, eastFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, eastFaceUV.uMax, eastFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::EAST].uMax, blockUVs[BlockType::GRASS][FACE::EAST].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::EAST].uMin, blockUVs[BlockType::GRASS][FACE::EAST].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::EAST].uMin, blockUVs[BlockType::GRASS][FACE::EAST].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::EAST].uMax, blockUVs[BlockType::GRASS][FACE::EAST].vMax));
 
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 0);
@@ -123,14 +123,13 @@ void Chunk::genChunk() {
 				//west
 
                 if (isAirAt(x - 1, y, z, &chunkData)) {
-                    uint8_t westFace = blockTextures[storedBlock.getType()][FACE::WEST];
-                    UV westFaceUV = storedBlock.computeUV(westFace);
 
+                    
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, westFaceUV.uMin, westFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, westFaceUV.uMax, westFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, westFaceUV.uMax, westFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, westFaceUV.uMin, westFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::WEST].uMin, blockUVs[BlockType::GRASS][FACE::WEST].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::WEST].uMax, blockUVs[BlockType::GRASS][FACE::WEST].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::WEST].uMax, blockUVs[BlockType::GRASS][FACE::WEST].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::WEST].uMin, blockUVs[BlockType::GRASS][FACE::WEST].vMax));
 
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
@@ -146,15 +145,13 @@ void Chunk::genChunk() {
                 //top
                 if(isAirAt(x,y+1,z,&chunkData))
                 {
-                    uint8_t topFace = blockTextures[storedBlock.getType()][FACE::TOP];
-                    UV topFaceUV = storedBlock.computeUV(topFace);
+                    
 
 
-
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, topFaceUV.uMin, topFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, topFaceUV.uMax, topFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, topFaceUV.uMax, topFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, topFaceUV.uMin, topFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::TOP].uMin, blockUVs[BlockType::GRASS][FACE::TOP].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::TOP].uMax, blockUVs[BlockType::GRASS][FACE::TOP].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::TOP].uMax, blockUVs[BlockType::GRASS][FACE::TOP].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::TOP].uMin, blockUVs[BlockType::GRASS][FACE::TOP].vMin));
 
                     indices.push_back(currentVertex + 3);
                     indices.push_back(currentVertex + 2);
@@ -170,14 +167,12 @@ void Chunk::genChunk() {
 
 				//bottom
                 if (isAirAt(x, y - 1, z, & chunkData)) {
-                    uint8_t bottomFace = blockTextures[storedBlock.getType()][FACE::BOTTOM];
-                    UV bottomFaceUV = storedBlock.computeUV(bottomFace);
+                    
 
-
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, bottomFaceUV.uMin, bottomFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, bottomFaceUV.uMax, bottomFaceUV.vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, bottomFaceUV.uMax, bottomFaceUV.vMax));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, bottomFaceUV.uMin, bottomFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMin, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMax, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMax, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMin, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMax));
 
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
