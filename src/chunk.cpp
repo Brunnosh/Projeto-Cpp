@@ -7,7 +7,18 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
+    if (x < 0 || x >= CHUNKSIZE ||y < 0 || y >= CHUNKSIZE ||z < 0 || z >= CHUNKSIZE) 
+    {
+        // Futuramente: consultar chunk vizinho aqui
+        return true; // fora do chunk = renderiza face
+    }
 
+    int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y; //posicao do chunk "alterada"
+    //checar se index é air retornar true
+    return (*chunkData)[index].getType() == BlockType::AIR;
+
+}
 
 void Chunk::genChunk() {
 
@@ -34,124 +45,143 @@ void Chunk::genChunk() {
                     continue;
 
 
+
+
                 uint8_t northFace = blockTextures[storedBlock.getType()][FACE::NORTH];
                 UV northFaceUV = storedBlock.computeUV(northFace);
                 
 
 				//north
+                if (isAirAt(x, y, z - 1, &chunkData)) {
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, northFaceUV.uMax, northFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, northFaceUV.uMin, northFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, northFaceUV.uMin, northFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, northFaceUV.uMax, northFaceUV.vMax));
 
-				vertices.push_back(Vertex(x + 0, y + 0, z + 0, northFaceUV.uMax, northFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 0, z + 0, northFaceUV.uMin, northFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 0, northFaceUV.uMin, northFaceUV.vMax));
-                vertices.push_back(Vertex(x + 0, y + 1, z + 0, northFaceUV.uMax, northFaceUV.vMax));
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 1);
+                    currentVertex += 4;
+                }
 
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 1);
-                currentVertex += 4;
+
                
 
 				//south
+                if(isAirAt(x,y,z+1,&chunkData)){
 
-                uint8_t southFace = blockTextures[storedBlock.getType()][FACE::SOUTH];
-                UV southFaceUV = storedBlock.computeUV(southFace);
+                    uint8_t southFace = blockTextures[storedBlock.getType()][FACE::SOUTH];
+                    UV southFaceUV = storedBlock.computeUV(southFace);
 
 
 
-                vertices.push_back(Vertex(x + 0, y + 0, z + 1, southFaceUV.uMin, southFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 0, z + 1, southFaceUV.uMax, southFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 1, southFaceUV.uMax, southFaceUV.vMax));
-                vertices.push_back(Vertex(x + 0, y + 1, z + 1, southFaceUV.uMin, southFaceUV.vMax));
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 0);
-                currentVertex += 4;
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, southFaceUV.uMin, southFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, southFaceUV.uMax, southFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, southFaceUV.uMax, southFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, southFaceUV.uMin, southFaceUV.vMax));
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 0);
+                    currentVertex += 4;
+                }
+                
 
 				//east
+                if (isAirAt(x + 1, y, z, &chunkData)) {
+                    uint8_t eastFace = blockTextures[storedBlock.getType()][FACE::EAST];
+                    UV eastFaceUV = storedBlock.computeUV(eastFace);
 
-                uint8_t eastFace = blockTextures[storedBlock.getType()][FACE::EAST];
-                UV eastFaceUV = storedBlock.computeUV(eastFace);
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, eastFaceUV.uMax, eastFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, eastFaceUV.uMin, eastFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, eastFaceUV.uMin, eastFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, eastFaceUV.uMax, eastFaceUV.vMax));
 
-                vertices.push_back(Vertex(x + 1, y + 0, z + 0, eastFaceUV.uMax, eastFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 0, z + 1, eastFaceUV.uMin, eastFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 1, eastFaceUV.uMin, eastFaceUV.vMax));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 0, eastFaceUV.uMax, eastFaceUV.vMax));
- 
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 1);
-                currentVertex += 4;
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 1);
+                    currentVertex += 4;
 
+                }
+                
 
 				//west
 
-                uint8_t westFace = blockTextures[storedBlock.getType()][FACE::WEST];
-                UV westFaceUV = storedBlock.computeUV(westFace);
+                if (isAirAt(x - 1, y, z, &chunkData)) {
+                    uint8_t westFace = blockTextures[storedBlock.getType()][FACE::WEST];
+                    UV westFaceUV = storedBlock.computeUV(westFace);
 
 
-                vertices.push_back(Vertex(x + 0, y + 0, z + 0, westFaceUV.uMin, westFaceUV.vMin));
-                vertices.push_back(Vertex(x + 0, y + 0, z + 1, westFaceUV.uMax, westFaceUV.vMin));
-                vertices.push_back(Vertex(x + 0, y + 1, z + 1, westFaceUV.uMax, westFaceUV.vMax));
-                vertices.push_back(Vertex(x + 0, y + 1, z + 0, westFaceUV.uMin, westFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, westFaceUV.uMin, westFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, westFaceUV.uMax, westFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, westFaceUV.uMax, westFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, westFaceUV.uMin, westFaceUV.vMax));
 
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 0);
-                currentVertex += 4;
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 0);
+                    currentVertex += 4;
 
-
-                //top
-
-                uint8_t topFace = blockTextures[storedBlock.getType()][FACE::TOP];
-                UV topFaceUV = storedBlock.computeUV(topFace);
-
+                }
                 
 
-                vertices.push_back(Vertex(x + 0, y + 1, z + 0, topFaceUV.uMin, topFaceUV.vMax));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 0, topFaceUV.uMax, topFaceUV.vMax));
-                vertices.push_back(Vertex(x + 1, y + 1, z + 1, topFaceUV.uMax, topFaceUV.vMin));
-                vertices.push_back(Vertex(x + 0, y + 1, z + 1, topFaceUV.uMin, topFaceUV.vMin));
+                //top
+                if(isAirAt(x,y+1,z,&chunkData))
+                {
+                    uint8_t topFace = blockTextures[storedBlock.getType()][FACE::TOP];
+                    UV topFaceUV = storedBlock.computeUV(topFace);
 
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 3);
-                currentVertex += 4;
+
+
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, topFaceUV.uMin, topFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, topFaceUV.uMax, topFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, topFaceUV.uMax, topFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, topFaceUV.uMin, topFaceUV.vMin));
+
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 3);
+                    currentVertex += 4;
+                }
+
+
 
 
 				//bottom
+                if (isAirAt(x, y - 1, z, & chunkData)) {
+                    uint8_t bottomFace = blockTextures[storedBlock.getType()][FACE::BOTTOM];
+                    UV bottomFaceUV = storedBlock.computeUV(bottomFace);
 
-                uint8_t bottomFace = blockTextures[storedBlock.getType()][FACE::BOTTOM];
-                UV bottomFaceUV = storedBlock.computeUV(bottomFace);
 
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, bottomFaceUV.uMin, bottomFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, bottomFaceUV.uMax, bottomFaceUV.vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, bottomFaceUV.uMax, bottomFaceUV.vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, bottomFaceUV.uMin, bottomFaceUV.vMax));
 
-                vertices.push_back(Vertex(x + 0, y + 0, z + 0, bottomFaceUV.uMin, bottomFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 0, z + 0, bottomFaceUV.uMax, bottomFaceUV.vMin));
-                vertices.push_back(Vertex(x + 1, y + 0, z + 1, bottomFaceUV.uMax, bottomFaceUV.vMax));
-                vertices.push_back(Vertex(x + 0, y + 0, z + 1, bottomFaceUV.uMin, bottomFaceUV.vMax));
+                    indices.push_back(currentVertex + 0);
+                    indices.push_back(currentVertex + 1);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 2);
+                    indices.push_back(currentVertex + 3);
+                    indices.push_back(currentVertex + 0);
+                    currentVertex += 4;
 
-                indices.push_back(currentVertex + 0);
-                indices.push_back(currentVertex + 1);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 2);
-                indices.push_back(currentVertex + 3);
-                indices.push_back(currentVertex + 0);
-                currentVertex += 4;
-
+                }
+                
 
 			}
 		}

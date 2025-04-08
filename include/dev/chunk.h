@@ -47,6 +47,8 @@ public:
 		glDeleteVertexArrays(1, &VAO);
 	}
 
+
+	bool isAirAt(int x, int y, int z, std::vector<Block>* chunkData);
 	void genChunk();
 	void render(unsigned int modelLoc);
 
