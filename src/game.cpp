@@ -4,6 +4,7 @@
 #include <iostream>
 #include <chrono>
 #include <world.h>
+#include <chunk.h>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -62,9 +63,9 @@ void Game::run() {
     window.getShader().setInt("atlas", 0);
 
 
-
-  
-    
+                    //Size(X-Z) Height(Y)
+    World mundoTeste(512,        15);
+    this->currentWorld = &mundoTeste;
 
    
 
@@ -100,9 +101,9 @@ void Game::run() {
         unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");
     
         
-        //teste.render(modelLoc);
+       
 
-        //world.update(modelLoc);// actual world generation & rendering
+        mundoTeste.update(camera, modelLoc);// actual world generation & rendering
         //world.tick(); // Ticking of entities/ blocks
          
         //-------------

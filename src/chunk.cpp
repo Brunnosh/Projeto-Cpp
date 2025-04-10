@@ -7,6 +7,12 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+Chunk::Chunk(glm::ivec3 pos) {
+    worldPos = pos;
+    generated = false;
+    ready = false;
+}
+
 bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
     if (x < 0 || x >= CHUNKSIZE ||y < 0 || y >= CHUNKSIZE ||z < 0 || z >= CHUNKSIZE) 
     {
@@ -246,7 +252,7 @@ void Chunk::render(unsigned int modelLoc) {
     glBindVertexArray(VAO);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0, 0, 0)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
+    model = glm::translate(model, glm::vec3(worldPos)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);

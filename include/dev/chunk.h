@@ -4,6 +4,7 @@
 #include <vector>
 #include <block.h>
 #include <glad/glad.h>
+#include <glm/glm.hpp>
 
 #define CHUNKSIZE 15
 
@@ -22,7 +23,8 @@ class Chunk {
 public:
 	bool generated;
 	bool ready;
-	std::vector<Block> chunkData; //
+	std::vector<Block> chunkData; 
+	glm::ivec3 worldPos; // ivec -> chunk pos vai ser em incrementos de 15, (0,0) (15,15,15) (30,30,30).. etc
 
 private:
 	unsigned int VBO, VAO, EBO;
@@ -32,15 +34,7 @@ private:
 
 
 public:
-	Chunk(){
-		VAO, VBO, EBO = 0;
-		generated = false;
-		ready = false;
-
-
-
-		
-	} // AFTER: ADD REAL WORLD POS AND MODEL MATRIX TRANSFORM TO REAL WORLD
+	Chunk(glm::ivec3 pos); // AFTER: ADD REAL WORLD POS AND MODEL MATRIX TRANSFORM TO REAL WORLD
 	~Chunk() {
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);

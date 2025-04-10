@@ -8,7 +8,7 @@
 class Game {
 private:
     Window window;
-    World currentWorld;
+    World *currentWorld;
     Camera camera = (glm::vec3(0.0f, 17.0f, 0.0f)); //CErto seria inicializar a camera quando entrar no mundo, mas agora vou inicializar pora qui mesmo
     
     float lastFrameTime = 0.0f;

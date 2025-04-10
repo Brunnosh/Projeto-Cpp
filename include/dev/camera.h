@@ -86,6 +86,11 @@ public:
         return glm::lookAt(position, position + front, up);
     }
 
+
+    glm::vec3 getCamPos() {
+        return position;
+    }
+
 private:
     void updateVectors() {
         glm::vec3 newFront;
