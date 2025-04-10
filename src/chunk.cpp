@@ -28,7 +28,7 @@ bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
 
 void Chunk::genChunk() {
 
-    initBlockUVs(); // TIRAR ISSO DAQUI DEPOIS, SENÃO VAI SER CHAMADO A CADA CHUNK NOVO!!!!!!!!!!!!!!!!!!!!
+
 
     auto start = std::chrono::high_resolution_clock::now();
 

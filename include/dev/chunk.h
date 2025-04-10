@@ -34,7 +34,7 @@ private:
 
 
 public:
-	Chunk(glm::ivec3 pos); // AFTER: ADD REAL WORLD POS AND MODEL MATRIX TRANSFORM TO REAL WORLD
+	Chunk(glm::ivec3 pos); 
 	~Chunk() {
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);

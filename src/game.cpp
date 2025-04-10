@@ -61,14 +61,14 @@ void Game::run() {
     //usar shader
     window.useShader();
     window.getShader().setInt("atlas", 0);
+    initBlockUVs();
+
+                    
+    World mundoTeste(camera);
+    this->currentWorld = &mundoTeste; //carregar mundo do arquivo e carregas as infos na classe.
 
 
-                    //Size(X-Z) Height(Y)
-    World mundoTeste(512,        15);
-    this->currentWorld = &mundoTeste;
-
-
-    std::cout << mundoTeste.maxHeight << " ";
+    
    
 
     //OpenGL Loop
@@ -82,7 +82,7 @@ void Game::run() {
         
   
 
-        //std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
+        std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
         processInput();
         
         //------------------------
@@ -105,7 +105,7 @@ void Game::run() {
         
        
 
-        mundoTeste.update(camera, modelLoc);// actual world generation & rendering
+        mundoTeste.update(camera,deltaTime, modelLoc);// actual world generation & rendering
         //world.tick(); // Ticking of entities/ blocks
          
         //-------------
