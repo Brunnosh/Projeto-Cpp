@@ -67,6 +67,8 @@ void Game::run() {
     World mundoTeste(512,        15);
     this->currentWorld = &mundoTeste;
 
+
+    std::cout << mundoTeste.maxHeight << " ";
    
 
     //OpenGL Loop
@@ -80,7 +82,7 @@ void Game::run() {
         
   
 
-        std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
+        //std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
         processInput();
         
         //------------------------

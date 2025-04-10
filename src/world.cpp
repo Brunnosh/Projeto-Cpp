@@ -1,7 +1,12 @@
 #include <world.h>
 
-World::World(float maxSize, float maxHeight): maxSize(maxSize), maxHeight(maxHeight) {
+World::World(Camera& camera,int maxSize, int maxHeight){
+	this->maxSize = maxSize;
+	this->maxHeight = maxHeight;
+	this->lastPlayerPos = glm::vec3(0.0f, 0.0f, 0.0f);
 
+
+	camera.position = lastPlayerPos;
 }
 
 
