@@ -7,7 +7,8 @@ project(VoxelGame)
 # Definindo a versão do C++
 set(CMAKE_CXX_STANDARD 17)
 
-# Definindo o diretório de inclusão
+# Definindo o diretório de inclusão\
+include_directories(${PROJECT_SOURCE_DIR}/include/imgui)
 include_directories(${PROJECT_SOURCE_DIR}/include/stb)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev)
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -16,17 +17,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 
 # Definindo os arquivos de código-fonte
-set(SOURCE_FILES 
-    src/main.cpp
-    src/game.cpp
-    src/block.cpp
-    src/chunk.cpp
-    src/shader.cpp
-    src/window.cpp
-    src/glad.c
-    src/camera.cpp
-    src/world.cpp
-    src/player.cpp
+file(GLOB_RECURSE SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/src/*.cpp
+    ${PROJECT_SOURCE_DIR}/src/*.c
 )
 
 # Criando o executável do projeto
