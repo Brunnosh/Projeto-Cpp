@@ -58,20 +58,20 @@ void Chunk::genChunk() {
                 if (isAirAt(x, y, z - 1, &chunkData)) {
 
                     vertices.push_back(Vertex(x + 0, y + 0, z + 0, 
-                        blockUVs[BlockType::GRASS][FACE::NORTH].uMax,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].vMin));
+                        blockUVs[storedBlock.getType()][FACE::NORTH].uMax,
+                        blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
 
                     vertices.push_back(Vertex(x + 1, y + 0, z + 0, 
-                        blockUVs[BlockType::GRASS][FACE::NORTH].uMin,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].vMin));
+                        blockUVs[storedBlock.getType()][FACE::NORTH].uMin,
+                        blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
 
                     vertices.push_back(Vertex(x + 1, y + 1, z + 0,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].uMin,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].vMax));
+                        blockUVs[storedBlock.getType()][FACE::NORTH].uMin,
+                        blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
 
                     vertices.push_back(Vertex(x + 0, y + 1, z + 0,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].uMax,
-                        blockUVs[BlockType::GRASS][FACE::NORTH].vMax));
+                        blockUVs[storedBlock.getType()][FACE::NORTH].uMax,
+                        blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
 
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 0);
@@ -92,10 +92,10 @@ void Chunk::genChunk() {
 
                     
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMin, blockUVs[BlockType::GRASS][FACE::SOUTH].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMax, blockUVs[BlockType::GRASS][FACE::SOUTH].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMax, blockUVs[BlockType::GRASS][FACE::SOUTH].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::SOUTH].uMin, blockUVs[BlockType::GRASS][FACE::SOUTH].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 2);
@@ -110,10 +110,10 @@ void Chunk::genChunk() {
                 if (isAirAt(x + 1, y, z, &chunkData)) {
                     
 
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::EAST].uMax, blockUVs[BlockType::GRASS][FACE::EAST].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::EAST].uMin, blockUVs[BlockType::GRASS][FACE::EAST].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::EAST].uMin, blockUVs[BlockType::GRASS][FACE::EAST].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::EAST].uMax, blockUVs[BlockType::GRASS][FACE::EAST].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
 
                     indices.push_back(currentVertex + 1);
                     indices.push_back(currentVertex + 0);
@@ -132,10 +132,10 @@ void Chunk::genChunk() {
 
                     
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::WEST].uMin, blockUVs[BlockType::GRASS][FACE::WEST].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::WEST].uMax, blockUVs[BlockType::GRASS][FACE::WEST].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::WEST].uMax, blockUVs[BlockType::GRASS][FACE::WEST].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::WEST].uMin, blockUVs[BlockType::GRASS][FACE::WEST].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
 
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
@@ -154,10 +154,10 @@ void Chunk::genChunk() {
                     
 
 
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::TOP].uMin, blockUVs[BlockType::GRASS][FACE::TOP].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[BlockType::GRASS][FACE::TOP].uMax, blockUVs[BlockType::GRASS][FACE::TOP].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::TOP].uMax, blockUVs[BlockType::GRASS][FACE::TOP].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[BlockType::GRASS][FACE::TOP].uMin, blockUVs[BlockType::GRASS][FACE::TOP].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
+                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
+                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
 
                     indices.push_back(currentVertex + 3);
                     indices.push_back(currentVertex + 2);
@@ -175,10 +175,10 @@ void Chunk::genChunk() {
                 if (isAirAt(x, y - 1, z, & chunkData)) {
                     
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMin, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMax, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMax, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[BlockType::GRASS][FACE::BOTTOM].uMin, blockUVs[BlockType::GRASS][FACE::BOTTOM].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
+                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
+                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
 
                     indices.push_back(currentVertex + 0);
                     indices.push_back(currentVertex + 1);
@@ -215,6 +215,13 @@ void Chunk::genChunk() {
     std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
     std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
+
+
+
+
+
+
+
 
 void Chunk::render(unsigned int modelLoc) {
 

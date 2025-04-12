@@ -52,7 +52,7 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 		}
 	}
 
-	int chunksPerFrame = 2;
+	int chunksPerFrame = 4;
 
 	int generated = 0;
 	while (!chunkQueue.empty() && generated < chunksPerFrame) {
