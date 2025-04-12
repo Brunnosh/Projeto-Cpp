@@ -25,12 +25,12 @@ private:
 public:
 	std::vector<glm::ivec3> chunkQueue;
 	glm::vec3 lastPlayerPos; // por enquanto vai ser sempre 0,0 (especificado no construtor) , mas quando tiver mundo persistente ler isso do arqivo
-	short renderDist;
+	short renderDist; //chunks
 private:
 	
 
 public:
-	// update chama checkplayer pos, se estiver num chunk não gerado, gerar e renderizar chunk.
+	
 	
 	World(Camera & camera);
 

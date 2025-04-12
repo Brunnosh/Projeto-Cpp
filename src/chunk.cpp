@@ -211,12 +211,9 @@ void Chunk::genChunk() {
     size_t totalMemory = chunkDataMem + verticesMem + indicesMem;
 
     // Log
+    std::cout << "Chunk (X : " << worldPos.x << ", Y: " << worldPos.y << ", Z: " << worldPos.z << ")" << " \n";
     std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
-    std::cout << "Memoria usada:\n";
-    std::cout << "  chunkData: " << chunkDataMem / 1024.0 << " KB\n";
-    std::cout << "  vertices : " << verticesMem / 1024.0 << " KB\n";
-    std::cout << "  indices  : " << indicesMem / 1024.0 << " KB\n";
-    std::cout << "  Total    : " << totalMemory / 1024.0 << " KB\n";
+    std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
 
 void Chunk::render(unsigned int modelLoc) {
@@ -245,9 +242,10 @@ void Chunk::render(unsigned int modelLoc) {
 
             ready = true;
         }
+        
         return;
     }
-
+   
     size_t numberVertexes = indices.size();
     glBindVertexArray(VAO);
 

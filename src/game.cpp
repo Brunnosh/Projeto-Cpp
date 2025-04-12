@@ -82,14 +82,14 @@ void Game::run() {
         
   
 
-        std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
+        //std::cout << "X: " << camera.position.x << "\n Z: " << camera.position.z << " ";
         processInput();
         
         //------------------------
 
         //Render
         
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 100.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 10000.0f);
         window.getShader().setMat4("projection", projection);
 
         // camera/view transformation
@@ -103,8 +103,7 @@ void Game::run() {
         unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");
     
         
-       
-
+      
         mundoTeste.update(camera,deltaTime, modelLoc);// actual world generation & rendering
         //world.tick(); // Ticking of entities/ blocks
          
