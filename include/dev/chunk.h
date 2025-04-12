@@ -55,8 +55,8 @@ public:
 
 
 	bool isAirAt(int x, int y, int z, std::vector<Block>* chunkData);
-	void genChunk();
+	void genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
 	void render(unsigned int modelLoc);
-
+	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
 };
 #endif

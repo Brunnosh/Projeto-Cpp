@@ -16,6 +16,7 @@ Chunk::Chunk(glm::ivec3 pos) {
     worldPos = pos;
     generated = false;
     ready = false;
+    chunkData = populateChunk(pos);
 }
 
 bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
@@ -31,19 +32,44 @@ bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
 
 }
 
-void Chunk::genChunk() {
+
+//NAO MODIFICAR ESSE WORLDDATA EM HIPÓTESE ALGUMA SEM IMPLEMENTAR MUTEX---V
+void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &WorldData) {
 
 
 
     auto start = std::chrono::high_resolution_clock::now();
 
-	//teste chunk 15x15x15 solido
-    for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
-        chunkData.push_back(Blocks[BlockType::GRASS]);
-    }
 
-    //bool inWorld = WorldData.find(coords chunk) != WorldData.end();
+
+    glm::ivec3 thisChunk = this->worldPos;
+
+    glm::ivec3 northChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z - 1);
+    glm::ivec3 southChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z + 1);
+    glm::ivec3 eastChunkPos = glm::ivec3(thisChunk.x + 1, thisChunk.y, thisChunk.z );
+    glm::ivec3 westChunkPos = glm::ivec3(thisChunk.x -1, thisChunk.y, thisChunk.z);
+
+    //CHunk de cima e baixo por enquanto sem implementar
+    // futuramente quem vai decidir os blocos vai ser a geracao randomizada o mundo, ou seja, se eu fizer agora vai ser tudo vazio, pq se eu criar um chunk hipotetico a mais no Y, nada vai ser renderizado.
+    //glm::ivec3 topChunkPos = glm::ivec3(thisChunk.x, thisChunk.y + 1, thisChunk.z);
+    //glm::ivec3 botChunkPos = glm::ivec3(thisChunk.x, thisChunk.y -1, thisChunk.z);
+
     
+    std::vector<Block> northChunk;
+
+
+    if (WorldData.find(northChunkPos) != WorldData.end()) {
+
+    }
+    if (WorldData.find(southChunkPos) != WorldData.end()) {
+
+    }
+    if (WorldData.find(eastChunkPos) != WorldData.end()) {
+
+    }
+    if (WorldData.find(westChunkPos) != WorldData.end()) {
+
+    }
 
     unsigned int currentVertex = 0;
 	for (char x = 0; x < CHUNKSIZE; x++) {
@@ -160,6 +186,21 @@ void Chunk::render(unsigned int modelLoc) {
 
     glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);
 }
+
+
+std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
+    //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
+    std::vector<Block> tempVec;
+    //teste chunk 15x15x15 solido
+    for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
+        tempVec.push_back(Blocks[BlockType::GRASS]);
+    }
+
+
+    return tempVec;
+}
+
+
 
 void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock) {
 
