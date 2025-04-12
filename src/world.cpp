@@ -5,7 +5,7 @@ float saveTimer = 0.0f;
 float saveFrequency = 30.0f;
 
 World::World(Camera& camera){
-	this->lastPlayerPos = glm::vec3(0.0f, 17.0f, 0.0f); // no futuro ler do arquvi do mundo
+	this->lastPlayerPos = glm::vec3(0.0f, 62.0f, 0.0f); // no futuro ler do arquvi do mundo
 	
 
 	camera.position = lastPlayerPos;
@@ -30,25 +30,27 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 	//pegar XYZ do chunk onde player está
 	
 	glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
-	playerChunkPos.y -= 1;
+	playerChunkPos.y  = 0;
 
-	//gerar todos os Y primeiro
+	
 	for (int x = -camera.renderDist; x <= camera.renderDist; x++)
 	{
-		for (int y = 0; y <= 0; y++) 
+		for  (int z = -camera.renderDist; z <= camera.renderDist; z++)
 		{
-			for (int z = -camera.renderDist; z <= camera.renderDist; z++)
+			for (int y = 0; y <= 10; y++)
 			{
-
+				//position of chunk on the render distance loop
 				glm::ivec3 offset(x, y, z);
+
+				//translation of chunk pos from render distance loop to actual world position using player position.
 				glm::ivec3 chunkWorldPos = playerChunkPos + offset;
-				
+
 
 
 				bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
 				bool alreadyQueued = chunkRequested.find(chunkWorldPos) != chunkRequested.end();
 
-				if (!inWorld && !alreadyQueued) {
+				if (!inWorld && !alreadyQueued && y <4) {
 					chunkQueue.push_back(chunkWorldPos);
 					chunkRequested.insert(chunkWorldPos);
 				}
