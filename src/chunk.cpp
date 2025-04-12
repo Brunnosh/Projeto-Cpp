@@ -239,7 +239,7 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     //std::cout << "GERANDO CHUNK X: " << chunkCoords.x<< ", Y:  " << chunkCoords.y << ", Z: "<< chunkCoords.z << "\n";
 
     if (chunkCoords == glm::ivec3(0, 3, 0)) {
-        std::cout << "PIROCA GORDA" << "";
+        
         for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
             tempVec.push_back(Blocks[BlockType::AIR]);
         }

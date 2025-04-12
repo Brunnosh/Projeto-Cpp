@@ -2,14 +2,14 @@
 
 #include <window.h>
 #include <world.h>
-#include <camera.h>
+#include <player.h>
 #include <chunk.h>
 
 class Game {
 private:
     Window window;
     World *currentWorld;
-    Camera camera = (glm::vec3(0.0f, 17.0f, 0.0f)); //CErto seria inicializar a camera quando entrar no mundo, mas agora vou inicializar pora qui mesmo
+    
     
     float lastFrameTime = 0.0f;
 
@@ -18,6 +18,7 @@ private:
     
 
 public:
+    Player player;
     //Storage
     
 
@@ -46,7 +47,7 @@ public:
     void run();
     void shutdown();
     void processInput();
-    Camera &getCamera();
+   
     Window &getWindow();
     void loadAtlas(unsigned int* atlas);
 

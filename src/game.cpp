@@ -10,9 +10,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
-Camera& Game::getCamera() {
-    return camera;
-}
 
 Window& Game::getWindow() {
     return window;
@@ -64,7 +61,7 @@ void Game::run() {
     initBlockUVs();
 
                     
-    World mundoTeste(camera);
+    World mundoTeste(player.camera);
     this->currentWorld = &mundoTeste; //carregar mundo do arquivo e carregas as infos na classe.
 
 
@@ -89,11 +86,11 @@ void Game::run() {
 
         //Render
         
-        glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(player.camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
         window.getShader().setMat4("projection", projection);
 
         // camera/view transformation
-        glm::mat4 view = camera.GetViewMatrix();
+        glm::mat4 view = player.camera.GetViewMatrix();
         window.getShader().setMat4("view", view);
 
 
@@ -104,7 +101,7 @@ void Game::run() {
     
         
       
-        mundoTeste.update(camera,deltaTime, modelLoc);// actual world generation & rendering
+        mundoTeste.update(player.camera,deltaTime, modelLoc);// actual world generation & rendering
         //world.tick(); // Ticking of entities/ blocks
          
         //-------------
@@ -157,17 +154,17 @@ void Game::processInput() {
             glfwSetWindowShouldClose(this->window.getNativeWindow(), true);
 
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_W) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_S) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_A) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::LEFT, deltaTime);
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_D) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::UP, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::UP, deltaTime);
         if (glfwGetKey(this->window.getNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            this->camera.processKeyboard(CameraMovement::DOWN, deltaTime);
+            this->player.camera.processKeyboard(CameraMovement::DOWN, deltaTime);
     }
 }
 
@@ -183,7 +180,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (game)
-        game->getCamera().processMouseScroll(static_cast<float>(yoffset));
+        game->player.camera.processMouseScroll(static_cast<float>(yoffset));
     
 }
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
@@ -210,7 +207,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     game->camLastX = xpos;
     game->camLastY = ypos;
 
-    game->getCamera().processMouseMovement(xoffset, yoffset);
+    game->player.camera.processMouseMovement(xoffset, yoffset);
 
 }
 
