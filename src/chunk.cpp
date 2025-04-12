@@ -57,18 +57,19 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
     
     std::vector<Block> northChunk;
 
+    //da maneira que estou gerando o mundo, basicamente apenas os chunks da direita e de tras do chunk vao j'a ter gerado.
 
     if (WorldData.find(northChunkPos) != WorldData.end()) {
-
+        
     }
     if (WorldData.find(southChunkPos) != WorldData.end()) {
-
+       
     }
     if (WorldData.find(eastChunkPos) != WorldData.end()) {
-
+        
     }
     if (WorldData.find(westChunkPos) != WorldData.end()) {
-
+        
     }
 
     unsigned int currentVertex = 0;
@@ -136,8 +137,8 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 
     // Log
     
-    std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
-    std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
+    //std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
+    //std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
 
 

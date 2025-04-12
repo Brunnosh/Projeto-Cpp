@@ -30,19 +30,19 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 	//pegar XYZ do chunk onde player está
 	
 	glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
-	
+	playerChunkPos.y -= 1;
 
-
+	//gerar todos os Y primeiro
 	for (int x = -camera.renderDist; x <= camera.renderDist; x++)
 	{
-		for (int y = 1; y <= 1; y++) 
+		for (int y = 0; y <= 0; y++) 
 		{
 			for (int z = -camera.renderDist; z <= camera.renderDist; z++)
 			{
 
-				glm::ivec3 offset(x, 0, z);
+				glm::ivec3 offset(x, y, z);
 				glm::ivec3 chunkWorldPos = playerChunkPos + offset;
-				chunkWorldPos.y = 0;
+				
 
 
 				bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
