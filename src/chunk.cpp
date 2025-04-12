@@ -7,6 +7,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
+
+
+
+
 Chunk::Chunk(glm::ivec3 pos) {
     worldPos = pos;
     generated = false;
@@ -33,7 +38,7 @@ void Chunk::genChunk() {
     auto start = std::chrono::high_resolution_clock::now();
 
 	//teste chunk 15x15x15 solido
-    for (int i = 0; i < pow(CHUNKSIZE, 3); i++) {
+    for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
         chunkData.push_back(Blocks[BlockType::GRASS]);
     }
 
@@ -54,146 +59,43 @@ void Chunk::genChunk() {
 
                 
 
-				//north
+			
                 if (isAirAt(x, y, z - 1, &chunkData)) {
 
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, 
-                        blockUVs[storedBlock.getType()][FACE::NORTH].uMax,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
+                    addVertxInfo(FACE::NORTH,x,y,z, vertices, indices, currentVertex, storedBlock);
 
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, 
-                        blockUVs[storedBlock.getType()][FACE::NORTH].uMin,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
-
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].uMin,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
-
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].uMax,
-                        blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
-
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 1);
-                    currentVertex += 4;
                 }
 
-
-               
-
-				//south
                 if(isAirAt(x,y,z+1,&chunkData)){
 
+                    addVertxInfo(FACE::SOUTH, x, y, z, vertices, indices, currentVertex, storedBlock);
 
-
-                    
-
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 0);
-                    currentVertex += 4;
                 }
-                
 
-				//east
                 if (isAirAt(x + 1, y, z, &chunkData)) {
-                    
-
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
-
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 1);
-                    currentVertex += 4;
+                    addVertxInfo(FACE::EAST, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
-                
-
-				//west
 
                 if (isAirAt(x - 1, y, z, &chunkData)) {
 
-                    
-
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
-
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 0);
-                    currentVertex += 4;
+                    addVertxInfo(FACE::WEST, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
-                
 
-                //top
                 if(isAirAt(x,y+1,z,&chunkData))
                 {
-                    
+                    addVertxInfo(FACE::TOP, x, y, z, vertices, indices, currentVertex, storedBlock);
 
-
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
-                    vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
-                    vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
-
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 3);
-                    currentVertex += 4;
                 }
-
-
-
-
-				//bottom
+		
                 if (isAirAt(x, y - 1, z, & chunkData)) {
                     
-
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
-                    vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
-                    vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
-
-                    indices.push_back(currentVertex + 0);
-                    indices.push_back(currentVertex + 1);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 2);
-                    indices.push_back(currentVertex + 3);
-                    indices.push_back(currentVertex + 0);
-                    currentVertex += 4;
+                    addVertxInfo(FACE::BOTTOM, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
-                
-
 			}
 		}
-
 	}
 
     this->generated = true;
@@ -203,15 +105,10 @@ void Chunk::genChunk() {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> duration = end - start;
 
-    // Estimativa de memória (em bytes)
-    size_t chunkDataMem = chunkData.capacity() * sizeof(uint8_t);
-    size_t verticesMem = vertices.capacity() * sizeof(Vertex);
-    size_t indicesMem = indices.capacity() * sizeof(unsigned int);
 
-    size_t totalMemory = chunkDataMem + verticesMem + indicesMem;
 
     // Log
-    std::cout << "Chunk (X : " << worldPos.x << ", Y: " << worldPos.y << ", Z: " << worldPos.z << ")" << " \n";
+    
     std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
     std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
@@ -261,4 +158,101 @@ void Chunk::render(unsigned int modelLoc) {
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);
+}
+
+void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock) {
+
+    const UV uv = blockUVs[storedBlock.getType()][face];
+    float uMin = uv.uMin, uMax = uv.uMax, vMin = uv.vMin, vMax = uv.vMax;
+
+
+
+    switch (face) {
+    case FACE::NORTH:
+        vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
+        vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMin));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
+        vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMax));
+
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 1);
+        currentVertex += 4;
+        break;
+    case FACE::SOUTH:
+        vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
+        vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
+        vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax));
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 0);
+        currentVertex += 4;
+        break;
+    case FACE::EAST:
+        vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
+        vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMin));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMax));
+
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 1);
+        currentVertex += 4;
+        break;
+    case FACE::WEST:
+        vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
+        vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMin));
+        vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
+        vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMax));
+
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 0);
+        currentVertex += 4;
+        break;
+    case FACE::TOP:
+        vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMax));
+        vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
+        vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMin));
+
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 3);
+        currentVertex += 4;
+        break;
+    case FACE::BOTTOM:
+        vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
+        vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin));
+        vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
+        vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax));
+
+        indices.push_back(currentVertex + 0);
+        indices.push_back(currentVertex + 1);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 2);
+        indices.push_back(currentVertex + 3);
+        indices.push_back(currentVertex + 0);
+        currentVertex += 4;
+        break;
+    }
+
+
+
 }

@@ -36,9 +36,12 @@ private:
 public:
 	Chunk(glm::ivec3 pos); 
 	~Chunk() {
-		glDeleteBuffers(1, &VBO);
-		glDeleteBuffers(1, &EBO);
-		glDeleteVertexArrays(1, &VAO);
+		if (ready) {
+			glDeleteBuffers(1, &VBO);
+			glDeleteBuffers(1, &EBO);
+			glDeleteVertexArrays(1, &VAO);
+		}
+		
 	}
 
 

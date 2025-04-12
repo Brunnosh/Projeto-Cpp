@@ -22,6 +22,7 @@ public:
     float yaw;
     float pitch;
     float fov;
+    short renderDist = 8;
 
     // Configurações de movimento
     float moveSpeed;

@@ -6,7 +6,7 @@ float saveFrequency = 30.0f;
 
 World::World(Camera& camera){
 	this->lastPlayerPos = glm::vec3(0.0f, 17.0f, 0.0f); // no futuro ler do arquvi do mundo
-	this->renderDist = 4;
+	
 
 	camera.position = lastPlayerPos;
 }
@@ -33,19 +33,26 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 	
 
 
-	for (int x = -renderDist; x <= renderDist; x++) 
+	for (int x = -camera.renderDist; x <= camera.renderDist; x++)
 	{
 		for (int y = 1; y <= 1; y++) 
 		{
-			for (int z = -renderDist; z <= renderDist; z++) 
+			for (int z = -camera.renderDist; z <= camera.renderDist; z++)
 			{
 
 				glm::ivec3 offset(x, 0, z);
 				glm::ivec3 chunkWorldPos = playerChunkPos + offset;
 				chunkWorldPos.y = 0;
-				if (WorldData.find(chunkWorldPos) == WorldData.end()) {
-					chunkQueue.push_back(chunkWorldPos); // adiciona pra gerar depois
+
+
+				bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
+				bool alreadyQueued = chunkRequested.find(chunkWorldPos) != chunkRequested.end();
+
+				if (!inWorld && !alreadyQueued) {
+					chunkQueue.push_back(chunkWorldPos);
+					chunkRequested.insert(chunkWorldPos);
 				}
+
 
 
 			}
@@ -59,11 +66,28 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 		glm::ivec3 pos = chunkQueue.back();
 		chunkQueue.pop_back();
 
-		Chunk newChunk(pos * CHUNKSIZE); // chunk usa worldPos em blocos
-		newChunk.genChunk();
-		WorldData.emplace(pos, std::move(newChunk));
+		std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, Chunk> {
+			Chunk chunk(pos * CHUNKSIZE); // gera usando posição no mundo
+			chunk.genChunk();
+			return { pos, std::move(chunk) };
+			});
+
+		chunkFutures.push_back(std::move(fut));
 		generated++;
 	}
+
+	for (int i = 0; i < chunkFutures.size(); ) {
+		auto& fut = chunkFutures[i];
+		if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+			auto [pos, chunk] = fut.get();
+			WorldData.emplace(pos, std::move(chunk));
+			chunkFutures.erase(chunkFutures.begin() + i); // remove futuro concluído
+		}
+		else {
+			++i;
+		}
+	}
+
 
 	for (auto& [pos, chunk] : WorldData) {
 		chunk.render(modelLoc);
