@@ -56,6 +56,13 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 
     
     std::vector<Block> northChunk;
+    std::vector<Block> southChunk;
+    std::vector<Block> eastChunk;
+    std::vector<Block> westChunk;
+
+    //not check topChunk if y == max height
+    std::vector<Block> topChunk;
+    std::vector<Block> bottomChunk;
 
     //da maneira que estou gerando o mundo, basicamente apenas os chunks da direita e de tras do chunk vao j'a ter gerado.
 
@@ -193,8 +200,21 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
     std::vector<Block> tempVec;
     //teste chunk 15x15x15 solido
-    for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
-        tempVec.push_back(Blocks[BlockType::GRASS]);
+
+
+    for (char x = 0; x < CHUNKSIZE; x++) {
+        for (char z = 0; z < CHUNKSIZE; z++) {
+            for (char y = 0; y < CHUNKSIZE; y++) {
+                if ((chunkCoords.y * 15) < 60) {
+                    tempVec.push_back(Blocks[BlockType::GRASS]);
+                }
+                else
+                {
+                    tempVec.push_back(Blocks[BlockType::AIR]);
+                }
+
+            }
+        }
     }
 
 
