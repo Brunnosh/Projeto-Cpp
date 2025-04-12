@@ -82,7 +82,7 @@ void Game::run() {
         
   
 
-        std::cout << "X: " << camera.position.x <<  " Y: " << camera.position.y <<  " Z: " << camera.position.z << "\n ";
+        //std::cout << "X: " << camera.position.x <<  " Y: " << camera.position.y <<  " Z: " << camera.position.z << "\n ";
         processInput();
         
         //------------------------

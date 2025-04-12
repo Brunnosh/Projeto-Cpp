@@ -19,17 +19,27 @@ Chunk::Chunk(glm::ivec3 pos) {
     chunkData = populateChunk(pos);
 }
 
-bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData) {
-    if (x < 0 || x >= CHUNKSIZE ||y < 0 || y >= CHUNKSIZE ||z < 0 || z >= CHUNKSIZE) 
-    {
-        // Futuramente: consultar chunk vizinho aqui
-        return true; // fora do chunk = renderiza face
+bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block> * nextChunkData) {
+    if (x >= 0 && x < CHUNKSIZE &&
+        y >= 0 && y < CHUNKSIZE &&
+        z >= 0 && z < CHUNKSIZE) {
+
+        // Dentro do chunk atual
+        int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y;
+        return (*chunkData)[index].getType() == BlockType::AIR;
+    }
+    else {
+        // Acessar chunk vizinho — ajustar a coordenada
+        int nx = (x + CHUNKSIZE) % CHUNKSIZE;
+        int ny = (y + CHUNKSIZE) % CHUNKSIZE;
+        int nz = (z + CHUNKSIZE) % CHUNKSIZE;
+
+        int index = nx * CHUNKSIZE * CHUNKSIZE + nz * CHUNKSIZE + ny;
+        return (*nextChunkData)[index].getType() == BlockType::AIR;
     }
 
-    int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y; //posicao do chunk "alterada"
-    //checar se index é air retornar true
-    return (*chunkData)[index].getType() == BlockType::AIR;
-
+    // Não tem chunk vizinho  considere ar (para forçar renderização da face)
+    return true;
 }
 
 
@@ -49,34 +59,59 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
     glm::ivec3 eastChunkPos = glm::ivec3(thisChunk.x + 1, thisChunk.y, thisChunk.z );
     glm::ivec3 westChunkPos = glm::ivec3(thisChunk.x -1, thisChunk.y, thisChunk.z);
 
-    //CHunk de cima e baixo por enquanto sem implementar
-    // futuramente quem vai decidir os blocos vai ser a geracao randomizada o mundo, ou seja, se eu fizer agora vai ser tudo vazio, pq se eu criar um chunk hipotetico a mais no Y, nada vai ser renderizado.
-    //glm::ivec3 topChunkPos = glm::ivec3(thisChunk.x, thisChunk.y + 1, thisChunk.z);
-    //glm::ivec3 botChunkPos = glm::ivec3(thisChunk.x, thisChunk.y -1, thisChunk.z);
+    glm::ivec3 topChunkPos = glm::ivec3(thisChunk.x, thisChunk.y + 1, thisChunk.z);
+    glm::ivec3 botChunkPos = glm::ivec3(thisChunk.x, thisChunk.y -1, thisChunk.z);
 
     
     std::vector<Block> northChunk;
     std::vector<Block> southChunk;
     std::vector<Block> eastChunk;
-    std::vector<Block> westChunk;
-
-    //not check topChunk if y == max height
+    std::vector<Block> westChunk; 
     std::vector<Block> topChunk;
     std::vector<Block> bottomChunk;
 
     //da maneira que estou gerando o mundo, basicamente apenas os chunks da direita e de tras do chunk vao j'a ter gerado.
 
     if (WorldData.find(northChunkPos) != WorldData.end()) {
-        
+        northChunk = WorldData.find(northChunkPos)->second.chunkData;
     }
+    else {
+        northChunk = populateChunk(northChunkPos);
+    }
+
     if (WorldData.find(southChunkPos) != WorldData.end()) {
-       
+        southChunk = WorldData.find(southChunkPos)->second.chunkData;
     }
+    else {
+        southChunk = populateChunk(southChunkPos);
+    }
+
     if (WorldData.find(eastChunkPos) != WorldData.end()) {
-        
+        eastChunk = WorldData.find(eastChunkPos)->second.chunkData;
     }
+    else {
+        eastChunk = populateChunk(eastChunkPos);
+    }
+
     if (WorldData.find(westChunkPos) != WorldData.end()) {
-        
+        westChunk = WorldData.find(westChunkPos)->second.chunkData;
+    }
+    else {
+        westChunk = populateChunk(westChunkPos);
+    }
+
+    if (WorldData.find(topChunkPos) != WorldData.end()) {
+        topChunk = WorldData.find(topChunkPos)->second.chunkData;
+    }
+    else {
+        topChunk = populateChunk(topChunkPos);
+    }
+
+    if (WorldData.find(botChunkPos) != WorldData.end()) {
+        bottomChunk = WorldData.find(botChunkPos)->second.chunkData;
+    }
+    else {
+        bottomChunk = populateChunk(botChunkPos);
     }
 
     unsigned int currentVertex = 0;
@@ -95,36 +130,36 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
                 
 
 			
-                if (isAirAt(x, y, z - 1, &chunkData)) {
+                if (isAirAt(x, y, z - 1, &chunkData, &northChunk)) {
 
                     addVertxInfo(FACE::NORTH,x,y,z, vertices, indices, currentVertex, storedBlock);
 
                 }
 
-                if(isAirAt(x,y,z+1,&chunkData)){
+                if(isAirAt(x,y,z+1,&chunkData, &southChunk)){
 
                     addVertxInfo(FACE::SOUTH, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
 
-                if (isAirAt(x + 1, y, z, &chunkData)) {
+                if (isAirAt(x + 1, y, z, &chunkData, &eastChunk)) {
                     addVertxInfo(FACE::EAST, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
 
-                if (isAirAt(x - 1, y, z, &chunkData)) {
+                if (isAirAt(x - 1, y, z, &chunkData, &westChunk)) {
 
                     addVertxInfo(FACE::WEST, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
 
-                if(isAirAt(x,y+1,z,&chunkData))
+                if(isAirAt(x,y+1,z,&chunkData, &topChunk))
                 {
                     addVertxInfo(FACE::TOP, x, y, z, vertices, indices, currentVertex, storedBlock);
 
                 }
 		
-                if (isAirAt(x, y - 1, z, & chunkData)) {
+                if (isAirAt(x, y - 1, z, & chunkData, &bottomChunk)) {
                     
                     addVertxInfo(FACE::BOTTOM, x, y, z, vertices, indices, currentVertex, storedBlock);
 
@@ -201,11 +236,21 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     std::vector<Block> tempVec;
     //teste chunk 15x15x15 solido
 
+    //std::cout << "GERANDO CHUNK X: " << chunkCoords.x<< ", Y:  " << chunkCoords.y << ", Z: "<< chunkCoords.z << "\n";
+
+    if (chunkCoords == glm::ivec3(0, 3, 0)) {
+        std::cout << "PIROCA GORDA" << "";
+        for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
+            tempVec.push_back(Blocks[BlockType::AIR]);
+        }
+        return tempVec;
+    }
+
 
     for (char x = 0; x < CHUNKSIZE; x++) {
         for (char z = 0; z < CHUNKSIZE; z++) {
             for (char y = 0; y < CHUNKSIZE; y++) {
-                if ((chunkCoords.y * 15) < 60) {
+                if ((chunkCoords.y * 15) < 60 && (chunkCoords.y * 15) > 0) {
                     tempVec.push_back(Blocks[BlockType::GRASS]);
                 }
                 else
