@@ -66,8 +66,8 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 		glm::ivec3 pos = chunkQueue.back();
 		chunkQueue.pop_back();
 
-		std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, Chunk> {
-			Chunk chunk(pos * CHUNKSIZE); // gera usando posição no mundo
+		std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
+			Chunk chunk(pos); // gera usando posição no mundo
 			chunk.genChunk();
 			return { pos, std::move(chunk) };
 			});

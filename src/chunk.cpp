@@ -42,6 +42,7 @@ void Chunk::genChunk() {
         chunkData.push_back(Blocks[BlockType::GRASS]);
     }
 
+    //bool inWorld = WorldData.find(coords chunk) != WorldData.end();
     
 
     unsigned int currentVertex = 0;
@@ -154,7 +155,7 @@ void Chunk::render(unsigned int modelLoc) {
     glBindVertexArray(VAO);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(worldPos)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
+    model = glm::translate(model, glm::vec3(worldPos*15)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);
