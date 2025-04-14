@@ -35,7 +35,7 @@ public:
 	
 	void pushChunkData();
 
-
+	int getNumberChunks();
 };
 
 

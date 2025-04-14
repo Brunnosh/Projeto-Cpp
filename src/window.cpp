@@ -44,6 +44,10 @@ bool Window::glInit() {
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
+
+
+
+
     return true;
 }
 

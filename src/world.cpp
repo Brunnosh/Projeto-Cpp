@@ -131,3 +131,7 @@ void World::pushChunkData() {
 	
 
 }
+
+int World::getNumberChunks() {
+	return WorldData.size();
+}
