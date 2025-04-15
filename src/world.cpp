@@ -4,6 +4,7 @@
 float saveTimer = 0.0f;
 float saveFrequency = 30.0f;
 
+
 World::World(Camera& camera){
 	this->lastPlayerPos = glm::vec3(0.0f, 62.0f, 0.0f); // no futuro ler do arquvi do mundo
 	
@@ -11,40 +12,53 @@ World::World(Camera& camera){
 	camera.position = lastPlayerPos;
 }
 
-//achar chunk pelo xyz 
-/*
-glm::ivec3 pos = glm::ivec3(0, 0, 0);
-chunks[pos] = Chunk();
-*/
 
 void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 
-	//Salva apenas a posicao do player, no futuro, salvar tudo do world para arquivo (chunks, player, entidades, etc)
-	saveTimer += deltaTime; 
+	savePlayerPos(deltaTime, camera);
+	genWorld(camera, modelLoc);
+
+	
+	
+
+
+}
+
+void World::tick() {
+	//In-world ticking (entities, blockstates, essentially game speed)
+
+
+
+}
+
+
+
+void World::savePlayerPos(float deltaTime, Camera& camera) {
+	saveTimer += deltaTime;
 
 	if (saveTimer >= saveFrequency) {
-		lastPlayerPos = camera.getCamPos(); 
+		lastPlayerPos = camera.getCamPos();
 		saveTimer = 0.0f;
 	}
+}
 
-	//pegar XYZ do chunk onde player está
-	
+void World::genWorld(Camera& camera, unsigned int modelLoc) {
 	glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
-	
 
-	
+
+
 	for (int x = -camera.renderDist; x <= camera.renderDist; x++)
 	{
-		for  (int z = -camera.renderDist; z <= camera.renderDist; z++)
+		for (int z = -camera.renderDist; z <= camera.renderDist; z++)
 		{
-			for (int y = playerChunkPos.y -camera.renderDist/2; y <= playerChunkPos.y + camera.renderDist; y++)
+			for (int y = playerChunkPos.y - camera.renderDist / 2; y <= playerChunkPos.y + camera.renderDist; y++)
 			{
-				
+
 				//position of chunk on the render distance loop
 				glm::ivec3 offset(x, y, z);
 
 				//translation of chunk pos from render distance loop to actual world position using player position.
-				glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0 , playerChunkPos.z) + offset;
+				glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
 
 
@@ -95,40 +109,6 @@ void World::update(Camera& camera,float deltaTime, unsigned int modelLoc) {
 	for (auto& [pos, chunk] : WorldData) {
 		chunk.render(modelLoc);
 	}
-
-	//if (playerChunkPos != lastPlayerChunkPos) 
-
-		//- [ ] Identificar chunks ao redor do jogador que precisam ser gerados
-
-		//- [ ] Verificar se mudou de chunk e gerar novos chunks (comparar com `lastPlayerPos`)
-
-
-		//- [ ] Inserir esses chunks na `chunkQueue` (se ainda não existirem)
-
-
-		//- [ ] Gerar alguns chunks da `chunkQueue` por frame
-
-
-		//- [ ] Armazenar chunks gerados em `WorldData`
-
-		
-		//- [ ] (Opcional) Remover chunks distantes
-
-	
-
-
-	
-
-	
-
-
-		
-	//- [ ] Renderizar todos os chunks que estão prontos em worldData (dentro da render distance)
-
-}
-
-void World::pushChunkData() {
-	
 
 }
 

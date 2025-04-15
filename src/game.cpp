@@ -11,8 +11,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
+
 std::chrono::steady_clock::time_point fpsStartTime;
-float fpsCount, avgFps, lowestFps, highestFps = 0;
+float worldUpdateTime, fpsCount, avgFps, lowestFps, highestFps = 0;
 
 Window& Game::getWindow() {
     return window;
@@ -73,16 +74,24 @@ void Game::run() {
 
 
 
-    //Carregar atlas
     
+    
+    glActiveTexture(GL_TEXTURE0);
     unsigned int atlas;
-    loadAtlas(&atlas);
-
-    //usar shader
+    glActiveTexture(GL_TEXTURE0); // Activate texture unit 0
+    loadTexture(&atlas, "assets/atlas.png");
     window.useShader();
     window.getShader().setInt("atlas", 0);
-    initBlockUVs();
 
+   
+    unsigned int crosshair;
+    glActiveTexture(GL_TEXTURE1); // Activate texture unit 1
+    loadTexture(&crosshair, "assets/crosshair.png");
+
+
+    
+    initBlockUVs();
+    
                     
     World mundoTeste(player.camera);
     this->currentWorld = &mundoTeste; //carregar mundo do arquivo e carregas as infos na classe.
@@ -93,6 +102,9 @@ void Game::run() {
 
     //OpenGL Loop
     while (!window.shouldClose()) {
+        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         //per-frame - iterative logic
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -118,11 +130,6 @@ void Game::run() {
             fpsStartTime = currentTimePoint;
         }
 
-
-
-
-
-        //std::cout << "X: " << camera.position.x <<  " Y: " << camera.position.y <<  " Z: " << camera.position.z << "\n ";
         processInput();
         
         //------------------------
@@ -144,28 +151,41 @@ void Game::run() {
 
         ImGui::Begin("Test");
         ImGui::Text("FPS: %f (Avg: %f, Min: %f, Max: %f)", fps, avgFps, lowestFps, highestFps);
-        ImGui::Text("MS: %f", deltaTime * 100.0f);
+        ImGui::Text("FrameTime (ms): %f", deltaTime * 100.0f);
+        
         ImGui::Text("X %f", player.camera.position.x);
         ImGui::Text("Y %f", player.camera.position.y);
         ImGui::Text("Z %f", player.camera.position.z);
         ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
-        //ImGui::Text("Chunks: %d (%d rendered)", Planet::planet->numChunks, Planet::planet->numChunksRendered);
-        ImGui::End();
+        
+        ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+        ImVec2 center(window.WIDHT * 0.5f, window.HEIGHT * 0.5f);
+        float halfSize = 16.0f;
+
+        // Converta o identificador OpenGL para um ponteiro válido
+        drawList->AddImage((intptr_t)crosshair,            // Identificador da textura OpenGL convertido para void*
+            ImVec2(center.x - halfSize, center.y - halfSize),
+            ImVec2(center.x + halfSize, center.y + halfSize));
 
 
         unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");     
-        glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         mundoTeste.update(player.camera,deltaTime, modelLoc);// actual world generation & rendering
         //world.tick(); // Ticking of entities/ blocks
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-        std::cout << "Planet Update: "
-            << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count()
-            << "[ms]\n";
-         
+        worldUpdateTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+
+        ImGui::Text("World update time (ms): %f", worldUpdateTime);
+
+
+
+
+        ImGui::End();
+
+
         //-------------
         
 
@@ -292,10 +312,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         
 }
 
-void Game::loadAtlas(unsigned int* atlas) {
 
-    glGenTextures(1, atlas);
-    glBindTexture(GL_TEXTURE_2D, *atlas);
+void Game::loadTexture(unsigned int* texture, const std::string& path) {
+
+    glGenTextures(1, texture);
+    glBindTexture(GL_TEXTURE_2D, *texture);
     // set the texture wrapping parameters
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -308,7 +329,7 @@ void Game::loadAtlas(unsigned int* atlas) {
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load("assets/atlas.png", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -319,5 +340,4 @@ void Game::loadAtlas(unsigned int* atlas) {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
-    
 }

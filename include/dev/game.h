@@ -4,6 +4,7 @@
 #include <world.h>
 #include <player.h>
 #include <chunk.h>
+#include <game_helper.h>
 
 class Game {
 private:
@@ -49,8 +50,7 @@ public:
     void processInput();
    
     Window &getWindow();
-    void loadAtlas(unsigned int* atlas);
 
-
+    void loadTexture(unsigned int* texture, const std::string& path);
 
 };

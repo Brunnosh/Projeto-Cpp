@@ -27,13 +27,16 @@ private:
 	
 
 public:
-	
+	void genWorld(Camera& camera, unsigned int modelLoc);
+	void tick();
 	
 	World(Camera & camera);
 
 	void update(Camera &camera, float deltaTime, unsigned int modelLoc);
 	
-	void pushChunkData();
+	void savePlayerPos(float deltaTime, Camera& camera);
+
+	
 
 	int getNumberChunks();
 };
