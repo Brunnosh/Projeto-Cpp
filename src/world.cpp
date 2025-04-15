@@ -4,10 +4,13 @@ float saveTimer = 0.0f;
 float saveFrequency = 30.0f;
 
 World::World() {
-    lastPlayerPos = glm::vec3(0.0f, 62.0f, 0.0f);
     initBlockUVs();
-    player = Player();
-    player.camera.position = lastPlayerPos;
+
+    lastPlayerPos = glm::vec3(0.0f, 60.0f, 0.0f); // ler do arquivo
+    
+    this->player =  Player(lastPlayerPos);
+
+
 }
 
 void World::update(Player& player, float deltaTime, unsigned int modelLoc) {

@@ -33,7 +33,7 @@ public:
     glm::vec3 right;
     glm::vec3 up;
 
-    Camera(glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 3.0f), float startYaw = -90.0f, float startPitch = 0.0f)
+    Camera(glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 0.0f), float startYaw = -90.0f, float startPitch = 0.0f)
         : position(startPosition), yaw(startYaw), pitch(startPitch), fov(75.0f),
         moveSpeed(10.0f), mouseSensitivity(0.1f)
     {

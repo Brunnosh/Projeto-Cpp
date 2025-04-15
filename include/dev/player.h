@@ -6,6 +6,7 @@
 class Player {
 public:
     Camera camera;
+    glm::vec3 playerPos;
 
     // Estado do jogador
     bool menu = false;
@@ -15,12 +16,17 @@ public:
 
 public:
     Player();
+    Player(glm::vec3 position);
 
     short getRenderDistance() const {
         return camera.renderDist;
     }
 
     glm::vec3 getPosition() const;
+
+    void movePlayer();
+    void rotateCamera();
+
 };
 
 #endif // PLAYER_H

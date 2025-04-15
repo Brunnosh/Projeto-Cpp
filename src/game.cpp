@@ -15,6 +15,8 @@ void frameSetups() {
 
 void perFrameLogic() {
 
+   
+
 }
 
 std::chrono::steady_clock::time_point fpsStartTime;
@@ -93,6 +95,11 @@ void Game::run() {
         frameSetups();
 
 
+        //std::cout << "POSICAO PLAYER-> X: " << currentWorld->getPlayer().playerPos.x << ", Y: " << currentWorld->getPlayer().playerPos.y << ", Z: " << currentWorld->getPlayer().playerPos.z << "\n";
+
+
+
+
         perFrameLogic();
         //per-frame - iterative logic
         float currentFrame = static_cast<float>(glfwGetTime());
@@ -142,11 +149,11 @@ void Game::run() {
 
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
         ImVec2 center(window.WIDHT * 0.5f, window.HEIGHT * 0.5f);
-        float halfSize = 16.0f;
+        float size = 8.0f;
 
-        drawList->AddImage((intptr_t)crosshair,
-            ImVec2(center.x - halfSize, center.y - halfSize),
-            ImVec2(center.x + halfSize, center.y + halfSize));
+        drawList->AddImage((ImTextureID)(intptr_t)crosshair,
+            ImVec2(center.x - size, center.y - size + 8),
+            ImVec2(center.x + size, center.y + size + 8));
 
         unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");
 
