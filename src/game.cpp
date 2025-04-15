@@ -19,7 +19,7 @@ void perFrameLogic() {
 
 std::chrono::steady_clock::time_point fpsStartTime;
 float  fpsCount, avgFps, lowestFps, highestFps = 0;
-float deltaTime = 0.0f;	
+float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 Window& Game::getWindow() {
@@ -48,9 +48,9 @@ bool Game::init() {
 
 
 void Game::run() {
-    
+
     //Check game_helper.h (function de-clutter,( callbacks, setups))
-    
+
 
     glfwSetWindowUserPointer(window.getNativeWindow(), this);
     glfwMakeContextCurrent(window.getNativeWindow());
@@ -64,30 +64,28 @@ void Game::run() {
 
     setupImgui(*this);
 
-    
-    
-    
+
+
+
     unsigned int atlas;
     glActiveTexture(GL_TEXTURE0);
     loadTexture(&atlas, "assets/atlas.png");
     window.useShader();
     window.getShader().setInt("atlas", 0);
 
-   
+
     unsigned int crosshair;
-    glActiveTexture(GL_TEXTURE1); 
+    glActiveTexture(GL_TEXTURE1);
     loadTexture(&crosshair, "assets/crosshair.png");
 
 
-    
-    
-    
-    Player playerteste;
-    World mundoTeste(player.camera);
+
+
+
+    World mundoTeste;
     this->currentWorld = &mundoTeste; //carregar mundo do arquivo e carregas as infos na classe.
 
 
-    
     fpsStartTime = std::chrono::steady_clock::now();
 
     //Game Loop
@@ -101,7 +99,7 @@ void Game::run() {
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        
+
 
         // FPS Calculations
         float fps = 1.0f / deltaTime;
@@ -120,62 +118,43 @@ void Game::run() {
             fpsStartTime = currentTimePoint;
         }
 
-        processInput(*this,deltaTime);
-        
+        processInput(*this, deltaTime);
+
         //------------------------
 
         //Render
-        
+
         //get and set camera projection/view matrix
-        glm::mat4 projection = glm::perspective(glm::radians(player.camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(currentWorld->getPlayer().camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
         window.getShader().setMat4("projection", projection);
-        
-        glm::mat4 view = player.camera.GetViewMatrix();
+
+        glm::mat4 view = currentWorld->getPlayer().camera.GetViewMatrix();
         window.getShader().setMat4("view", view);
-
-
-
-        
-
 
         ImGui::Begin("Test");
         ImGui::Text("FPS: %f (Avg: %f, Min: %f, Max: %f)", fps, avgFps, lowestFps, highestFps);
         ImGui::Text("FrameTime (ms): %f", deltaTime * 100.0f);
-        
-        ImGui::Text("X %f", player.camera.position.x);
-        ImGui::Text("Y %f", player.camera.position.y);
-        ImGui::Text("Z %f", player.camera.position.z);
+
+        ImGui::Text("X %f", currentWorld->getPlayer().camera.position.x);
+        ImGui::Text("Y %f", currentWorld->getPlayer().camera.position.y);
+        ImGui::Text("Z %f", currentWorld->getPlayer().camera.position.z);
         ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
-        
+
         ImDrawList* drawList = ImGui::GetBackgroundDrawList();
         ImVec2 center(window.WIDHT * 0.5f, window.HEIGHT * 0.5f);
         float halfSize = 16.0f;
 
-        // Converta o identificador OpenGL para um ponteiro válido
-        drawList->AddImage((intptr_t)crosshair,            // Identificador da textura OpenGL convertido para void*
+        drawList->AddImage((intptr_t)crosshair,
             ImVec2(center.x - halfSize, center.y - halfSize),
             ImVec2(center.x + halfSize, center.y + halfSize));
 
-
-        unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");     
-
+        unsigned int modelLoc = glGetUniformLocation(window.getShader().ID, "model");
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-        mundoTeste.update(player.camera,deltaTime, modelLoc);// actual world generation & rendering
-        //world.tick(); // Ticking of entities/ blocks
+        mundoTeste.update(mundoTeste.getPlayer(), deltaTime, modelLoc);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
-
         ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
-
-
-
-
-        
-
-
-        //-------------
-        
 
         ImGui::End();
         ImGui::Render();
@@ -189,8 +168,3 @@ void Game::run() {
     ImGui::DestroyContext();
     window.terminate();
 }
-
-
-
-
-

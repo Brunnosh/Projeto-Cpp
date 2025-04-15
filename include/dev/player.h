@@ -1,29 +1,26 @@
+#ifndef PLAYER_H
 #define PLAYER_H
-#ifdef PLAYER_H
 
 #include <camera.h>
 
-
 class Player {
 public:
-	Camera camera = glm::vec3(0.0f, 0.0f, 0.0f);
+    Camera camera;
 
+    // Estado do jogador
+    bool menu = false;
+    bool firstMouse = true;
+    float camLastX = 0.0f;
+    float camLastY = 0.0f;
 
 public:
-	Player();
-	
+    Player();
 
+    short getRenderDistance() const {
+        return camera.renderDist;
+    }
 
+    glm::vec3 getPosition() const;
 };
-
-
-
-
-
-
-
-
-
-
 
 #endif // PLAYER_H

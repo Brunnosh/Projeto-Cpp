@@ -2,126 +2,107 @@
 
 
 
-void setupImgui(Game &game) {
-    // Setup Dear ImGui context
+void setupImgui(Game& game) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-    // Setup Platform/Renderer backends
-    ImGui_ImplGlfw_InitForOpenGL(game.getWindow().getNativeWindow(), true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplGlfw_InitForOpenGL(game.getWindow().getNativeWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void processInput(Game& game, float deltaTime) {
-    {
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            if (game.escDown) return;
+    auto& player = game.currentWorld->getPlayer();
 
-            game.escDown = true;
-            game.menu = !game.menu;
-            game.firstMouse = true;
-            glfwSetInputMode(game.getWindow().getNativeWindow(), GLFW_CURSOR, game.menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-
-
-        }
-        else {
-            game.escDown = false;
-        }
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_L) == GLFW_PRESS) {
-            if (game.lDown) return;
-
-            game.lDown = true;
-            game.wireframe = !game.wireframe;
-            glPolygonMode(GL_FRONT_AND_BACK, game.wireframe ? GL_FILL : GL_LINE);
-
-        }
-        else {
-            game.lDown = false;
-        }
-
-
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_P) == GLFW_PRESS)
-            glfwSetWindowShouldClose(game.getWindow().getNativeWindow(), true);
-
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_W) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_S) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_A) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::LEFT, deltaTime);
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_D) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::UP, deltaTime);
-        if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-            game.player.camera.processKeyboard(CameraMovement::DOWN, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        if (game.escDown) return;
+        game.escDown = true;
+        player.menu = !player.menu;
+        player.firstMouse = true;
+        glfwSetInputMode(game.getWindow().getNativeWindow(), GLFW_CURSOR, player.menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
+    else {
+        game.escDown = false;
+    }
+
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_L) == GLFW_PRESS) {
+        if (game.lDown) return;
+        game.lDown = true;
+        game.wireframe = !game.wireframe;
+        glPolygonMode(GL_FRONT_AND_BACK, game.wireframe ? GL_FILL : GL_LINE);
+    }
+    else {
+        game.lDown = false;
+    }
+
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_P) == GLFW_PRESS)
+        glfwSetWindowShouldClose(game.getWindow().getNativeWindow(), true);
+
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_W) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_S) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_A) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_D) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::UP, deltaTime);
+    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        player.camera.processKeyboard(CameraMovement::DOWN, deltaTime);
 }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     game->getWindow().WIDHT = width;
     game->getWindow().HEIGHT = height;
     glViewport(0, 0, width, height);
-
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
     if (game)
-        game->player.camera.processMouseScroll(static_cast<float>(yoffset));
-
+        game->currentWorld->getPlayer().camera.processMouseScroll(static_cast<float>(yoffset));
 }
 
-void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
-{
-
-
-
+void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+    auto& player = game->currentWorld->getPlayer();
+    if (player.menu) return;
 
-    if (game->menu) return;
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (game->firstMouse)
-    {
-        game->camLastX = xpos;
-        game->camLastY = ypos;
-        game->firstMouse = false;
+    if (player.firstMouse) {
+        player.camLastX = xpos;
+        player.camLastY = ypos;
+        player.firstMouse = false;
     }
 
-    float xoffset = xpos - game->camLastX;
-    float yoffset = game->camLastY - ypos; // reversed since y-coordinates go from bottom to top
+    float xoffset = xpos - player.camLastX;
+    float yoffset = player.camLastY - ypos;
 
-    game->camLastX = xpos;
-    game->camLastY = ypos;
+    player.camLastX = xpos;
+    player.camLastY = ypos;
 
-    game->player.camera.processMouseMovement(xoffset, yoffset);
-
+    player.camera.processMouseMovement(xoffset, yoffset);
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseButtonEvent(button, action);
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        std::cout << "viado" << "";
+        std::cout << "viado";
     }
 
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        std::cout << "viado" << "";
+        std::cout << "viado";
     }
-
 }
-
 
 void Game::loadTexture(unsigned int* texture, const std::string& path) {
 
@@ -151,5 +132,3 @@ void Game::loadTexture(unsigned int* texture, const std::string& path) {
     }
     stbi_image_free(data);
 }
-
-
