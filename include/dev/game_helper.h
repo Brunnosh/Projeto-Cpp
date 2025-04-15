@@ -1,8 +1,16 @@
 #pragma once
 
+//Variable Declaration--------------------------------------------
+Camera camera(glm::vec3(0.0f, 62.0f, 0.0f));
+std::chrono::steady_clock::time_point fpsStartTime;
+float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+unsigned int modelLoc;
+//---------------------------------------------------------------
 
 
-
+//Setups--------------------------------------------------------
 void setupImgui(Game& game) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -14,6 +22,54 @@ void setupImgui(Game& game) {
     ImGui_ImplGlfw_InitForOpenGL(game.getWindow().getNativeWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
+void frameSetups() {
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+}
+void updateCameraMatrices(Window& window) {
+    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
+    window.getShader().setMat4("projection", projection);
+
+    glm::mat4 view = camera.GetViewMatrix();
+    window.getShader().setMat4("view", view);
+
+};
+void loadTexture(unsigned int* texture, const std::string& path) {
+
+    glGenTextures(1, texture);
+    glBindTexture(GL_TEXTURE_2D, *texture);
+    // set the texture wrapping parameters
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // load image, create texture and generate mipmaps
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data);
+}
+
+//--------------------------------------------------------------------
+
+//Input Processing--------------------------------------------------
 
 void processInput(Game& game, float deltaTime) {
     GLFWwindow* window = game.getWindow().getNativeWindow();
@@ -99,33 +155,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
         std::cout << "Mouse direito clicado\n";
 }
+//-----------------------------------------------------------------------------------
 
 
-void Game::loadTexture(unsigned int* texture, const std::string& path) {
 
-    glGenTextures(1, texture);
-    glBindTexture(GL_TEXTURE_2D, *texture);
-    // set the texture wrapping parameters
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-}

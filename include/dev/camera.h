@@ -86,6 +86,7 @@ public:
         }
 
         updateVectors();
+
     }
 
     void processMouseScroll(float yOffset) {

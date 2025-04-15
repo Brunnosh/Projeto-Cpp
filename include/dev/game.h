@@ -11,11 +11,7 @@ private:
 
 public:
     World* currentWorld = nullptr;
-
-    // Keys
-
-
-    // Toggles
+    
     bool wireframe = false;
     bool VSYNC = 1;
 
@@ -26,23 +22,32 @@ public:
     void run();
 
     bool init() {
-
-
         if (!window.init("Voxel Game")) {
             std::cerr << "Failed to initialize window" << std::endl;
             return false;
         }
-
         if (!window.glInit()) {
             std::cerr << "Failed to initialize OpenGL" << std::endl;
             return false;
         }
-
-
         return true;
     }
-    
+    void cleanup(){
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
+        window.terminate();
+    }
+    Window& getWindow(){
+        return window;
+    }
+    void endFrame() {
+        ImGui::End();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        window.swapBuffers();
+        window.pollEvents();
+    }
 
-    Window& getWindow(){ return window; }
-    void loadTexture(unsigned int* texture, const std::string& path);
+
 };
