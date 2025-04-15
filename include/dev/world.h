@@ -18,7 +18,7 @@ public:
     std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
     glm::vec3 lastPlayerPos;
 
-    Player player;
+    Player player = Player(glm::vec3(0.0f, 0.0f, 0.0f));
 
 public:
     World();

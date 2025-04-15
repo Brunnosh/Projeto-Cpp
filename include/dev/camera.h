@@ -25,26 +25,29 @@ public:
     short renderDist = 8;
 
     // Configurações de movimento
-    float moveSpeed;
-    float mouseSensitivity;
+
 
     // Direções calculadas
     glm::vec3 front;
     glm::vec3 right;
     glm::vec3 up;
 
-    Camera(glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 0.0f), float startYaw = -90.0f, float startPitch = 0.0f)
-        : position(startPosition), yaw(startYaw), pitch(startPitch), fov(75.0f),
-        moveSpeed(10.0f), mouseSensitivity(0.1f)
-    {
+    Camera(glm::vec3 startPosition, float startYaw = -90.0f, float startPitch = 0.0f) {
+        position = startPosition;
+        pitch = 0.0f;
+        yaw = -90.0f;
+        fov = 75.0f;
+
         updateVectors();
     }
+
+
 
     glm::mat4 getViewMatrix() const {
         return glm::lookAt(position, position + front, up);
     }
 
-    void processKeyboard(CameraMovement direction, float deltaTime) {
+    void processCamMovement(CameraMovement direction, float deltaTime, float moveSpeed) {
         float velocity = moveSpeed * deltaTime;
         glm::vec3 moveDir;
 
@@ -61,7 +64,7 @@ public:
         position += moveDir * velocity;
     }
 
-    void processMouseMovement(float xOffset, float yOffset, bool constrainPitch = true) {
+    void processMouse(float mouseSensitivity, float xOffset, float yOffset, bool constrainPitch = true) {
         xOffset *= mouseSensitivity;
         yOffset *= mouseSensitivity;
 
@@ -105,5 +108,7 @@ private:
         up = glm::normalize(glm::cross(right, front));
     }
 };
+
+
 
 #endif

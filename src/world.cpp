@@ -4,7 +4,7 @@ float saveTimer = 0.0f;
 float saveFrequency = 30.0f;
 
 World::World() {
-    initBlockUVs();
+    
 
     lastPlayerPos = glm::vec3(0.0f, 60.0f, 0.0f); // ler do arquivo
     

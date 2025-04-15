@@ -53,7 +53,6 @@ void Game::run() {
 
     //Check game_helper.h (function de-clutter,( callbacks, setups))
 
-
     glfwSetWindowUserPointer(window.getNativeWindow(), this);
     glfwMakeContextCurrent(window.getNativeWindow());
     glfwSetFramebufferSizeCallback(window.getNativeWindow(), framebuffer_size_callback);
@@ -80,7 +79,7 @@ void Game::run() {
     glActiveTexture(GL_TEXTURE1);
     loadTexture(&crosshair, "assets/crosshair.png");
 
-
+    initBlockUVs();
 
 
 
@@ -95,7 +94,7 @@ void Game::run() {
         frameSetups();
 
 
-        //std::cout << "POSICAO PLAYER-> X: " << currentWorld->getPlayer().playerPos.x << ", Y: " << currentWorld->getPlayer().playerPos.y << ", Z: " << currentWorld->getPlayer().playerPos.z << "\n";
+        std::cout << "POSICAO PLAYER-> X: " << currentWorld->getPlayer().playerPos.x << ", Y: " << currentWorld->getPlayer().playerPos.y << ", Z: " << currentWorld->getPlayer().playerPos.z << "\n";
 
 
 

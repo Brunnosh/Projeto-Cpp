@@ -42,17 +42,17 @@ void processInput(Game& game, float deltaTime) {
         glfwSetWindowShouldClose(game.getWindow().getNativeWindow(), true);
 
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_W) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+        player.movePlayer(CameraMovement::FORWARD, deltaTime);
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_S) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+        player.movePlayer(CameraMovement::BACKWARD, deltaTime);
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_A) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+        player.movePlayer(CameraMovement::LEFT, deltaTime);
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_D) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+        player.movePlayer(CameraMovement::RIGHT, deltaTime);
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::UP, deltaTime);
+        player.movePlayer(CameraMovement::UP, deltaTime);
     if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        player.camera.processKeyboard(CameraMovement::DOWN, deltaTime);
+        player.movePlayer(CameraMovement::DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -88,7 +88,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     player.camLastX = xpos;
     player.camLastY = ypos;
 
-    player.camera.processMouseMovement(xoffset, yoffset);
+    player.rotateCamera(xoffset, yoffset, true);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
