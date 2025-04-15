@@ -2,30 +2,20 @@
 
 #include <window.h>
 #include <world.h>
-#include <player.h>
 #include <chunk.h>
-
 
 class Game {
 private:
     Window window;
-    
 
 public:
-    World* currentWorld;
-    Player player;
+    World* currentWorld = nullptr;
 
-
-    float camLastX = window.WIDHT / 2.0f;
-    float camLastY = window.HEIGHT / 2.0f;
-
-    //Keys
+    // Keys
     bool escDown = false;
     bool lDown = false;
 
-    //Toggles
-    bool menu = false;
-    bool firstMouse = true;
+    // Toggles
     bool wireframe = false;
     bool VSYNC = 1;
 
@@ -35,11 +25,7 @@ public:
 
     bool init();
     void run();
-  
-   
-   
-    Window &getWindow();
 
+    Window& getWindow();
     void loadTexture(unsigned int* texture, const std::string& path);
-
 };

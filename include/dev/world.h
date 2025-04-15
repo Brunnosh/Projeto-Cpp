@@ -5,42 +5,31 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <chunk.h>
-#include <camera.h>
 #include <future>
-
-
-
-
+#include <player.h>
 
 class World {
 private:
-	std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-	
+    std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
 
 public:
-	std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
-	std::vector<glm::ivec3> chunkQueue;
-	std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
-	glm::vec3 lastPlayerPos; // por enquanto vai ser sempre 0,17,0 (especificado no construtor) , mas quando tiver mundo persistente ler isso do arqivo
-	
-private:
-	
+    std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
+    std::vector<glm::ivec3> chunkQueue;
+    std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
+    glm::vec3 lastPlayerPos;
+
+    Player player;
 
 public:
-	void genWorld(Camera& camera, unsigned int modelLoc);
-	void tick();
-	
-	World(Camera & camera);
+    World();
 
-	void update(Camera &camera, float deltaTime, unsigned int modelLoc);
-	
-	void savePlayerPos(float deltaTime, Camera& camera);
+    void update(Player& player, float deltaTime, unsigned int modelLoc);
+    void savePlayerPos(float deltaTime, Player& player);
+    void genWorld(Player& player, unsigned int modelLoc);
+    void tick();
+    int getNumberChunks();
 
-	
-
-	int getNumberChunks();
+    Player& getPlayer() { return player; }
 };
 
-
-
-#endif 
+#endif
