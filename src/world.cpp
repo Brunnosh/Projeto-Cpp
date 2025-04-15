@@ -5,34 +5,21 @@ float saveFrequency = 30.0f;
 
 World::World() {
     
-
-    lastPlayerPos = glm::vec3(0.0f, 60.0f, 0.0f); // ler do arquivo
-    
-    this->player =  Player(lastPlayerPos);
-
-
 }
 
-void World::update(Player& player, float deltaTime, unsigned int modelLoc) {
-    savePlayerPos(deltaTime, player);
-    genWorld(player, modelLoc);
+void World::update(Camera & camera, float deltaTime, unsigned int modelLoc) {
+    
+    genWorld(camera, modelLoc);
 }
 
 void World::tick() {
     // Future entity ticking logic
 }
 
-void World::savePlayerPos(float deltaTime, Player& player) {
-    saveTimer += deltaTime;
-    if (saveTimer >= saveFrequency) {
-        lastPlayerPos = player.getPosition();
-        saveTimer = 0.0f;
-    }
-}
 
-void World::genWorld(Player& player, unsigned int modelLoc) {
-    glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(player.getPosition() / float(CHUNKSIZE)));
-    short renderDist = player.getRenderDistance();
+void World::genWorld(Camera& camera, unsigned int modelLoc) {
+    glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
+    short renderDist = camera.renderDist;
 
     for (int x = -renderDist; x <= renderDist; x++) {
         for (int z = -renderDist; z <= renderDist; z++) {

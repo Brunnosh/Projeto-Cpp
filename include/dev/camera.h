@@ -23,6 +23,15 @@ public:
     float pitch;
     float fov;
     short renderDist = 8;
+    float moveSpeed = 10.0f;
+    float mouseSensitivity = 0.1f;
+    bool menu = false;
+    bool firstMouse = true;
+    float camLastX = 0.0f;
+    float camLastY = 0.0f;
+
+    bool escDown = false;
+    bool lDown = false;
 
     // Configurações de movimento
 
@@ -47,7 +56,7 @@ public:
         return glm::lookAt(position, position + front, up);
     }
 
-    void processCamMovement(CameraMovement direction, float deltaTime, float moveSpeed) {
+    void processKeyboard(CameraMovement direction, float deltaTime) {
         float velocity = moveSpeed * deltaTime;
         glm::vec3 moveDir;
 
@@ -64,7 +73,7 @@ public:
         position += moveDir * velocity;
     }
 
-    void processMouse(float mouseSensitivity, float xOffset, float yOffset, bool constrainPitch = true) {
+    void processMouseMovement( float xOffset, float yOffset, bool constrainPitch = true) {
         xOffset *= mouseSensitivity;
         yOffset *= mouseSensitivity;
 

@@ -2,57 +2,60 @@
 
 
 
+
 void setupImgui(Game& game) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
-    ImGui::StyleColorsDark();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    ImGui::StyleColorsDark();
 
     ImGui_ImplGlfw_InitForOpenGL(game.getWindow().getNativeWindow(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void processInput(Game& game, float deltaTime) {
-    auto& player = game.currentWorld->getPlayer();
+    GLFWwindow* window = game.getWindow().getNativeWindow();
 
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        if (game.escDown) return;
-        game.escDown = true;
-        player.menu = !player.menu;
-        player.firstMouse = true;
-        glfwSetInputMode(game.getWindow().getNativeWindow(), GLFW_CURSOR, player.menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        if (!camera.escDown) {
+            camera.menu = !camera.menu;
+            camera.firstMouse = true;
+            glfwSetInputMode(window, GLFW_CURSOR, camera.menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        }
+        camera.escDown = true;
     }
     else {
-        game.escDown = false;
+        camera.escDown = false;
     }
 
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_L) == GLFW_PRESS) {
-        if (game.lDown) return;
-        game.lDown = true;
-        game.wireframe = !game.wireframe;
-        glPolygonMode(GL_FRONT_AND_BACK, game.wireframe ? GL_FILL : GL_LINE);
+    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if (!camera.lDown) {
+            game.wireframe = !game.wireframe;
+            glPolygonMode(GL_FRONT_AND_BACK, game.wireframe ? GL_FILL : GL_LINE);
+        }
+        camera.lDown = true;
     }
     else {
-        game.lDown = false;
+        camera.lDown = false;
     }
 
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_P) == GLFW_PRESS)
-        glfwSetWindowShouldClose(game.getWindow().getNativeWindow(), true);
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_W) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::FORWARD, deltaTime);
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_S) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::BACKWARD, deltaTime);
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_A) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::LEFT, deltaTime);
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_D) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::RIGHT, deltaTime);
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_SPACE) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::UP, deltaTime);
-    if (glfwGetKey(game.getWindow().getNativeWindow(), GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        player.movePlayer(CameraMovement::DOWN, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.processKeyboard(CameraMovement::DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -63,46 +66,40 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
-    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    if (game)
-        game->currentWorld->getPlayer().camera.processMouseScroll(static_cast<float>(yoffset));
+    camera.processMouseScroll(static_cast<float>(yoffset));
 }
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
-    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
-    auto& player = game->currentWorld->getPlayer();
-    if (player.menu) return;
+    if (camera.menu) return;
 
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
-    if (player.firstMouse) {
-        player.camLastX = xpos;
-        player.camLastY = ypos;
-        player.firstMouse = false;
+    if (camera.firstMouse) {
+        camera.camLastX = xpos;
+        camera.camLastY = ypos;
+        camera.firstMouse = false;
     }
 
-    float xoffset = xpos - player.camLastX;
-    float yoffset = player.camLastY - ypos;
+    float xoffset = xpos - camera.camLastX;
+    float yoffset = camera.camLastY - ypos;
 
-    player.camLastX = xpos;
-    player.camLastY = ypos;
+    camera.camLastX = xpos;
+    camera.camLastY = ypos;
 
-    player.rotateCamera(xoffset, yoffset, true);
+    camera.processMouseMovement(xoffset, yoffset);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseButtonEvent(button, action);
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        std::cout << "viado";
-    }
-
-    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
-        std::cout << "viado";
-    }
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+        std::cout << "Mouse esquerdo clicado\n";
+    if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+        std::cout << "Mouse direito clicado\n";
 }
+
 
 void Game::loadTexture(unsigned int* texture, const std::string& path) {
 
