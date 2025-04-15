@@ -4,29 +4,18 @@
 #include <world.h>
 #include <player.h>
 #include <chunk.h>
-#include <game_helper.h>
+
 
 class Game {
 private:
     Window window;
-    World *currentWorld;
-    
-    
-    float lastFrameTime = 0.0f;
-
-private:
-    //void tick();
     
 
 public:
+    World* currentWorld;
     Player player;
-    //Storage
-    
 
 
-    //Control/Timing
-    float deltaTime = 0.0f;	// time between current frame and last frame
-    float lastFrame = 0.0f;
     float camLastX = window.WIDHT / 2.0f;
     float camLastY = window.HEIGHT / 2.0f;
 
@@ -41,13 +30,13 @@ public:
     bool VSYNC = 1;
 
 public:
-    Game();
-    ~Game();
+    Game() {};
+    ~Game() {};
 
     bool init();
     void run();
-    void shutdown();
-    void processInput();
+  
+   
    
     Window &getWindow();
 

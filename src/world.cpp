@@ -7,7 +7,7 @@ float saveFrequency = 30.0f;
 
 World::World(Camera& camera){
 	this->lastPlayerPos = glm::vec3(0.0f, 62.0f, 0.0f); // no futuro ler do arquvi do mundo
-	
+	initBlockUVs();
 
 	camera.position = lastPlayerPos;
 }
