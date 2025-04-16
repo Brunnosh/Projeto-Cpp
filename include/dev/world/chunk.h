@@ -9,6 +9,10 @@
 
 #define CHUNKSIZE 15
 
+struct chunkBuffers {
+	GLuint VBO = 0, VAO = 0, EBO = 0;
+};
+
 
 struct Vec3Hash {
 	std::size_t operator()(const glm::ivec3& v) const {
@@ -32,14 +36,15 @@ struct Vertex
 
 class Chunk {
 public:
-	bool dirty;
-	bool generated;
-	bool ready;
-	std::vector<Block> chunkData; 
-	glm::ivec3 worldPos; 
+	bool dirty = false;
+	bool generated = false;
+	bool ready = false;
+	std::vector<Block> chunkData;
+	glm::ivec3 worldPos;
 
 private:
-	unsigned int VBO, VAO, EBO;
+	chunkBuffers buffers[2];  // double buffer
+	char activeBuffer = 0;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 
@@ -48,12 +53,13 @@ private:
 public:
 	Chunk(glm::ivec3 pos); 
 	~Chunk() {
-		if (ready) {
-			glDeleteBuffers(1, &VBO);
-			glDeleteBuffers(1, &EBO);
-			glDeleteVertexArrays(1, &VAO);
+		for (int i = 0; i < 2; ++i) {
+			if (buffers[i].VAO != 0) {
+				glDeleteBuffers(1, &buffers[i].VBO);
+				glDeleteBuffers(1, &buffers[i].EBO);
+				glDeleteVertexArrays(1, &buffers[i].VAO);
+			}
 		}
-		
 	}
 
 
@@ -62,15 +68,8 @@ public:
 	void render(unsigned int modelLoc);
 	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
 
-	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
-		this->vertices.clear();
-		this->indices.clear();
-		this->ready = false;
-		this->generated = false;
-		this->genChunkFaces(WorldData);
-		
-		
-	}
+	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
+	
 
 	void placeBlock();
 };

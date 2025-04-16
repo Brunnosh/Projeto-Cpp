@@ -35,9 +35,29 @@ public:
     std::optional<RaycastHit> isBlockAir(glm::ivec3 blockPos);
 
     void removeBlock(RaycastHit& hit) {
+        int max = CHUNKSIZE - 1;
+
         int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
         hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
         hit.chunk->dirty = true;
+
+        auto tryMark = [&](glm::ivec3 offset) {
+            auto neighborPos = hit.chunk->worldPos + offset;
+            auto it = WorldData.find(neighborPos);
+            if (it != WorldData.end()) {
+                it->second.dirty = true;
+            }
+            };
+
+        if (hit.blockRelativePos.x == 0)         tryMark(glm::ivec3(-1, 0, 0));
+        else if (hit.blockRelativePos.x == max)  tryMark(glm::ivec3(1, 0, 0));
+
+        if (hit.blockRelativePos.y == 0)         tryMark(glm::ivec3(0, -1, 0));
+        else if (hit.blockRelativePos.y == max)  tryMark(glm::ivec3(0, 1, 0));
+
+        if (hit.blockRelativePos.z == 0)         tryMark(glm::ivec3(0, 0, -1));
+        else if (hit.blockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
+
     }
    
 };

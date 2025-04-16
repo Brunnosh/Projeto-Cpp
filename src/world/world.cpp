@@ -46,7 +46,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
         std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
             Chunk chunk(pos);
-            chunk.genChunkFaces(this->WorldData);
+            chunk.dirty = true;
             return { pos, std::move(chunk) };
             });
 

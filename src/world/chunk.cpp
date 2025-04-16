@@ -191,45 +191,14 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 
 
 void Chunk::render(unsigned int modelLoc) {
+    if (!ready || buffers[activeBuffer].VAO == 0) return;
 
-    if (!ready) {
+    glBindVertexArray(buffers[activeBuffer].VAO);
 
-        if (generated) {
-            
-
-            glGenVertexArrays(1, &VAO);
-            glBindVertexArray(VAO);
-
-            glGenBuffers(1, &VBO);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-            glVertexAttribPointer(0, 3, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, X));
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uvX));
-            glEnableVertexAttribArray(1);
-
-            glGenBuffers(1, &EBO);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-
-            ready = true;
-        }
-        
-        return;
-    }
-   
-    size_t numberVertexes = indices.size();
-    glBindVertexArray(VAO);
-
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(worldPos*CHUNKSIZE)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(worldPos * CHUNKSIZE));
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-    glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
-
 
 std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
@@ -360,7 +329,37 @@ void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertic
         currentVertex += 4;
         break;
     }
+}
 
+void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
+    this->vertices.clear();
+    this->indices.clear();
+    this->generated = false;
 
+    genChunkFaces(WorldData);
+    this->generated = true;
 
+    int nextBuffer = (activeBuffer + 1) % 2;
+
+    if (buffers[nextBuffer].VAO == 0)
+        glGenVertexArrays(1, &buffers[nextBuffer].VAO);
+    if (buffers[nextBuffer].VBO == 0)
+        glGenBuffers(1, &buffers[nextBuffer].VBO);
+    if (buffers[nextBuffer].EBO == 0)
+        glGenBuffers(1, &buffers[nextBuffer].EBO);
+
+    glBindVertexArray(buffers[nextBuffer].VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[nextBuffer].VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, X));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uvX));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[nextBuffer].EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    activeBuffer = nextBuffer;
+    ready = true;
 }
