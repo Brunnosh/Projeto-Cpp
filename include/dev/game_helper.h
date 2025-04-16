@@ -1,7 +1,7 @@
 #pragma once
 
 //Variable Declaration--------------------------------------------
-Camera camera(glm::vec3(0.0f, 62.0f, 0.0f));
+Camera camera(glm::vec3(0.0f, 70.0f, 0.0f));
 std::chrono::steady_clock::time_point fpsStartTime;
 float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
 float deltaTime = 0.0f;

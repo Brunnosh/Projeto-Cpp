@@ -224,7 +224,7 @@ void Chunk::render(unsigned int modelLoc) {
     glBindVertexArray(VAO);
 
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(worldPos*15)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
+    model = glm::translate(model, glm::vec3(worldPos*CHUNKSIZE)); //TROCAR ESSE VEC PELA POSICAO NO MUNDO DO CHUNK
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
     glDrawElements(GL_TRIANGLES, numberVertexes, GL_UNSIGNED_INT, 0);
@@ -250,7 +250,7 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     for (char x = 0; x < CHUNKSIZE; x++) {
         for (char z = 0; z < CHUNKSIZE; z++) {
             for (char y = 0; y < CHUNKSIZE; y++) {
-                if ((chunkCoords.y * 15) < 60 && (chunkCoords.y * 15) > 0) {
+                if ((chunkCoords.y * CHUNKSIZE) < 60 && (chunkCoords.y * CHUNKSIZE) > 0) {
                     tempVec.push_back(Blocks[BlockType::GRASS]);
                 }
                 else
