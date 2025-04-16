@@ -73,25 +73,24 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
 
 
-bool World::isBlockAir(glm::ivec3 blockPos) {
+std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
     glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
     glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
     int blockindex = blockOffset.x * CHUNKSIZE * CHUNKSIZE + blockOffset.z * CHUNKSIZE + blockOffset.y;
 
-    
-
     auto it = WorldData.find(blockChunkPos);
-    if (it != WorldData.end()) {
-        std::vector<Block>& chunkdata  = it->second.chunkData;
+    if (it == WorldData.end()) return std::nullopt;
 
-        if (chunkdata[blockindex].getType() != BlockType::AIR) {
-            return true;
-        }
 
-    }
+    Chunk* chunk = &it->second;
 
     
-    return false;
-    //chunk criado em X - Z - Y 
+
+    
+    if (chunk->chunkData[blockindex].getType() == BlockType::AIR)
+        return std::nullopt;
+
+    return RaycastHit{ chunk, blockOffset, blockPos };
+
 
 }

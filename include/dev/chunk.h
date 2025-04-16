@@ -6,7 +6,11 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
+
 #define CHUNKSIZE 15
+
+
+struct RaycastHit;
 
 struct Vec3Hash {
 	std::size_t operator()(const glm::ivec3& v) const {
@@ -58,5 +62,15 @@ public:
 	void genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
 	void render(unsigned int modelLoc);
 	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
+
+	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
+		this->vertices.clear();
+		this->indices.clear();
+		this->ready = false;
+		this->generated = false;
+		this->genChunkFaces(WorldData);
+	}
+
+	void placeBlock();
 };
 #endif

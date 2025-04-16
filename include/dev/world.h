@@ -32,7 +32,13 @@ public:
         return WorldData.size();
     }
 
-    bool isBlockAir(glm::ivec3 blockPos);
+    std::optional<RaycastHit> isBlockAir(glm::ivec3 blockPos);
+
+    void removeBlock(RaycastHit& hit) {
+        int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
+        hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
+        hit.chunk->regenMesh(WorldData);
+    }
    
 };
 

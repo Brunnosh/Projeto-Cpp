@@ -97,14 +97,17 @@ void Game::run() {
 
     //Game Loop
     while (!window.shouldClose()) {
+        
         frameSetups();
 
         perFrameLogic();
 
         processInput(*this, deltaTime);
+
         updateCameraMatrices(window);
 
-
+        //each frame ray-tracing for block highlighting
+        //camera.update();
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         mundoTeste.update(camera, deltaTime, modelLoc);

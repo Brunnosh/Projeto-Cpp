@@ -6,7 +6,13 @@
 #include <iostream>
 #include <optional>
 #include <functional>
+#include <chunk.h>
 
+struct RaycastHit {
+    Chunk* chunk;
+    glm::ivec3 blockRelativePos;
+    glm::ivec3 blockWorldPos;
+};
 
 enum class CameraMovement {
     FORWARD,
@@ -34,6 +40,7 @@ public:
 
     bool escDown = false;
     bool lDown = false;
+    
 
     // Configurações de movimento
 
@@ -107,17 +114,16 @@ public:
         return position;
     }
 
-    std::optional<glm::ivec3> Camera::raycast(float maxDistance, float step, const std::function<bool(glm::ivec3)>& isBlockAir) const {
+    std::optional<RaycastHit> Camera::raycast(float maxDistance, float step, const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const {
+
         glm::vec3 dir = glm::normalize(front);
-        glm::vec3 currentPos = position;
 
         for (float t = 0.0f; t <= maxDistance; t += step) {
-            glm::vec3 probe = currentPos + dir * t;
-            glm::ivec3 blockCoord = glm::floor(probe);
+            glm::vec3 probe = position + dir * t;
+            glm::ivec3 blockPos = glm::floor(probe);
 
-            if (!isBlockAir(blockCoord)) {
-                return blockCoord;
-            }
+            auto result = isBlockAir(blockPos);
+            if (result.has_value()) return result;
         }
 
         return std::nullopt;
@@ -136,7 +142,6 @@ private:
         up = glm::normalize(glm::cross(right, front));
     }
 };
-
 
 
 #endif
