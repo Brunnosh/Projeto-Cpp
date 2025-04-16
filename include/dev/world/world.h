@@ -61,6 +61,7 @@ public:
     }
 
     void placeBlock(RaycastHit& hit, Block blockToPlace ) {
+        int max = CHUNKSIZE - 1;
         glm::ivec3 newBlockPos;
         FACE face = hit.blockFace;
 
@@ -89,14 +90,44 @@ public:
 
         int newBlockIndex = newBlockRelativePos.x * CHUNKSIZE * CHUNKSIZE + newBlockRelativePos.z * CHUNKSIZE + newBlockRelativePos.y;
 
+
         //Operação contida dentro do proprio chunk
         if (hit.chunk->worldPos == newBlockChunkPos) {
             hit.chunk->chunkData[newBlockIndex] = blockToPlace;
             hit.chunk->dirty = true;
         }
         else {
+            auto it = WorldData.find(newBlockChunkPos);
+            if (it == WorldData.end()) {
+                std::cerr << "[ERRO] Construindo em chunk não gerado!" << std::endl;
+                throw std::runtime_error("Construindo em chunk não gerado!.");
+            }
 
+            Chunk* chunk = &it->second;
+            chunk->chunkData[newBlockIndex] = blockToPlace;
+            chunk->dirty = true;
         }
+
+
+        auto tryMark = [&](glm::ivec3 offset) {
+            auto neighborPos = newBlockChunkPos + offset;
+            auto it = WorldData.find(neighborPos);
+            if (it != WorldData.end()) {
+                it->second.dirty = true;
+            }
+            };
+
+        if (newBlockRelativePos.x == 0)         tryMark(glm::ivec3(-1, 0, 0));
+        else if (newBlockRelativePos.x == max)  tryMark(glm::ivec3(1, 0, 0));
+
+        if (newBlockRelativePos.y == 0)         tryMark(glm::ivec3(0, -1, 0));
+        else if (newBlockRelativePos.y == max)  tryMark(glm::ivec3(0, 1, 0));
+
+        if (newBlockRelativePos.z == 0)         tryMark(glm::ivec3(0, 0, -1));
+        else if (newBlockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
+
+
+
 
     }
    
