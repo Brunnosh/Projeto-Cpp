@@ -12,6 +12,7 @@ struct RaycastHit {
     Chunk* chunk;
     glm::ivec3 blockRelativePos;
     glm::ivec3 blockWorldPos;
+    FACE blockFace;
 };
 
 enum class CameraMovement {
@@ -37,6 +38,7 @@ public:
     bool firstMouse = true;
     float camLastX = 0.0f;
     float camLastY = 0.0f;
+    mutable std::optional<RaycastHit> raycastInfo;
 
     bool escDown = false;
     bool lDown = false;
@@ -114,19 +116,37 @@ public:
         return position;
     }
 
-    std::optional<RaycastHit> Camera::raycast(float maxDistance, float step, const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const {
-
+    void Camera::raycast(float maxDistance, float step,
+        const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockSolid) const
+    {
         glm::vec3 dir = glm::normalize(front);
+        glm::ivec3 lastBlockPos = glm::floor(position);
+
+        raycastInfo = std::nullopt;  // Limpa antes de começar
 
         for (float t = 0.0f; t <= maxDistance; t += step) {
             glm::vec3 probe = position + dir * t;
             glm::ivec3 blockPos = glm::floor(probe);
 
-            auto result = isBlockAir(blockPos);
-            if (result.has_value()) return result;
-        }
+            if (blockPos != lastBlockPos) {
+                auto result = isBlockSolid(blockPos);
+                if (result.has_value()) {
+                    RaycastHit hit = result.value();
 
-        return std::nullopt;
+                    glm::ivec3 delta = blockPos - lastBlockPos;
+                    if (delta == glm::ivec3(0, 1, 0))       hit.blockFace = FACE::BOTTOM;
+                    else if (delta == glm::ivec3(0, -1, 0)) hit.blockFace = FACE::TOP;
+                    else if (delta == glm::ivec3(1, 0, 0))  hit.blockFace = FACE::WEST;
+                    else if (delta == glm::ivec3(-1, 0, 0)) hit.blockFace = FACE::EAST;
+                    else if (delta == glm::ivec3(0, 0, 1))  hit.blockFace = FACE::NORTH;
+                    else if (delta == glm::ivec3(0, 0, -1)) hit.blockFace = FACE::SOUTH;
+
+                    raycastInfo = hit;
+                    return;
+                }
+                lastBlockPos = blockPos;
+            }
+        }
     }
 
 private:

@@ -8,7 +8,7 @@
 
 
 
-void drawGui(World & mundoTeste, Window & window, unsigned int crosshair) {
+void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
 
     //Debug panel
     ImGui::Begin("Debug Info");
@@ -18,7 +18,28 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair) {
     ImGui::Text("Y %f", camera.position.y);
     ImGui::Text("Z %f", camera.position.z);
     ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
+    ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+    ImGui::End();
 
+
+    ImGui::Begin("LookinAt");
+    if (camera.raycastInfo.has_value()) {
+        auto& hit = camera.raycastInfo.value();
+        ImGui::Text("BlockRelativeX %d", hit.blockRelativePos.x);
+        ImGui::Text("BlockRelativeY %d", hit.blockRelativePos.y);
+        ImGui::Text("BlockRelativeZ %d", hit.blockRelativePos.z);
+        ImGui::Text("------------------");
+        ImGui::Text("BlockWorldX %d", hit.blockWorldPos.x);
+        ImGui::Text("BlockWorldY %d", hit.blockWorldPos.y);
+        ImGui::Text("BlockWorldZ %d", hit.blockWorldPos.z);
+        ImGui::Text("------------------");
+        ImGui::Text("ChunkCoordX %d", hit.chunk->worldPos.x);
+        ImGui::Text("ChunkCoordY %d", hit.chunk->worldPos.y);
+        ImGui::Text("ChunkCoordZ %d", hit.chunk->worldPos.z);
+
+  
+    }
+    ImGui::End();
 
     //Draw crosshair
     ImDrawList* drawList = ImGui::GetBackgroundDrawList();
@@ -114,8 +135,12 @@ void Game::run() {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
-        drawGui(mundoTeste,window,crosshair);
-        ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+        camera.raycast(6.0f, 0.1f, [&](glm::ivec3 pos) {
+            return mundoTeste.isBlockAir(pos); 
+            });
+
+        drawGui(mundoTeste,window,crosshair, begin, end);
+        
         
         endFrame();
     }

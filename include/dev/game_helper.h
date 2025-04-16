@@ -155,26 +155,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     io.AddMouseButtonEvent(button, action);
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        auto res = camera.raycast(6.0f, 0.1f, [&](glm::ivec3 pos) {
-            return world.isBlockAir(pos);
-            });
-
-        if (res.has_value()) {
-            auto& hit = res.value();
-            std::cout << "Coordenada do bloco no chunk:("
-                << hit.blockRelativePos.x << ", "
-                << hit.blockRelativePos.y << ", "
-                << hit.blockRelativePos.z << ") — "
-                << "Coordenada do bloco no mundo ("
-                << hit.blockWorldPos.x << ", "
-                << hit.blockWorldPos.y << ", "
-                << hit.blockWorldPos.z << ")"
-                << "- Coordenada do chunk ("
-                << hit.chunk->worldPos.x << ", "
-                << hit.chunk->worldPos.y << ", "
-                << hit.chunk->worldPos.z << ") \n";
-
-            world.removeBlock(hit);
+        if (camera.raycastInfo.has_value()) {
+            world.removeBlock(camera.raycastInfo.value());
         }
     }
         
