@@ -37,7 +37,7 @@ public:
     void removeBlock(RaycastHit& hit) {
         int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
         hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
-        hit.chunk->regenMesh(WorldData);
+        hit.chunk->dirty = true;
     }
    
 };

@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(${PROJECT_SOURCE_DIR}/include/imgui)
 include_directories(${PROJECT_SOURCE_DIR}/include/stb)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev)
+include_directories(${PROJECT_SOURCE_DIR}/include/dev/world)
+include_directories(${PROJECT_SOURCE_DIR}/include/dev/render)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # Definindo os diretórios de bibliotecas

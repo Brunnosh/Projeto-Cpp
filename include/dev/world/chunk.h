@@ -10,8 +10,6 @@
 #define CHUNKSIZE 15
 
 
-struct RaycastHit;
-
 struct Vec3Hash {
 	std::size_t operator()(const glm::ivec3& v) const {
 		std::size_t h1 = std::hash<int>()(v.x);
@@ -34,10 +32,11 @@ struct Vertex
 
 class Chunk {
 public:
+	bool dirty;
 	bool generated;
 	bool ready;
 	std::vector<Block> chunkData; 
-	glm::ivec3 worldPos; // ivec -> chunk pos vai ser em incrementos de 15, (0,0) (15,15,15) (30,30,30).. etc
+	glm::ivec3 worldPos; 
 
 private:
 	unsigned int VBO, VAO, EBO;
@@ -69,6 +68,8 @@ public:
 		this->ready = false;
 		this->generated = false;
 		this->genChunkFaces(WorldData);
+		
+		
 	}
 
 	void placeBlock();

@@ -67,6 +67,10 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
     }
 
     for (auto& [pos, chunk] : WorldData) {
+        if (chunk.dirty) {
+            chunk.regenMesh(WorldData);
+            chunk.dirty = false;
+        }
         chunk.render(modelLoc);
     }
 }

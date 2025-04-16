@@ -179,7 +179,7 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 
     // Log
     
-    //std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
+    std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
     //std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
 
