@@ -117,7 +117,7 @@ public:
     }
 
     void Camera::raycast(float maxDistance, float step,
-        const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockSolid) const
+        const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const
     {
         glm::vec3 dir = glm::normalize(front);
         glm::ivec3 lastBlockPos = glm::floor(position);
@@ -129,7 +129,7 @@ public:
             glm::ivec3 blockPos = glm::floor(probe);
 
             if (blockPos != lastBlockPos) {
-                auto result = isBlockSolid(blockPos);
+                auto result = isBlockAir(blockPos);
                 if (result.has_value()) {
                     RaycastHit hit = result.value();
 

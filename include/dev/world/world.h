@@ -59,6 +59,46 @@ public:
         else if (hit.blockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
 
     }
+
+    void placeBlock(RaycastHit& hit, Block blockToPlace ) {
+        glm::ivec3 newBlockPos;
+        FACE face = hit.blockFace;
+
+        switch (face) {
+        case TOP:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x, hit.blockWorldPos.y + 1, hit.blockWorldPos.z);
+            break;
+        case BOTTOM:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x, hit.blockWorldPos.y - 1, hit.blockWorldPos.z);
+            break;
+        case NORTH:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x, hit.blockWorldPos.y, hit.blockWorldPos.z - 1);
+            break;
+        case SOUTH:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x, hit.blockWorldPos.y, hit.blockWorldPos.z + 1);
+            break;
+        case EAST:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x + 1, hit.blockWorldPos.y, hit.blockWorldPos.z);
+            break;
+        case WEST:
+            newBlockPos = glm::ivec3(hit.blockWorldPos.x - 1, hit.blockWorldPos.y, hit.blockWorldPos.z);
+            break;
+        }
+        glm::ivec3 newBlockChunkPos = glm::ivec3(glm::floor(glm::vec3(newBlockPos) / float(CHUNKSIZE)));
+        glm::ivec3 newBlockRelativePos = newBlockPos - newBlockChunkPos * CHUNKSIZE;
+
+        int newBlockIndex = newBlockRelativePos.x * CHUNKSIZE * CHUNKSIZE + newBlockRelativePos.z * CHUNKSIZE + newBlockRelativePos.y;
+
+        //Operação contida dentro do proprio chunk
+        if (hit.chunk->worldPos == newBlockChunkPos) {
+            hit.chunk->chunkData[newBlockIndex] = blockToPlace;
+            hit.chunk->dirty = true;
+        }
+        else {
+
+        }
+
+    }
    
 };
 

@@ -71,6 +71,6 @@ public:
 	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
 	
 
-	void placeBlock();
+	
 };
 #endif
