@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include <optional>
+#include <functional>
 
 
 enum class CameraMovement {
@@ -103,6 +105,22 @@ public:
 
     glm::vec3 getCamPos() {
         return position;
+    }
+
+    std::optional<glm::ivec3> Camera::raycast(float maxDistance, float step, const std::function<bool(glm::ivec3)>& isBlockAir) const {
+        glm::vec3 dir = glm::normalize(front);
+        glm::vec3 currentPos = position;
+
+        for (float t = 0.0f; t <= maxDistance; t += step) {
+            glm::vec3 probe = currentPos + dir * t;
+            glm::ivec3 blockCoord = glm::floor(probe);
+
+            if (!isBlockAir(blockCoord)) {
+                return blockCoord;
+            }
+        }
+
+        return std::nullopt;
     }
 
 private:

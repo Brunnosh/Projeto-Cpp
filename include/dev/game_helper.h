@@ -146,12 +146,25 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
     camera.processMouseMovement(xoffset, yoffset);
 }
 
+
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
+    World &world = *game->currentWorld;
+
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseButtonEvent(button, action);
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-        std::cout << "Mouse esquerdo clicado\n";
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        auto res = camera.raycast(6.0f, 0.1f, [&](glm::ivec3 pos) {
+            return !world.isBlockAir(pos); // isBlockAir já existe no World
+            });
+
+        if (res.has_value()) {
+            glm::ivec3 hit = res.value();
+            std::cout << "Bloco atingido: (" << hit.x << ", " << hit.y << ", " << hit.z << ")\n";
+        }
+    }
+        
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
         std::cout << "Mouse direito clicado\n";
 }

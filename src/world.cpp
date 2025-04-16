@@ -71,6 +71,27 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
     }
 }
 
-int World::getNumberChunks() {
-    return WorldData.size();
+
+
+bool World::isBlockAir(glm::ivec3 blockPos) {
+    glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
+    glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
+    int blockindex = blockOffset.x * CHUNKSIZE * CHUNKSIZE + blockOffset.z * CHUNKSIZE + blockOffset.y;
+
+    
+
+    auto it = WorldData.find(blockChunkPos);
+    if (it != WorldData.end()) {
+        std::vector<Block>& chunkdata  = it->second.chunkData;
+
+        if (chunkdata[blockindex].getType() != BlockType::AIR) {
+            return true;
+        }
+
+    }
+
+    
+    return false;
+    //chunk criado em X - Z - Y 
+
 }

@@ -28,8 +28,11 @@ public:
 
     void genWorld(Camera& camera, unsigned int modelLoc);
     void tick();
-    int getNumberChunks();
+    int getNumberChunks() {
+        return WorldData.size();
+    }
 
+    bool isBlockAir(glm::ivec3 blockPos);
    
 };
 
