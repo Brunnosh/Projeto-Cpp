@@ -31,7 +31,7 @@ void frameSetups() {
 
 }
 void updateCameraMatrices(Window& window) {
-    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.1f, 5000.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f);
     window.getShader().setMat4("projection", projection);
 
     glm::mat4 view = camera.GetViewMatrix();
@@ -162,7 +162,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
         if (camera.raycastInfo.has_value()) {
-            world.placeBlock(camera.raycastInfo.value(), Blocks[BlockType::GRASS]);
+           
+            world.placeBlock(camera, camera.raycastInfo.value(), Blocks[BlockType::GRASS]);
         }
 }
 //-----------------------------------------------------------------------------------

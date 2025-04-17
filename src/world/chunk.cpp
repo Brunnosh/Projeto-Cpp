@@ -7,19 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
 
-
-
-
-Chunk::Chunk(glm::ivec3 pos) {
-    worldPos = pos;
-    generated = false;
-    ready = false;
-    chunkData = populateChunk(pos);
-}
-
-bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block> * nextChunkData) {
+bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData) {
     if (x >= 0 && x < CHUNKSIZE &&
         y >= 0 && y < CHUNKSIZE &&
         z >= 0 && z < CHUNKSIZE) {
@@ -43,12 +32,95 @@ bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vec
 }
 
 
+std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
+    //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
+    std::vector<Block> tempVec;
+    //teste chunk 15x15x15 solido
+
+    //std::cout << "GERANDO CHUNK X: " << chunkCoords.x<< ", Y:  " << chunkCoords.y << ", Z: "<< chunkCoords.z << "\n";
+
+    if (chunkCoords == glm::ivec3(0, 3, 0)) {
+
+        for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
+            tempVec.push_back(Blocks[BlockType::AIR]);
+        }
+        return tempVec;
+    }
+
+
+    for (char x = 0; x < CHUNKSIZE; x++) {
+        for (char z = 0; z < CHUNKSIZE; z++) {
+            for (char y = 0; y < CHUNKSIZE; y++) {
+                if ((chunkCoords.y * CHUNKSIZE) < 60 && (chunkCoords.y * CHUNKSIZE) > 0) {
+                    tempVec.push_back(Blocks[BlockType::GRASS]);
+                }
+                else
+                {
+                    tempVec.push_back(Blocks[BlockType::AIR]);
+                }
+
+            }
+        }
+    }
+
+
+    return tempVec;
+}
+
+void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
+    auto start = std::chrono::high_resolution_clock::now();
+
+    this->vertices.clear();
+    this->indices.clear();
+    this->generated = false;
+
+    genChunkFaces(WorldData);
+    this->generated = true;
+
+    int nextBuffer = (activeBuffer + 1) % 2;
+
+    if (buffers[nextBuffer].VAO == 0)
+        glGenVertexArrays(1, &buffers[nextBuffer].VAO);
+    if (buffers[nextBuffer].VBO == 0)
+        glGenBuffers(1, &buffers[nextBuffer].VBO);
+    if (buffers[nextBuffer].EBO == 0)
+        glGenBuffers(1, &buffers[nextBuffer].EBO);
+
+    glBindVertexArray(buffers[nextBuffer].VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, buffers[nextBuffer].VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, X));
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uvX));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[nextBuffer].EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    activeBuffer = nextBuffer;
+    ready = true;
+
+    // Fim da medição de tempo
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+
+
+    // Log
+
+    std::cout << "Mesh gerada em: " << duration.count() << " segundos\n";
+    //std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
+
+}
+
+
 //NAO MODIFICAR ESSE WORLDDATA EM HIPÓTESE ALGUMA SEM IMPLEMENTAR MUTEX---V
 void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &WorldData) {
 
 
 
-    auto start = std::chrono::high_resolution_clock::now();
+    
 
 
 
@@ -168,19 +240,8 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 		}
 	}
 
-    this->generated = true;
 
 
-    // Fim da medição de tempo
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> duration = end - start;
-
-
-
-    // Log
-    
-    std::cout << "Chunk gerado em " << duration.count() << " segundos\n";
-    //std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 }
 
 
@@ -190,54 +251,9 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
 
 
 
-void Chunk::render(unsigned int modelLoc) {
-    if (!ready || buffers[activeBuffer].VAO == 0) return;
-
-    glBindVertexArray(buffers[activeBuffer].VAO);
-
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(worldPos * CHUNKSIZE));
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-}
-
-std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
-    //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
-    std::vector<Block> tempVec;
-    //teste chunk 15x15x15 solido
-
-    //std::cout << "GERANDO CHUNK X: " << chunkCoords.x<< ", Y:  " << chunkCoords.y << ", Z: "<< chunkCoords.z << "\n";
-
-    if (chunkCoords == glm::ivec3(0, 3, 0)) {
-        
-        for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
-            tempVec.push_back(Blocks[BlockType::AIR]);
-        }
-        return tempVec;
-    }
 
 
-    for (char x = 0; x < CHUNKSIZE; x++) {
-        for (char z = 0; z < CHUNKSIZE; z++) {
-            for (char y = 0; y < CHUNKSIZE; y++) {
-                if ((chunkCoords.y * CHUNKSIZE) < 60 && (chunkCoords.y * CHUNKSIZE) > 0) {
-                    tempVec.push_back(Blocks[BlockType::GRASS]);
-                }
-                else
-                {
-                    tempVec.push_back(Blocks[BlockType::AIR]);
-                }
-
-            }
-        }
-    }
-
-
-    return tempVec;
-}
-
-
-
-void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock) {
+void Chunk::addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock) {
 
     const UV uv = blockUVs[storedBlock.getType()][face];
     float uMin = uv.uMin, uMax = uv.uMax, vMin = uv.vMin, vMax = uv.vMax;
@@ -331,35 +347,16 @@ void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertic
     }
 }
 
-void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
-    this->vertices.clear();
-    this->indices.clear();
-    this->generated = false;
 
-    genChunkFaces(WorldData);
-    this->generated = true;
 
-    int nextBuffer = (activeBuffer + 1) % 2;
+void Chunk::render(unsigned int modelLoc) {
+    if (!ready || buffers[activeBuffer].VAO == 0) return;
 
-    if (buffers[nextBuffer].VAO == 0)
-        glGenVertexArrays(1, &buffers[nextBuffer].VAO);
-    if (buffers[nextBuffer].VBO == 0)
-        glGenBuffers(1, &buffers[nextBuffer].VBO);
-    if (buffers[nextBuffer].EBO == 0)
-        glGenBuffers(1, &buffers[nextBuffer].EBO);
+    glBindVertexArray(buffers[activeBuffer].VAO);
 
-    glBindVertexArray(buffers[nextBuffer].VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, buffers[nextBuffer].VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, X));
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uvX));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers[nextBuffer].EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-    activeBuffer = nextBuffer;
-    ready = true;
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(worldPos * CHUNKSIZE));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
+
+

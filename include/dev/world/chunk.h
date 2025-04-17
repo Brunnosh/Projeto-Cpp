@@ -51,7 +51,13 @@ private:
 
 
 public:
-	Chunk(glm::ivec3 pos); 
+	Chunk::Chunk(glm::ivec3 pos) {
+		worldPos = pos;
+		generated = false;
+		ready = false;
+		chunkData = populateChunk(pos);
+	}
+
 	~Chunk() {
 		for (int i = 0; i < 2; ++i) {
 			if (buffers[i].VAO != 0) {
@@ -67,7 +73,7 @@ public:
 	void genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
 	void render(unsigned int modelLoc);
 	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
-
+	void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
 	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
 	
 
