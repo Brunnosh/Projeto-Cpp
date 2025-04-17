@@ -8,6 +8,8 @@
 #include <functional>
 #include <chunk.h>
 
+class World;
+
 struct RaycastHit {
     Chunk* chunk;
     glm::ivec3 blockRelativePos;
@@ -39,6 +41,8 @@ public:
     float camLastX = 0.0f;
     float camLastY = 0.0f;
     mutable std::optional<RaycastHit> raycastInfo;
+    float cameraReach = 6.0f;
+    float raycastStep = 0.1f;
 
     bool escDown = false;
     bool lDown = false;
@@ -116,15 +120,14 @@ public:
         return position;
     }
 
-    void Camera::raycast(float maxDistance, float step,
-        const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const
+    void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const
     {
         glm::vec3 dir = glm::normalize(front);
         glm::ivec3 lastBlockPos = glm::floor(position);
 
         raycastInfo = std::nullopt;  // Limpa antes de começar
 
-        for (float t = 0.0f; t <= maxDistance; t += step) {
+        for (float t = 0.0f; t <= cameraReach; t += raycastStep) {
             glm::vec3 probe = position + dir * t;
             glm::ivec3 blockPos = glm::floor(probe);
 
@@ -148,6 +151,10 @@ public:
             }
         }
     }
+
+    
+    void update(World& world);
+    
 
 private:
     void updateVectors() {

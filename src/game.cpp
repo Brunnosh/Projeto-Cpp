@@ -135,9 +135,8 @@ void Game::run() {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
-        camera.raycast(6.0f, 0.1f, [&](glm::ivec3 pos) {
-            return mundoTeste.isBlockAir(pos); 
-            });
+        camera.update(mundoTeste);
+
 
         drawGui(mundoTeste,window,crosshair, begin, end);
         
