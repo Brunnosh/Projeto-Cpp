@@ -4,15 +4,14 @@
 #include "imgui_impl_opengl3.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <shader.h>
 #include <string>
 
 class Window {
 public:
     bool init(const std::string& title);
     bool glInit();
-    void useShader();
-    Shader getShader();
+
+    
   
     void pollEvents();
     void swapBuffers();
@@ -25,5 +24,5 @@ public:
 
 private:
     GLFWwindow* window = nullptr;
-    Shader* defaultShader = nullptr;
+    
 };

@@ -1,11 +1,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <game.h>
+#include <shader.h>
 #include <game_helper.h>
 #include <iostream>
 #include <chrono>
 
 
+
+void compileShaders() {
+    defaultShader = new Shader("assets/shaders/vertexshader.glsl", "assets/shaders/fragmentshader.glsl");
+}
 
 
 void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
@@ -87,8 +92,10 @@ void perFrameLogic() {
 
 //Check game_helper.h (function de-clutter,( callbacks, setups))
 void Game::run() {
+    
+    
     unsigned int atlas, crosshair;
-    modelLoc = glGetUniformLocation(window.getShader().ID, "model");
+    modelLoc = glGetUniformLocation((*defaultShader).ID, "model");
     initBlockUVs();
 
     glfwSetWindowUserPointer(window.getNativeWindow(), this);
@@ -99,13 +106,14 @@ void Game::run() {
     glfwSetScrollCallback(window.getNativeWindow(), scroll_callback);
     glfwSetInputMode(window.getNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSwapInterval(VSYNC);
-
     setupImgui(*this);
+
+    compileShaders();
 
     glActiveTexture(GL_TEXTURE0);
     loadTexture(&atlas, "assets/atlas.png");
-    window.useShader();
-    window.getShader().setInt("atlas", 0);
+ 
+    (*defaultShader).setInt("atlas", 0);
 
     glActiveTexture(GL_TEXTURE1);
     loadTexture(&crosshair, "assets/crosshair.png");
@@ -118,14 +126,15 @@ void Game::run() {
 
     //Game Loop
     while (!window.shouldClose()) {
-        
+        (*defaultShader).use();
+
         frameSetups();
 
         perFrameLogic();
 
         processInput(*this, deltaTime);
 
-        updateCameraMatrices(window);
+        updateCameraMatrices(window, *defaultShader);
 
         //each frame ray-tracing for block highlighting
         //camera.update();
@@ -145,5 +154,8 @@ void Game::run() {
     }
 
     cleanup();
+
+    delete defaultShader;
+    defaultShader = nullptr;
 }
 

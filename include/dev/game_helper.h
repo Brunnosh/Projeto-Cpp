@@ -7,6 +7,7 @@ float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 unsigned int modelLoc;
+Shader* defaultShader;
 //---------------------------------------------------------------
 
 
@@ -30,12 +31,12 @@ void frameSetups() {
     ImGui::NewFrame();
 
 }
-void updateCameraMatrices(Window& window) {
+void updateCameraMatrices(Window & window,Shader & shader) {
     glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f);
-    window.getShader().setMat4("projection", projection);
+    shader.setMat4("projection", projection);
 
     glm::mat4 view = camera.GetViewMatrix();
-    window.getShader().setMat4("view", view);
+    shader.setMat4("view", view);
 
 };
 void loadTexture(unsigned int* texture, const std::string& path) {
