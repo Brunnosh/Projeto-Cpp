@@ -14,6 +14,7 @@ struct RaycastHit {
     Chunk* chunk;
     glm::ivec3 blockRelativePos;
     glm::ivec3 blockWorldPos;
+    Block* copiedBlock;
     FACE blockFace;
 };
 
@@ -43,6 +44,7 @@ public:
     mutable std::optional<RaycastHit> raycastInfo;
     float cameraReach = 6.0f;
     float raycastStep = 0.1f;
+    Block * selectedBlock = nullptr;
 
     bool escDown = false;
     bool lDown = false;
@@ -61,6 +63,7 @@ public:
         pitch = 0.0f;
         yaw = -90.0f;
         fov = 75.0f;
+
 
         updateVectors();
     }
@@ -82,7 +85,10 @@ public:
 
     void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>& isBlockAir) const;
 
-    
+    void selectBlock();
+
+    void selectNextBlock();
+
     void update(World& world);
     
 

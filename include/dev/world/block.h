@@ -17,6 +17,13 @@ enum class BlockType {
     AMOUNT
 };
 
+static const char* BlockTypeNames[] = {
+    "Air",
+    "Grass",
+    "Dirt"
+
+};
+
 enum FACE { //order used for texture index in chunk.cpp/block.cpp
     NORTH,
     SOUTH,
@@ -51,6 +58,9 @@ public:
         return type;
     }
 
+    inline const char* getTypeToString() {
+        return BlockTypeNames[static_cast<int>(this->type)];
+    }
 
 
     UV computeUV(short position) {

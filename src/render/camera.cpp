@@ -1,7 +1,13 @@
 #include <camera.h>
 #include <world.h>
 
+void Camera::selectBlock() {
+    selectedBlock = raycastInfo.value().copiedBlock;
+}
 
+void Camera::selectNextBlock() {
+
+}
 
 void Camera::processKeyboard(CameraMovement direction, float deltaTime) {
     float velocity = moveSpeed * deltaTime;

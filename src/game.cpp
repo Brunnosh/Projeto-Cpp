@@ -24,6 +24,7 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
     ImGui::Text("Z %f", camera.position.z);
     ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
     ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+    if (camera.selectedBlock != nullptr) ImGui::Text("Selected Block: %s", (*camera.selectedBlock).getTypeToString());
     ImGui::End();
 
 
@@ -41,6 +42,8 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
         ImGui::Text("ChunkCoordX %d", hit.chunk->worldPos.x);
         ImGui::Text("ChunkCoordY %d", hit.chunk->worldPos.y);
         ImGui::Text("ChunkCoordZ %d", hit.chunk->worldPos.z);
+        
+        
 
   
     }
@@ -93,7 +96,7 @@ void perFrameLogic() {
 //Check game_helper.h (function de-clutter,( callbacks, setups))
 void Game::run() {
     
-    
+    compileShaders();
     unsigned int atlas, crosshair;
     modelLoc = glGetUniformLocation((*defaultShader).ID, "model");
     initBlockUVs();
@@ -108,7 +111,7 @@ void Game::run() {
     glfwSwapInterval(VSYNC);
     setupImgui(*this);
 
-    compileShaders();
+    
 
     glActiveTexture(GL_TEXTURE0);
     loadTexture(&atlas, "assets/atlas.png");

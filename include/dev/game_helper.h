@@ -155,6 +155,16 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseButtonEvent(button, action);
 
+    if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) {
+
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            camera.selectNextBlock();
+
+        if (camera.raycastInfo.has_value()) {
+            camera.selectBlock();
+        }
+    }
+
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         if (camera.raycastInfo.has_value()) {
             world.removeBlock(camera.raycastInfo.value());

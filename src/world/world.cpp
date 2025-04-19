@@ -87,14 +87,14 @@ std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
 
 
     Chunk* chunk = &it->second;
-
+    Block* selectedBlock = &chunk->chunkData[blockindex];
     
 
     
     if (chunk->chunkData[blockindex].getType() == BlockType::AIR)
         return std::nullopt;
 
-    return RaycastHit{ chunk, blockOffset, blockPos };
+    return RaycastHit{ chunk, blockOffset, blockPos, selectedBlock };
 
 
 }
