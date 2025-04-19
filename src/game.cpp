@@ -147,26 +147,23 @@ void Game::run() {
 
     //Game Loop
     while (!window.shouldClose()) {
-        
-
         frameSetups();
-
         perFrameLogic();
-
         processInput(*this, deltaTime);
 
+        Shaders[shaderType::TEXTURE].use();
         updateCameraMatrices(window, Shaders[shaderType::TEXTURE]);
-
-        //each frame ray-tracing for block highlighting
-        //camera.update();
-
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         mundoTeste.update(camera, deltaTime, modelLoc);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
+        
         camera.update(mundoTeste, window);
 
+
+
+   
 
         drawGui(mundoTeste,window,crosshair, begin, end);
         

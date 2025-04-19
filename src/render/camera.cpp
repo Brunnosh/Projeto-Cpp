@@ -208,7 +208,7 @@ void Camera::drawBlockOutline(Window& window) {
         glBindVertexArray(0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // volta ao normal
         glDisable(GL_POLYGON_OFFSET_LINE);
-        Shaders[shaderType::TEXTURE].use();
+        
 
     }
 }

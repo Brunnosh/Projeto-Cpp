@@ -20,7 +20,7 @@ class Shader
 public:
     unsigned int ID;
 
-    Shader(){}
+    Shader() { this->ID = -1; }
 
     Shader(const char* vertexPath, const char* fragmentPath);
 
