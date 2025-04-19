@@ -42,6 +42,8 @@ struct UV {
 class Block {
 private:
     BlockType type;
+    float teste;
+    bool teste2;
 
 public:
 

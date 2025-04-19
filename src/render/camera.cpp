@@ -3,6 +3,57 @@
 #include <shader.h>
 #include <window.h>
 
+float cubeVertices[] = {
+    // frente
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+    -0.5f, -0.5f,  0.5f,
+
+    // trás
+    -0.5f, -0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+
+    // esquerda
+    -0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+
+    // direita
+     0.5f,  0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+     0.5f,  0.5f,  0.5f,
+
+     // topo
+     -0.5f,  0.5f,  0.5f,
+      0.5f,  0.5f,  0.5f,
+      0.5f,  0.5f, -0.5f,
+      0.5f,  0.5f, -0.5f,
+     -0.5f,  0.5f, -0.5f,
+     -0.5f,  0.5f,  0.5f,
+
+     // fundo
+     -0.5f, -0.5f,  0.5f,
+     -0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f, -0.5f,
+      0.5f, -0.5f,  0.5f,
+     -0.5f, -0.5f,  0.5f,
+};
+
+
 void Camera::selectBlock() {
     selectedBlock = raycastInfo.value().copiedBlock;
 }
@@ -117,61 +168,13 @@ void Camera::update(World& world, Window & window) {
 
 }
 
-
+GLuint outlineVAO, outlineVBO;
 void Camera::drawBlockOutline(Window& window) {
     if (raycastInfo.has_value()) {
 
-        GLuint outlineVAO, outlineVBO;
+        
 
-        float cubeVertices[] = {
-            // frente
-            -0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
-             0.5f,  0.5f,  0.5f,
-             0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f,
-            -0.5f, -0.5f,  0.5f,
 
-            // trás
-            -0.5f, -0.5f, -0.5f,
-            -0.5f,  0.5f, -0.5f,
-             0.5f,  0.5f, -0.5f,
-             0.5f,  0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-
-            // esquerda
-            -0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f, -0.5f,
-            -0.5f, -0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f,
-
-            // direita
-             0.5f,  0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
-             0.5f,  0.5f, -0.5f,
-             0.5f,  0.5f,  0.5f,
-
-             // topo
-             -0.5f,  0.5f,  0.5f,
-              0.5f,  0.5f,  0.5f,
-              0.5f,  0.5f, -0.5f,
-              0.5f,  0.5f, -0.5f,
-             -0.5f,  0.5f, -0.5f,
-             -0.5f,  0.5f,  0.5f,
-
-             // fundo
-             -0.5f, -0.5f,  0.5f,
-             -0.5f, -0.5f, -0.5f,
-              0.5f, -0.5f, -0.5f,
-              0.5f, -0.5f, -0.5f,
-              0.5f, -0.5f,  0.5f,
-             -0.5f, -0.5f,  0.5f,
-        };
 
         glGenVertexArrays(1, &outlineVAO);
         glGenBuffers(1, &outlineVBO);
@@ -208,6 +211,8 @@ void Camera::drawBlockOutline(Window& window) {
         glBindVertexArray(0);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // volta ao normal
         glDisable(GL_POLYGON_OFFSET_LINE);
+        glDeleteVertexArrays(1, &outlineVAO);
+        glDeleteBuffers(1, &outlineVBO);
         
 
     }

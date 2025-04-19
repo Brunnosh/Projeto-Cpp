@@ -9,8 +9,9 @@
 
 
 void loadShaders() {
-    Shaders[shaderType::TEXTURE] = Shader("assets/shaders/vertexshader.glsl", "assets/shaders/fragmentshader.glsl");
+    Shaders[shaderType::TEXTURE] = Shader("assets/shaders/texture/vertexshader.glsl", "assets/shaders/texture/fragmentshader.glsl");
     Shaders[shaderType::OUTLINE] = Shader("assets/shaders/outline/outlineVertex.glsl", "assets/shaders/outline/outlineFragment.glsl");
+    Shaders[shaderType::LIGHTING] = Shader("assets/shaders/lighting/lightingVertex.glsl", "assets/shaders/lighting/lightingFragment.glsl");
 }
 
 void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
