@@ -1,6 +1,7 @@
 #ifndef CHUNK_H
 #define CHUNK_H
 
+
 #include <vector>
 #include <block.h>
 #include <glad/glad.h>
@@ -28,9 +29,12 @@ struct Vertex
 {
 	char X, Y, Z;
 	float uvX, uvY;
+	char normalX, normalY, normalZ;
 
-	Vertex(char _posX, char _posY, char _posZ, float _texGridX, float _texGridY)
-		: X(_posX), Y(_posY), Z(_posZ), uvX(_texGridX), uvY(_texGridY) {
+	Vertex(char _posX, char _posY, char _posZ, float _texGridX, float _texGridY, char _normalX, char _normalY, char _normalZ)
+		: X(_posX), Y(_posY), Z(_posZ), 
+		uvX(_texGridX), uvY(_texGridY), 
+		normalX(_normalX), normalY(_normalY), normalZ(_normalZ) {
 	}
 };
 

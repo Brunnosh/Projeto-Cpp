@@ -9,9 +9,10 @@
 
 
 void loadShaders() {
-    Shaders[shaderType::TEXTURE] = Shader("assets/shaders/texture/vertexshader.glsl", "assets/shaders/texture/fragmentshader.glsl");
+    Shaders[shaderType::TEXTURE] = Shader("assets/shaders/texture/textureVertex.glsl", "assets/shaders/texture/textureFragment.glsl");
     Shaders[shaderType::OUTLINE] = Shader("assets/shaders/outline/outlineVertex.glsl", "assets/shaders/outline/outlineFragment.glsl");
-    Shaders[shaderType::LIGHTING] = Shader("assets/shaders/lighting/lightingVertex.glsl", "assets/shaders/lighting/lightingFragment.glsl");
+    Shaders[shaderType::SKYBOX] = Shader("assets/shaders/skybox/skyboxVertex.glsl", "assets/shaders/skybox/skyboxFragment.glsl");
+    
 }
 
 void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
@@ -83,7 +84,7 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
 
 
 void perFrameLogic() {
-
+    glClearColor(0.5, 0.5, 0.5, 0.5);
     //per-frame - iterative logic
     float currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
@@ -148,12 +149,28 @@ void Game::run() {
 
     //Game Loop
     while (!window.shouldClose()) {
+        
         frameSetups();
         perFrameLogic();
         processInput(*this, deltaTime);
-
-        Shaders[shaderType::TEXTURE].use();
         updateCameraMatrices(window, Shaders[shaderType::TEXTURE]);
+        
+
+
+        
+        glm::vec3 lightPos(0.0f, 100.0f, 0.0f);
+        
+       
+
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.5f);
+
+        
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "lightPos"), 1, &lightPos[0]);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "viewPos"), 1, &camera.position[0]);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.5f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "shininess"), 32.0f);
+
+
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         mundoTeste.update(camera, deltaTime, modelLoc);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
@@ -161,8 +178,6 @@ void Game::run() {
 
         
         camera.update(mundoTeste, window);
-
-
 
    
 

@@ -3,7 +3,7 @@
 #include <shader.h>
 #include <window.h>
 
-float cubeVertices[] = {
+float outlineVertices[] = {
     // frente
     -0.5f, -0.5f,  0.5f,
      0.5f, -0.5f,  0.5f,
@@ -182,7 +182,7 @@ void Camera::drawBlockOutline(Window& window) {
         glBindVertexArray(outlineVAO);
 
         glBindBuffer(GL_ARRAY_BUFFER, outlineVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(outlineVertices), outlineVertices, GL_STATIC_DRAW);
 
         // posição (somente vec3)
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
@@ -213,7 +213,7 @@ void Camera::drawBlockOutline(Window& window) {
         glDisable(GL_POLYGON_OFFSET_LINE);
         glDeleteVertexArrays(1, &outlineVAO);
         glDeleteBuffers(1, &outlineVBO);
-        
+        Shaders[shaderType::TEXTURE].use();
 
     }
 }

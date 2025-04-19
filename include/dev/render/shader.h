@@ -10,7 +10,8 @@
 enum class shaderType {
     TEXTURE = 0,
     OUTLINE,
-    LIGHTING, 
+    SKYBOX,
+    
 
     AMOUNT
 };
