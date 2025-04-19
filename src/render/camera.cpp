@@ -6,7 +6,22 @@ void Camera::selectBlock() {
 }
 
 void Camera::selectNextBlock() {
+    if (selectedBlock == nullptr) return;
 
+    // Pega o tipo atual
+    int type = static_cast<int>(selectedBlock->getType());
+
+    // Calcula o próximo tipo
+    int nextType = (type + 1) % static_cast<int>(BlockType::AMOUNT);
+
+    // Converte de volta pra enum
+    BlockType nextBlockType = static_cast<BlockType>(nextType);
+
+    // Acessa o bloco correspondente
+    auto it = Blocks.find(nextBlockType);
+    if (it != Blocks.end()) {
+        selectedBlock = const_cast<Block*>(&it->second);
+    }
 }
 
 void Camera::processKeyboard(CameraMovement direction, float deltaTime) {

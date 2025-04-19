@@ -29,11 +29,14 @@ enum class CameraMovement {
 
 class Camera {
 public:
-    // Configurações principais
     glm::vec3 position;
     float yaw;
     float pitch;
     float fov;
+
+
+    bool escDown = false;
+    bool lDown = false;
     short renderDist = 8;
     float moveSpeed = 10.0f;
     float mouseSensitivity = 0.1f;
@@ -41,13 +44,14 @@ public:
     bool firstMouse = true;
     float camLastX = 0.0f;
     float camLastY = 0.0f;
+
+
     mutable std::optional<RaycastHit> raycastInfo;
     float cameraReach = 6.0f;
-    float raycastStep = 0.1f;
+    float raycastStep = 0.01f;
     Block * selectedBlock = nullptr;
 
-    bool escDown = false;
-    bool lDown = false;
+
     
 
     // Configurações de movimento

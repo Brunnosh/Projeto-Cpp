@@ -16,7 +16,7 @@ void compileShaders() {
 void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
 
     //Debug panel
-    ImGui::Begin("Debug Info");
+    ImGui::Begin("WorldDebug");
     ImGui::Text("FPS: %f (Avg: %f, Min: %f, Max: %f)", fps, avgFps, lowestFps, highestFps);
     ImGui::Text("FrameTime (ms): %f", deltaTime * 100.0f);
     ImGui::Text("X %f", camera.position.x);
@@ -30,6 +30,7 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
 
     ImGui::Begin("LookinAt");
     if (camera.raycastInfo.has_value()) {
+        
         auto& hit = camera.raycastInfo.value();
         ImGui::Text("BlockRelativeX %d", hit.blockRelativePos.x);
         ImGui::Text("BlockRelativeY %d", hit.blockRelativePos.y);
@@ -43,12 +44,29 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
         ImGui::Text("ChunkCoordY %d", hit.chunk->worldPos.y);
         ImGui::Text("ChunkCoordZ %d", hit.chunk->worldPos.z);
         
-        
+
 
   
     }
     ImGui::End();
 
+    ImGui::Begin("CameraDebug");
+    ImGui::Text("Yaw %f", camera.yaw);
+    ImGui::Text("Pitch %f", camera.pitch);
+    ImGui::Text("Fov %f", camera.fov);
+    ImGui::Text("FrontX %f", camera.front.x);
+    ImGui::Text("FrontY %f", camera.front.y);
+    ImGui::Text("FrontZ %f", camera.front.z);
+
+    ImGui::Text("RightX %f", camera.right.x);
+    ImGui::Text("RightY %f", camera.right.y);
+    ImGui::Text("RightZ %f", camera.right.z);
+
+    ImGui::Text("UpX %f", camera.up.x);
+    ImGui::Text("UpY %f", camera.up.y);
+    ImGui::Text("UpZ %f", camera.up.z);
+
+    ImGui::End();
     //Draw crosshair
     ImDrawList* drawList = ImGui::GetBackgroundDrawList();
     ImVec2 center(window.WIDHT * 0.5f, window.HEIGHT * 0.5f);
