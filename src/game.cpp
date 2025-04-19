@@ -170,7 +170,7 @@ void Game::run() {
         glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.5f);
         glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "shininess"), 32.0f);
 
-
+        Shaders[shaderType::TEXTURE].use();
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
         mundoTeste.update(camera, deltaTime, modelLoc);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
