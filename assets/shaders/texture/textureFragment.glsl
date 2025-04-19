@@ -8,7 +8,7 @@ in vec3 Normal;
 
 
 uniform sampler2D atlas;
-uniform vec3 lightPos;    // Posição da fonte de luz (como o sol)
+uniform vec3 lightDir;    // Direçao do sol 
 uniform vec3 viewPos;     // Posição da câmera
 uniform float ambientStrength;
 uniform float specularStrength;
@@ -24,13 +24,13 @@ void main()
 
     // Iluminação difusa
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 lightDirection = normalize(-lightDir);
+    float diff = max(dot(norm, lightDirection), 0.0);
     vec3 diffuse = diff * vec3(1.0, 1.0, 1.0);  // Cor da luz difusa
 
     // Iluminação especular
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 reflectDir = reflect(-lightDirection, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
     vec3 specular = specularStrength * spec * vec3(1.0, 1.0, 1.0);  // Reflexo da luz
 

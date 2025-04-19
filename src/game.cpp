@@ -15,7 +15,7 @@ void loadShaders() {
     
 }
 
-void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end) {
+void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end, float sunAngle) {
 
     //Debug panel
     ImGui::Begin("WorldDebug");
@@ -26,6 +26,7 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
     ImGui::Text("Z %f", camera.position.z);
     ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
     ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+    ImGui::Text("Sun Angle: %f", sunAngle);
     if (camera.selectedBlock != nullptr) ImGui::Text("Selected Block: %s", (*camera.selectedBlock).getTypeToString());
     ImGui::End();
 
@@ -146,6 +147,8 @@ void Game::run() {
 
     fpsStartTime = std::chrono::steady_clock::now();
     
+    float sunAngle = 0.0f; // Começa no leste
+    float sunSpeed = 5.0f;
 
     //Game Loop
     while (!window.shouldClose()) {
@@ -156,19 +159,24 @@ void Game::run() {
         updateCameraMatrices(window, Shaders[shaderType::TEXTURE]);
         
 
+        sunAngle += sunSpeed * deltaTime;
+        if (sunAngle >= 360.0f)
+            sunAngle -= 360.0f;
+        
+        float sunRadians = glm::radians(sunAngle + 180.0f);
+        
+        glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
+        
+        
 
-        
-        glm::vec3 lightPos(0.0f, 100.0f, 0.0f);
-        
        
-
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.5f);
-
         
-        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "lightPos"), 1, &lightPos[0]);
+        //futuro calcular ambientlight conforme estado do mundo (dia, noite, weather...)
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.5f);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "lightDir"), 1, &sunDirection[0]);
         glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "viewPos"), 1, &camera.position[0]);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.5f);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "shininess"), 32.0f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.05f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "shininess"), 8.0f);
 
         Shaders[shaderType::TEXTURE].use();
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
@@ -181,7 +189,7 @@ void Game::run() {
 
    
 
-        drawGui(mundoTeste,window,crosshair, begin, end);
+        drawGui(mundoTeste,window,crosshair, begin, end, sunAngle);
         
         
         endFrame();
