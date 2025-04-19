@@ -1,9 +1,15 @@
 #include <shader.h>
-
 #include <glad/glad.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <unordered_map>
+
+
+std::unordered_map<shaderType, Shader> Shaders;
+
+
+
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {

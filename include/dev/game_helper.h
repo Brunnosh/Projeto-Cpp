@@ -7,7 +7,7 @@ float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 unsigned int modelLoc;
-Shader* defaultShader;
+
 //---------------------------------------------------------------
 
 

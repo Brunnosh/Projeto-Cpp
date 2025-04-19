@@ -350,6 +350,7 @@ void Chunk::addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>&
 
 
 void Chunk::render(unsigned int modelLoc) {
+
     if (!ready || buffers[activeBuffer].VAO == 0) return;
 
     glBindVertexArray(buffers[activeBuffer].VAO);

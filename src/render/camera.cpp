@@ -97,6 +97,15 @@ void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>&
 }
 
 void Camera::update(World& world) {
+    //Calc raycast
+    raycast([&](glm::ivec3 pos) {
+        return world.isBlockAir(pos);
+        });
+
+    //Draw block outline
+    if (raycastInfo.has_value()) {
+
+    }
     //Collision detection
 
 
@@ -110,8 +119,5 @@ void Camera::update(World& world) {
 
 
 
-    //Calc raycast
-    raycast([&](glm::ivec3 pos) {
-        return world.isBlockAir(pos);
-        });
+
 }

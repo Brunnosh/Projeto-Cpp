@@ -3,13 +3,29 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include <unordered_map>
+#include <stdexcept>
+#include <iostream>
+
+enum class shaderType {
+    TEXTURE = 0,
+    OUTLINE,
+
+    AMOUNT
+};
+
 
 class Shader
 {
 public:
     unsigned int ID;
 
+    Shader(){}
+
     Shader(const char* vertexPath, const char* fragmentPath);
+
+    
+
     void use() const;
     Shader getShader();
 
@@ -33,5 +49,10 @@ public:
 private:
     void checkCompileErrors(unsigned int shader, const std::string& type);
 };
+
+
+
+
+extern std::unordered_map<shaderType, Shader> Shaders;
 
 #endif
