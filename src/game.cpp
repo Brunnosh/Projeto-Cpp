@@ -147,7 +147,7 @@ void Game::run() {
 
     //Game Loop
     while (!window.shouldClose()) {
-        Shaders[shaderType::TEXTURE].use();
+        
 
         frameSetups();
 
@@ -165,7 +165,7 @@ void Game::run() {
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
-        camera.update(mundoTeste);
+        camera.update(mundoTeste, window);
 
 
         drawGui(mundoTeste,window,crosshair, begin, end);

@@ -8,6 +8,7 @@
 #include <functional>
 #include <chunk.h>
 
+class Window;
 class World;
 
 struct RaycastHit {
@@ -93,7 +94,9 @@ public:
 
     void selectNextBlock();
 
-    void update(World& world);
+    void update(World& world, Window & window);
+
+    void drawBlockOutline(Window& window);
     
 
 private:

@@ -1,5 +1,7 @@
 #include <camera.h>
 #include <world.h>
+#include <shader.h>
+#include <window.h>
 
 void Camera::selectBlock() {
     selectedBlock = raycastInfo.value().copiedBlock;
@@ -96,16 +98,14 @@ void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>&
     }
 }
 
-void Camera::update(World& world) {
+void Camera::update(World& world, Window & window) {
     //Calc raycast
     raycast([&](glm::ivec3 pos) {
         return world.isBlockAir(pos);
         });
 
     //Draw block outline
-    if (raycastInfo.has_value()) {
-
-    }
+    drawBlockOutline(window);
     //Collision detection
 
 
@@ -115,9 +115,100 @@ void Camera::update(World& world) {
 
 
 
+}
 
 
+void Camera::drawBlockOutline(Window& window) {
+    if (raycastInfo.has_value()) {
 
+        GLuint outlineVAO, outlineVBO;
 
+        float cubeVertices[] = {
+            // frente
+            -0.5f, -0.5f,  0.5f,
+             0.5f, -0.5f,  0.5f,
+             0.5f,  0.5f,  0.5f,
+             0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+            -0.5f, -0.5f,  0.5f,
 
+            // trás
+            -0.5f, -0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+             0.5f,  0.5f, -0.5f,
+             0.5f,  0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+
+            // esquerda
+            -0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f, -0.5f,
+            -0.5f, -0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+
+            // direita
+             0.5f,  0.5f,  0.5f,
+             0.5f, -0.5f,  0.5f,
+             0.5f, -0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+             0.5f,  0.5f, -0.5f,
+             0.5f,  0.5f,  0.5f,
+
+             // topo
+             -0.5f,  0.5f,  0.5f,
+              0.5f,  0.5f,  0.5f,
+              0.5f,  0.5f, -0.5f,
+              0.5f,  0.5f, -0.5f,
+             -0.5f,  0.5f, -0.5f,
+             -0.5f,  0.5f,  0.5f,
+
+             // fundo
+             -0.5f, -0.5f,  0.5f,
+             -0.5f, -0.5f, -0.5f,
+              0.5f, -0.5f, -0.5f,
+              0.5f, -0.5f, -0.5f,
+              0.5f, -0.5f,  0.5f,
+             -0.5f, -0.5f,  0.5f,
+        };
+
+        glGenVertexArrays(1, &outlineVAO);
+        glGenBuffers(1, &outlineVBO);
+
+        glBindVertexArray(outlineVAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, outlineVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
+
+        // posição (somente vec3)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        // unbind (opcional)
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        glEnable(GL_POLYGON_OFFSET_LINE);
+        glPolygonOffset(-1.0f, -1.0f); // evita z-fighting com os blocos
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // modo wireframe
+
+        Shaders[shaderType::OUTLINE].use();
+        Shaders[shaderType::OUTLINE].setMat4("projection", glm::perspective(glm::radians(fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f));
+        Shaders[shaderType::OUTLINE].setMat4("view", GetViewMatrix());
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(raycastInfo.value().blockWorldPos.x + 0.5f, raycastInfo.value().blockWorldPos.y + 0.5f, raycastInfo.value().blockWorldPos.z + 0.5f));
+        Shaders[shaderType::OUTLINE].setMat4("model", model);
+
+        Shaders[shaderType::OUTLINE].setVec3("color", glm::vec3(1.0f, 1.0f, 0.0f)); // amarelo
+
+        glBindVertexArray(outlineVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36); // mesmo cubo do bloco normal
+        glBindVertexArray(0);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // volta ao normal
+        glDisable(GL_POLYGON_OFFSET_LINE);
+        Shaders[shaderType::TEXTURE].use();
+
+    }
 }
