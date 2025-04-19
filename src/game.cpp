@@ -167,12 +167,13 @@ void Game::run() {
         
         glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
         
-        
 
-       
-        
+        float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "sunHeight"), sunHeight);
+
+
         //futuro calcular ambientlight conforme estado do mundo (dia, noite, weather...)
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.5f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.1);
         glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "lightDir"), 1, &sunDirection[0]);
         glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "viewPos"), 1, &camera.position[0]);
         glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.05f);
