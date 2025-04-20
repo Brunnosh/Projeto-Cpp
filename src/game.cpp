@@ -2,9 +2,10 @@
 #include <stb_image.h>
 #include <game.h>
 #include <shader.h>
-#include <game_helper.h>
 #include <iostream>
 #include <chrono>
+#include <game_helper.h>
+
 
 
 
@@ -15,8 +16,26 @@ void loadShaders() {
     
 }
 
-void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end, float sunAngle) {
+void calcDrawCalls() {
+    
+    // Verifica o tempo desde o último cálculo
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = currentTime - startTime;
+    drawcallsec = drawcallsec + drawCallCount;
 
+    // Se passou o intervalo de tempo definido (1 segundo, por exemplo)
+    if (elapsed.count() >= interval) {
+        // Exibe o número de draw calls por segundo
+        
+
+        // Reseta o contador e o tempo
+        drawcallsec = 0;
+        startTime = currentTime;
+    }
+}
+
+void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end, float sunAngle) {
+    glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
     //Debug panel
     ImGui::Begin("WorldDebug");
     ImGui::Text("FPS: %f (Avg: %f, Min: %f, Max: %f)", fps, avgFps, lowestFps, highestFps);
@@ -24,9 +43,12 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
     ImGui::Text("X %f", camera.position.x);
     ImGui::Text("Y %f", camera.position.y);
     ImGui::Text("Z %f", camera.position.z);
-    ImGui::Text("Chunks rendered %d", mundoTeste.getNumberChunks());
+    ImGui::Text("Chunks loaded: %d", mundoTeste.getNumberChunks());
+    ImGui::Text("DrawCalls (sec): %d", drawcallsec);
+    ImGui::Text("DrawCalls (frame): %d", drawCallCount);
     ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     ImGui::Text("Sun Angle: %f", sunAngle);
+    ImGui::Text("Highest Y chunk for (X:%d ,Z:%d) -> %d", playerChunkPos.x, playerChunkPos.z, mundoTeste.getMaxChunkY(playerChunkPos.x, playerChunkPos.z));
     if (camera.selectedBlock != nullptr) ImGui::Text("Selected Block: %s", (*camera.selectedBlock).getTypeToString());
     ImGui::End();
 
@@ -152,7 +174,7 @@ void Game::run() {
     
     
     while (!window.shouldClose()) {
-        
+        drawCallCount = 0;
         frameSetups();
         perFrameLogic();
         processInput(*this, deltaTime);
@@ -186,18 +208,18 @@ void Game::run() {
         
        
         
-        mundoTeste.update(camera, deltaTime, modelLoc);
+        mundoTeste.update(camera, deltaTime, modelLoc, drawCallCount);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 
 
         
-        camera.update(mundoTeste, window);
+        camera.update(mundoTeste, window, drawCallCount);
 
    
 
         drawGui(mundoTeste,window,crosshair, begin, end, sunAngle);
-        
-        
+
+        calcDrawCalls();
         endFrame();
     }
 

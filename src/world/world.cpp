@@ -10,10 +10,11 @@ World::World() {
     //ler pos do player salvo, renderizar chunks em torno do player primeiro, depois começar o update.
 }
 
-void World::update(Camera & camera, float deltaTime, unsigned int modelLoc) {
+void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
     
     genWorld(camera, modelLoc);
-    renderWorld(modelLoc);
+
+    renderWorld(modelLoc, drawCallCount);
     calculateLight();
     tick();
 }
@@ -33,12 +34,21 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
+                
+
                 bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
                 bool alreadyQueued = chunkRequested.find(chunkWorldPos) != chunkRequested.end();
+
 
                 if (!inWorld && !alreadyQueued) {
                     chunkQueue.push_back(chunkWorldPos);
                     chunkRequested.insert(chunkWorldPos);
+                }
+
+                std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
+                auto it = highestChunkY.find(xzKey);
+                if (it == highestChunkY.end() || chunkWorldPos.y > it->second) {
+                    highestChunkY[xzKey] = chunkWorldPos.y;
                 }
             }
         }
@@ -75,16 +85,18 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
 }
 
-void World::renderWorld(unsigned int modelLoc) {
+void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
     Shaders[shaderType::MAIN].use();
 
     for (auto& [pos, chunk] : WorldData) {
+        if (chunk.isEmpty) { continue; }
         if (chunk.dirty) {
             chunk.regenMesh(WorldData);
             chunk.dirty = false;
         }
         chunk.render(modelLoc);
+        drawCallCount++;
     }
 }
 
@@ -215,3 +227,4 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
 
 }
+

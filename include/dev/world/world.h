@@ -21,6 +21,10 @@ class World {
 private:
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
 
+    //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
+
+    std::unordered_map<std::pair<int,int>, int, PairHash> highestChunkY;
+
 public:
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
@@ -32,11 +36,11 @@ public:
 public:
     World();
 
-    void World::update(Camera& camera, float deltaTime, unsigned int modelLoc);
+    void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
 
     void World::genWorld(Camera& camera, unsigned int modelLoc);
 
-    void World::renderWorld(unsigned int modelLoc);
+    void World::renderWorld(unsigned int modelLoc, int &drawCallCount);
 
     void World::calculateLight();
 
@@ -47,11 +51,22 @@ public:
     void World::removeBlock(RaycastHit& hit);
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
+
+
+
+    int getMaxChunkY(int x, int z) {
+        std::pair<int, int> xzKey = { x, z };
+        auto it = highestChunkY.find(xzKey);
+        if (it != highestChunkY.end() ) {
+            return highestChunkY[xzKey];
+        }
+        
+    }
+
    
     int World::getNumberChunks() {
         return WorldData.size();
     }
-
 };
 
 #endif

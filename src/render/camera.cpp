@@ -149,14 +149,14 @@ void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>&
     }
 }
 
-void Camera::update(World& world, Window & window) {
+void Camera::update(World& world, Window & window, int& drawCallCount) {
     //Calc raycast
     raycast([&](glm::ivec3 pos) {
         return world.isBlockAir(pos);
         });
 
     //Draw block outline
-    drawBlockOutline(window);
+    drawBlockOutline(window, drawCallCount);
     //Collision detection
 
 
@@ -169,7 +169,7 @@ void Camera::update(World& world, Window & window) {
 }
 
 GLuint outlineVAO, outlineVBO;
-void Camera::drawBlockOutline(Window& window) {
+void Camera::drawBlockOutline(Window& window, int& drawCallCount) {
     if (raycastInfo.has_value()) {
 
         
@@ -213,6 +213,7 @@ void Camera::drawBlockOutline(Window& window) {
         glDisable(GL_POLYGON_OFFSET_LINE);
         glDeleteVertexArrays(1, &outlineVAO);
         glDeleteBuffers(1, &outlineVBO);
+        drawCallCount++;
         Shaders[shaderType::MAIN].use();
 
     }

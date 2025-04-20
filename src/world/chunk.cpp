@@ -65,17 +65,23 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     }
 
 
+
     return tempVec;
 }
 
 void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
     //auto start = std::chrono::high_resolution_clock::now();
 
+
+
     this->vertices.clear();
     this->indices.clear();
     this->generated = false;
 
     genChunkFaces(WorldData);
+
+    isEmpty = vertices.empty();
+
     this->generated = true;
 
     int nextBuffer = (activeBuffer + 1) % 2;
@@ -124,13 +130,9 @@ void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData
 //NAO MODIFICAR ESSE WORLDDATA EM HIPÓTESE ALGUMA SEM IMPLEMENTAR MUTEX---V
 void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &WorldData) {
 
-
-
-    
-
-
-
     glm::ivec3 thisChunk = this->worldPos;
+
+
 
     glm::ivec3 northChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z - 1);
     glm::ivec3 southChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z + 1);
@@ -356,7 +358,8 @@ void Chunk::addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>&
 
 
 void Chunk::render(unsigned int modelLoc) {
-    
+
+
     if (!ready || buffers[activeBuffer].VAO == 0) return;
 
     glBindVertexArray(buffers[activeBuffer].VAO);

@@ -95,9 +95,9 @@ public:
 
     void selectNextBlock();
 
-    void update(World& world, Window & window);
+    void update(World& world, Window & window, int & drawCallCount);
 
-    void drawBlockOutline(Window& window);
+    void drawBlockOutline(Window& window, int& drawCallCount);
     
 
 private:

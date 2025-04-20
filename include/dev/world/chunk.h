@@ -24,6 +24,11 @@ struct Vec3Hash {
 	}
 };
 
+struct PairHash {
+	std::size_t operator()(const std::pair<int, int>& p) const {
+		return std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
+	}
+};
 
 struct Vertex
 {
@@ -42,6 +47,7 @@ struct Vertex
 
 class Chunk {
 public:
+	bool isEmpty = false;
 	bool dirty = false;
 	bool generated = false;
 	bool ready = false;
@@ -57,11 +63,15 @@ private:
 
 
 public:
+	Chunk() {}
+
 	Chunk::Chunk(glm::ivec3 pos) {
 		worldPos = pos;
 		generated = false;
 		ready = false;
 		chunkData = populateChunk(pos);
+
+
 	}
 
 	~Chunk() {

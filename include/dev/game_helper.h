@@ -3,6 +3,12 @@
 //Variable Declaration--------------------------------------------
 Camera camera(glm::vec3(0.0f, 70.0f, 0.0f));
 std::chrono::steady_clock::time_point fpsStartTime;
+
+static int drawCallCount = 0;  // Contador de draw calls
+static int drawcallsec = 0;  // Contador de draw calls
+std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+const double interval = 1.0; // Intervalo de tempo (1 segundo)
+
 float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
