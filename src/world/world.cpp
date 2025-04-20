@@ -94,9 +94,7 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
             chunk.regenMesh(WorldData);
             chunk.dirty = false;
         }
-
         if (chunk.isEmpty) { continue; }
-
         chunk.render(modelLoc);
         drawCallCount++;
     }

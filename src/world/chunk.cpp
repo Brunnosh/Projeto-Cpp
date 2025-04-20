@@ -72,8 +72,6 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
 void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
     //auto start = std::chrono::high_resolution_clock::now();
 
-
-
     this->vertices.clear();
     this->indices.clear();
     this->generated = false;
