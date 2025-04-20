@@ -91,7 +91,15 @@ public:
 	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
 	void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
 	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
-	
+	bool isChunkEmpy() {
+		bool flag = true;
+		for (const Block& block : chunkData) {
+			if (block.getType() != BlockType::AIR) {
+				flag = false;
+			}
+		}
+		return flag;
+	}
 
 	
 };

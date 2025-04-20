@@ -90,11 +90,13 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
     Shaders[shaderType::MAIN].use();
 
     for (auto& [pos, chunk] : WorldData) {
-        if (chunk.isEmpty) { continue; }
         if (chunk.dirty) {
             chunk.regenMesh(WorldData);
             chunk.dirty = false;
         }
+
+        if (chunk.isEmpty) { continue; }
+
         chunk.render(modelLoc);
         drawCallCount++;
     }
@@ -203,6 +205,8 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         Chunk* chunk = &it->second;
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->dirty = true;
+        
+
     }
 
 

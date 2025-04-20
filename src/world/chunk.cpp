@@ -80,7 +80,10 @@ void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData
 
     genChunkFaces(WorldData);
 
-    
+    this->isEmpty = vertices.empty();
+    if (vertices.empty()) {
+        return;
+    }
 
     this->generated = true;
 

@@ -55,7 +55,7 @@ public:
     Block(BlockType type) :type(type) {  }
 
     
-    BlockType getType() {
+    BlockType getType() const {
         return type;
     }
 
