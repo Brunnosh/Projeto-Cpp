@@ -8,7 +8,7 @@
 #include <iostream>
 
 enum class shaderType {
-    TEXTURE = 0,
+    MAIN = 0,
     OUTLINE,
     SKYBOX,
     

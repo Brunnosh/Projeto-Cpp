@@ -1,4 +1,6 @@
 #include <world.h>
+#include <shader.h>
+#include <camera.h>
 
 float saveTimer = 0.0f;
 float saveFrequency = 30.0f;
@@ -11,6 +13,9 @@ World::World() {
 void World::update(Camera & camera, float deltaTime, unsigned int modelLoc) {
     
     genWorld(camera, modelLoc);
+    renderWorld(modelLoc);
+    calculateLight();
+    tick();
 }
 
 void World::tick() {
@@ -39,7 +44,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         }
     }
 
-    int chunksPerFrame = 4;
+    int chunksPerFrame = 6;
     int generated = 0;
     while (!chunkQueue.empty() && generated < chunksPerFrame) {
         glm::ivec3 pos = chunkQueue.back();
@@ -67,6 +72,13 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         }
     }
 
+
+}
+
+void World::renderWorld(unsigned int modelLoc) {
+
+    Shaders[shaderType::MAIN].use();
+
     for (auto& [pos, chunk] : WorldData) {
         if (chunk.dirty) {
             chunk.regenMesh(WorldData);
@@ -74,6 +86,11 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         }
         chunk.render(modelLoc);
     }
+}
+
+
+void World::calculateLight() {
+    //flood fill cubic chunks
 }
 
 

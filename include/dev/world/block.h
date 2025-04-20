@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-enum class BlockType {
+enum class BlockType  {
     AIR = 0, 
     GRASS,
     DIRT,
@@ -42,6 +42,8 @@ struct UV {
 class Block {
 private:
     BlockType type;
+    uint8_t skyLight = 0;
+    uint8_t blockLight = 0;
 
 public:
 
@@ -78,7 +80,13 @@ public:
         return { uMin, vMin, uMax, vMax };
     }
 
-   
+    uint8_t getSkyLight() {
+        return skyLight;
+    }
+
+    uint8_t getBlockLight() {
+        return blockLight;
+    }
 
 
 };

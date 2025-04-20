@@ -213,7 +213,7 @@ void Camera::drawBlockOutline(Window& window) {
         glDisable(GL_POLYGON_OFFSET_LINE);
         glDeleteVertexArrays(1, &outlineVAO);
         glDeleteBuffers(1, &outlineVBO);
-        Shaders[shaderType::TEXTURE].use();
+        Shaders[shaderType::MAIN].use();
 
     }
 }

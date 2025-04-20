@@ -9,7 +9,7 @@
 
 
 void loadShaders() {
-    Shaders[shaderType::TEXTURE] = Shader("assets/shaders/texture/textureVertex.glsl", "assets/shaders/texture/textureFragment.glsl");
+    Shaders[shaderType::MAIN] = Shader("assets/shaders/texture/mainShaderVertex.glsl", "assets/shaders/texture/mainShaderFragment.glsl");
     Shaders[shaderType::OUTLINE] = Shader("assets/shaders/outline/outlineVertex.glsl", "assets/shaders/outline/outlineFragment.glsl");
     Shaders[shaderType::SKYBOX] = Shader("assets/shaders/skybox/skyboxVertex.glsl", "assets/shaders/skybox/skyboxFragment.glsl");
     
@@ -119,7 +119,7 @@ void Game::run() {
     loadShaders();
     
     unsigned int atlas, crosshair;
-    modelLoc = glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "model");
+    modelLoc = glGetUniformLocation(Shaders[shaderType::MAIN].ID, "model");
     initBlockUVs();
 
     glfwSetWindowUserPointer(window.getNativeWindow(), this);
@@ -137,7 +137,7 @@ void Game::run() {
     glActiveTexture(GL_TEXTURE0);
     loadTexture(&atlas, "assets/atlas.png");
  
-    Shaders[shaderType::TEXTURE].setInt("atlas", 0);
+    Shaders[shaderType::MAIN].setInt("atlas", 0);
 
     glActiveTexture(GL_TEXTURE1);
     loadTexture(&crosshair, "assets/crosshair.png");
@@ -149,14 +149,14 @@ void Game::run() {
     
     float sunAngle = 0.0f; // Começa no leste
     float sunSpeed = 5.0f;
-
-    //Game Loop
+    
+    
     while (!window.shouldClose()) {
         
         frameSetups();
         perFrameLogic();
         processInput(*this, deltaTime);
-        updateCameraMatrices(window, Shaders[shaderType::TEXTURE]);
+        updateCameraMatrices(window, Shaders[shaderType::MAIN]);
         
 
         sunAngle += sunSpeed * deltaTime;
@@ -169,18 +169,23 @@ void Game::run() {
         
 
         float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "sunHeight"), sunHeight);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
 
 
         //futuro calcular ambientlight conforme estado do mundo (dia, noite, weather...)
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "ambientStrength"), 0.1);
-        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "lightDir"), 1, &sunDirection[0]);
-        glUniform3fv(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "viewPos"), 1, &camera.position[0]);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "specularStrength"), 0.05f);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::TEXTURE].ID, "shininess"), 8.0f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
-        Shaders[shaderType::TEXTURE].use();
+        
+        
+        
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        
+       
+        
         mundoTeste.update(camera, deltaTime, modelLoc);
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
 

@@ -4,9 +4,17 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <optional>
 #include <chunk.h>
 #include <future>
-#include <camera.h>
+
+
+
+class Camera;
+struct RaycastHit;
+
+
+
 
 
 class World {
@@ -24,19 +32,23 @@ public:
 public:
     World();
 
-    void update(Camera& camera, float deltaTime, unsigned int modelLoc);
+    void World::update(Camera& camera, float deltaTime, unsigned int modelLoc);
 
-    void genWorld(Camera& camera, unsigned int modelLoc);
+    void World::genWorld(Camera& camera, unsigned int modelLoc);
 
-    void tick();
+    void World::renderWorld(unsigned int modelLoc);
 
-    std::optional<RaycastHit> isBlockAir(glm::ivec3 blockPos);
+    void World::calculateLight();
 
-    void removeBlock(RaycastHit& hit);
+    void World::tick();
 
-    void placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
+    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
+
+    void World::removeBlock(RaycastHit& hit);
+
+    void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
    
-    int getNumberChunks() {
+    int World::getNumberChunks() {
         return WorldData.size();
     }
 
