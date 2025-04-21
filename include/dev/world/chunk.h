@@ -50,8 +50,7 @@ public:
 	bool generated = false;
 	bool ready = false;
 	bool isEmpty = false;
-	bool dirty;
-	bool needsLightUpdate;
+	bool needsMeshUpdate;
 	std::vector<Block> chunkData;
 	glm::ivec3 worldPos;
 
@@ -71,7 +70,7 @@ public:
 		generated = false;
 		ready = false;
 		chunkData = populateChunk(pos);
-
+		isChunkEmpty();
 
 	}
 
@@ -94,15 +93,15 @@ public:
 	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash>& highestChunkY);
 	void calculateChunkLighting(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash> &highestChunkY);
 
-	bool isChunkEmpy() {
-		bool flag = true;
+	bool isChunkEmpty() {
 		for (const Block& block : chunkData) {
 			if (block.getType() != BlockType::AIR) {
-				flag = false;
-				return flag;
+				isEmpty = false;
+				return false;
 			}
 		}
-		return flag;
+		isEmpty = true;
+		return true;
 	}
 
 	

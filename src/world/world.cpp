@@ -32,13 +32,6 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
 
     genWorld(camera, modelLoc);
 
-    for (auto& [pos, chunk] : WorldData) {
-        if (chunk.needsLightUpdate) {
-            calculateChunkLighting(chunk);
-            chunk.dirty = true; // para regenerar a malha com nova luz
-        }
-    }
-
     Shaders[shaderType::MAIN].use();
     renderWorld(modelLoc, drawCallCount);
     
@@ -49,10 +42,28 @@ void World::tick() {
     // Future entity ticking logic
 }
 
-void World::calculateChunkLighting(Chunk & chunk) {
+void World::calculateChunkLighting(Chunk& chunk) {
 
-    chunk.needsLightUpdate = false;
 
+
+    castSunlight(chunk);
+    applyFloodFill(chunk);
+
+    chunk.needsMeshUpdate = false;
+
+
+}
+
+void World::applyFloodFill(Chunk& chunk) {
+    for (auto& [chunkPos, chunk] : WorldData) {
+
+        
+        //std::cout << "Fake floodfill" << "\n";
+
+    }
+}
+
+void World::castSunlight(Chunk& chunk) {
     if (chunk.isEmpty) {
         for (int i = 0; i < chunk.chunkData.size(); i++) {
             chunk.chunkData[i].setSkyLight(15);
@@ -96,14 +107,13 @@ void World::calculateChunkLighting(Chunk & chunk) {
             }
         }
     }
-
-    //aplicar flood-fill
-    //applyFloodFill(Chunk & chunk);
-    
 }
+
+
 
 void World::genWorld(Camera& camera, unsigned int modelLoc) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
+    playerChunkPos = glm::ivec3(0, 3, 0);
     short renderDist = camera.renderDist;
 
     for (int x = -renderDist; x <= renderDist; x++) {
@@ -140,8 +150,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
         std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
             Chunk chunk(pos);
-            chunk.dirty = true;
-            chunk.needsLightUpdate = true;
+            chunk.needsMeshUpdate = true;
             return { pos, std::move(chunk) };
             });
 
@@ -170,11 +179,15 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
     
 
     for (auto& [pos, chunk] : WorldData) {
-        if (chunk.dirty) {
-            chunk.regenMesh(WorldData, highestChunkY);
-            chunk.dirty = false;
-        }
+        chunk.isChunkEmpty();
         if (chunk.isEmpty) { continue; }
+        if (chunk.needsMeshUpdate) {
+            
+            calculateChunkLighting(chunk);
+            chunk.regenMesh(WorldData, highestChunkY);
+            chunk.needsMeshUpdate = false;
+        }
+        
         chunk.render(modelLoc);
         drawCallCount++;
     }
@@ -211,13 +224,13 @@ void World::removeBlock(RaycastHit& hit) {
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
-    hit.chunk->dirty = true;
+    hit.chunk->needsMeshUpdate = true;
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = WorldData.find(neighborPos);
         if (it != WorldData.end()) {
-            it->second.dirty = true;
+            it->second.needsMeshUpdate = true;
         }
         };
 
@@ -267,11 +280,12 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
 
     //Operação contida dentro do proprio chunk
-    if (hit.chunk->worldPos == newBlockChunkPos) {
+    if (hit.chunk->worldPos == newBlockChunkPos) {   
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
-        hit.chunk->dirty = true;
+        hit.chunk->needsMeshUpdate = true;
     }
-    else {
+    else 
+    {
         auto it = WorldData.find(newBlockChunkPos);
         if (it == WorldData.end()) {
             std::cerr << "[ERRO] Construindo em chunk não gerado!" << std::endl;
@@ -280,7 +294,8 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
         Chunk* chunk = &it->second;
         chunk->chunkData[newBlockIndex] = blockToPlace;
-        chunk->dirty = true;
+        chunk->needsMeshUpdate = true;
+        
         
 
     }
@@ -290,7 +305,8 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         auto neighborPos = newBlockChunkPos + offset;
         auto it = WorldData.find(neighborPos);
         if (it != WorldData.end()) {
-            it->second.dirty = true;
+            it->second.needsMeshUpdate = true;
+            
         }
         };
 
