@@ -51,7 +51,7 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     for (char x = 0; x < CHUNKSIZE; x++) {
         for (char z = 0; z < CHUNKSIZE; z++) {
             for (char y = 0; y < CHUNKSIZE; y++) {
-                if ((chunkCoords.y * CHUNKSIZE) < 60 && (chunkCoords.y * CHUNKSIZE) > 0) {
+                if ((chunkCoords.y * CHUNKSIZE) < 61 && (chunkCoords.y * CHUNKSIZE) > 0) {
                     tempVec.push_back(Blocks[BlockType::GRASS]);
                 }
                 else

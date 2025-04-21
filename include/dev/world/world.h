@@ -21,7 +21,7 @@ class World {
 private:
     //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-    std::queue<Chunk*> lightCalculationQueue;
+    std::queue<glm::ivec2> lightCalculationQueue;
 
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
@@ -54,7 +54,7 @@ public:
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
 
-    void World::calculateChunkLighting(Chunk& chunk);
+    void World::updateWorldLight();
 
     void World::skyLightFloodFill(Chunk& chunk);
 

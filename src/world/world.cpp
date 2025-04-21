@@ -33,6 +33,9 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     genWorld(camera, modelLoc);
 
     Shaders[shaderType::MAIN].use();
+
+    updateWorldLight();
+
     renderWorld(modelLoc, drawCallCount);
     
     tick();
@@ -42,16 +45,96 @@ void World::tick() {
     // Future entity ticking logic
 }
 
-void World::calculateChunkLighting(Chunk& chunk) {
+void World::updateWorldLight() {
+    int iterations = 8;
+    while (iterations-- > 0 && !lightCalculationQueue.empty()) {
+        int size = lightCalculationQueue.size();
+        while (size-- > 0) {
+            glm::vec2 chunkPos2D = lightCalculationQueue.front();
+            lightCalculationQueue.pop();
+                                                        //chunkPos.y because ivec2 shenanigans, its Z coords tho :(
+            std::pair<int, int> xzKey = { chunkPos2D.x, chunkPos2D.y };
+            int maxChunkY = highestChunkY[xzKey];
+
+            Chunk* topMostChunk = &WorldData[glm::vec3(chunkPos2D.x, maxChunkY, chunkPos2D.y)];
+
+            //Passar chunk do topo para as funções.
+        }
+    }
 
 
+    //in the future make so light updates start from player
+    for (auto& [pos, chunk] : WorldData) {
+        if (chunk.needsLightUpdate) {
+            lightCalculationQueue.push(glm::ivec2(chunk.worldPos.x,chunk.worldPos.z));
+        }
+    }
+}
 
-    castSunlight(chunk);
-    skyLightFloodFill(chunk);
+//funcao só bota luz=15 pra todo bloco de ar no chunk até bater num bloco sólido. nao checa se tem acesso ao sol.
+void World::castSunlight(Chunk& chunk) {
+    //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
+    Chunk* currentChunk = &chunk;
 
-    
+    while (true) {
+        if (currentChunk->isEmpty) {
+            for (int i = 0; i < currentChunk->chunkData.size(); i++) {
+                currentChunk->chunkData[i].setSkyLight(15);
+            }
+        }
+        else {
+            //logica de popular os air block com luz 15 em chunks não vazios
+        }
+
+        
+        auto it = WorldData.find({ currentChunk->worldPos.x, currentChunk->worldPos.y - 1, currentChunk->worldPos.z });
+        if (it == WorldData.end()) {
+            break; 
+        }
+
+        currentChunk = &it->second;
+    }
+
+    /*
 
 
+    glm::ivec3 chunkPos = chunk.worldPos;
+    std::pair<int, int> xzKey = { chunkPos.x, chunkPos.z };
+    int maxChunkY = highestChunkY[xzKey];
+
+    for (int localX = 0; localX < CHUNKSIZE; ++localX) {
+        for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
+
+            int worldX = chunkPos.x * CHUNKSIZE + localX;
+            int worldZ = chunkPos.z * CHUNKSIZE + localZ;
+
+            // Começa do chunk mais alto e desce
+            for (int yChunk = maxChunkY; yChunk >= chunkPos.y; --yChunk) {
+                glm::ivec3 currentChunkCoords = glm::ivec3(chunkPos.x, yChunk, chunkPos.z);
+                auto it = WorldData.find(currentChunkCoords);
+
+                if (it == WorldData.end()) continue; // Pula se o chunk ainda não existir
+                Chunk& targetChunk = it->second;
+
+                for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
+                    int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
+
+                    Block& block = targetChunk.chunkData[index];
+
+
+                    if (block.getType() == BlockType::AIR) {
+                        block.setSkyLight(15); // Iluminação total do céu
+                    }
+                    else {
+
+                        // Encontrou um bloco sólido, para de propagar a luz
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    */
 }
 
 //Botar os chunks adjacentes para atualizar tbm
@@ -111,55 +194,10 @@ void World::skyLightFloodFill(Chunk& chunk) {
 }
 
 
-//funcao só bota luz=15 pra todo bloco de ar no chunk até bater num bloco sólido. nao checa se tem acesso ao sol.
-void World::castSunlight(Chunk& chunk) {
-    if (chunk.isEmpty) {
-        for (int i = 0; i < chunk.chunkData.size(); i++) {
-            chunk.chunkData[i].setSkyLight(15);
-        }
-        return;
-    }
-
-    glm::ivec3 chunkPos = chunk.worldPos;
-    std::pair<int, int> xzKey = { chunkPos.x, chunkPos.z };
-    int maxChunkY = highestChunkY[xzKey];
-
-    for (int localX = 0; localX < CHUNKSIZE; ++localX) {
-        for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
-
-            int worldX = chunkPos.x * CHUNKSIZE + localX;
-            int worldZ = chunkPos.z * CHUNKSIZE + localZ;
-
-            // Começa do chunk mais alto e desce
-            for (int yChunk = maxChunkY; yChunk >= chunkPos.y; --yChunk) {
-                glm::ivec3 currentChunkCoords = glm::ivec3(chunkPos.x, yChunk, chunkPos.z);
-                auto it = WorldData.find(currentChunkCoords);
-
-                if (it == WorldData.end()) continue; // Pula se o chunk ainda não existir
-                Chunk& targetChunk = it->second;
-
-                for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
-                    int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
-
-                    Block& block = targetChunk.chunkData[index];
-
-
-                    if (block.getType() == BlockType::AIR) {
-                        block.setSkyLight(15); // Iluminação total do céu
-                    }
-                    else {
-
-                        // Encontrou um bloco sólido, para de propagar a luz
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
 
 
 
+//future make world gen start from player
 void World::genWorld(Camera& camera, unsigned int modelLoc) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
 
@@ -201,6 +239,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
             Chunk chunk(pos);
             chunk.isChunkEmpty();
             chunk.needsMeshUpdate = true;
+            chunk.needsLightUpdate = true;
             return { pos, std::move(chunk) };
             });
 
