@@ -6,6 +6,8 @@
 #include <glm/fwd.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <queue>
+#include <array>
 
 
 
@@ -37,11 +39,8 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
     std::vector<Block> tempVec;
     //teste chunk 15x15x15 solido
-
     //std::cout << "GERANDO CHUNK X: " << chunkCoords.x<< ", Y:  " << chunkCoords.y << ", Z: "<< chunkCoords.z << "\n";
-
     if (chunkCoords == glm::ivec3(0, 3, 0)) {
-
         for (int i = 0; i < CHUNKSIZE * CHUNKSIZE * CHUNKSIZE; i++) {
             tempVec.push_back(Blocks[BlockType::AIR]);
         }
@@ -59,29 +58,26 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
                 {
                     tempVec.push_back(Blocks[BlockType::AIR]);
                 }
-
             }
         }
     }
-
-
-
     return tempVec;
 }
 
-void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData) {
+void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash>& highestChunkY) {
     //auto start = std::chrono::high_resolution_clock::now();
-
     this->vertices.clear();
     this->indices.clear();
     this->generated = false;
 
     genChunkFaces(WorldData);
 
+    
     this->isEmpty = vertices.empty();
     if (vertices.empty()) {
         return;
     }
+    
 
     this->generated = true;
 
@@ -126,6 +122,7 @@ void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData
     //std::cout << "Vertices: " << vertices.size() << ", Indices: " << indices.size() << "\n";
 
 }
+
 
 
 //NAO MODIFICAR ESSE WORLDDATA EM HIPÓTESE ALGUMA SEM IMPLEMENTAR MUTEX---V

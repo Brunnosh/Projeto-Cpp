@@ -7,6 +7,7 @@
 #include <optional>
 #include <chunk.h>
 #include <future>
+#include <queue>
 
 
 
@@ -16,19 +17,20 @@ struct RaycastHit;
 
 
 
-
 class World {
 private:
+    //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
 
-    //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
 
-    std::unordered_map<std::pair<int,int>, int, PairHash> highestChunkY;
-
-public:
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
+    std::unordered_map<std::pair<int,int>, int, PairHash> highestChunkY;
+    
+
+public:
+
     float sunAngle = 0.0f; // Começa no leste
     float sunSpeed = 5.0f;
 
@@ -44,8 +46,6 @@ public:
 
     void World::renderWorld(unsigned int modelLoc, int &drawCallCount);
 
-    void World::calculateLight();
-
     void World::tick();
 
     std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
@@ -54,7 +54,7 @@ public:
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
 
-
+    void World::calculateChunkLighting(Chunk& chunk);
 
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };

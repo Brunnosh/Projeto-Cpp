@@ -44,7 +44,7 @@ void main()
     vec3 specular = materialSpecularStrenght  * spec * vec3(1.0, 1.0, 1.0);  // Reflexo da luz
     */
        
-       float BlockLightLevel = 15;
+    
 
     
     vec3 result = mix(0.05, 1.0, (BlockLightLevel/15))   * texColor.rgb;

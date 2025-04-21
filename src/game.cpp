@@ -57,6 +57,8 @@ void drawGui(World & mundoTeste, Window & window, unsigned int crosshair, std::c
     if (camera.raycastInfo.has_value()) {
         
         auto& hit = camera.raycastInfo.value();
+        ImGui::Text("BlockSkyLight %d", hit.copiedBlock->getSkyLight());
+        ImGui::Text("------------------");
         ImGui::Text("BlockRelativeX %d", hit.blockRelativePos.x);
         ImGui::Text("BlockRelativeY %d", hit.blockRelativePos.y);
         ImGui::Text("BlockRelativeZ %d", hit.blockRelativePos.z);

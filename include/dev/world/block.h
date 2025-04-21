@@ -88,6 +88,12 @@ public:
         return blockLight;
     }
 
+    void setSkyLight(uint8_t level) {
+        skyLight = level;
+    }
+    void setBlockLight(uint8_t level) {
+        blockLight = level;
+    }
 
 };
 
