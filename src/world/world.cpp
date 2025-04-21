@@ -49,11 +49,12 @@ void World::calculateChunkLighting(Chunk& chunk) {
     castSunlight(chunk);
     skyLightFloodFill(chunk);
 
-    chunk.needsMeshUpdate = false;
+    
 
 
 }
 
+//Botar os chunks adjacentes para atualizar tbm
 void World::skyLightFloodFill(Chunk& chunk) {
     glm::ivec3 chunkPos = chunk.worldPos;
     std::pair<int, int> xzKey = { chunkPos.x, chunkPos.z };
@@ -110,6 +111,7 @@ void World::skyLightFloodFill(Chunk& chunk) {
 }
 
 
+//funcao só bota luz=15 pra todo bloco de ar no chunk até bater num bloco sólido. nao checa se tem acesso ao sol.
 void World::castSunlight(Chunk& chunk) {
     if (chunk.isEmpty) {
         for (int i = 0; i < chunk.chunkData.size(); i++) {
@@ -227,7 +229,7 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
     for (auto& [pos, chunk] : WorldData) {
         chunk.isChunkEmpty();
-        if (chunk.isEmpty) { continue; }
+        if (chunk.isEmpty) { castSunlight(chunk); continue; }
         if (chunk.needsMeshUpdate) {
             
             calculateChunkLighting(chunk);
