@@ -56,7 +56,7 @@ public:
 
     void World::calculateChunkLighting(Chunk& chunk);
 
-    void World::applyFloodFill(Chunk& chunk);
+    void World::skyLightFloodFill(Chunk& chunk);
 
     void World::castSunlight(Chunk& chunk);
 

@@ -47,21 +47,68 @@ void World::calculateChunkLighting(Chunk& chunk) {
 
 
     castSunlight(chunk);
-    applyFloodFill(chunk);
+    skyLightFloodFill(chunk);
 
     chunk.needsMeshUpdate = false;
 
 
 }
 
-void World::applyFloodFill(Chunk& chunk) {
-    for (auto& [chunkPos, chunk] : WorldData) {
+void World::skyLightFloodFill(Chunk& chunk) {
+    glm::ivec3 chunkPos = chunk.worldPos;
+    std::pair<int, int> xzKey = { chunkPos.x, chunkPos.z };
+    int maxChunkY = highestChunkY[xzKey];
 
-        
-        //std::cout << "Fake floodfill" << "\n";
+    for (int localX = 0; localX < CHUNKSIZE; ++localX) {
+        for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
 
+            bool foundSolid = false;
+
+            for (int yChunk = maxChunkY; yChunk >= chunkPos.y; --yChunk) {
+                Chunk* currentChunk = nullptr;
+                auto it = WorldData.find({ chunkPos.x, yChunk, chunkPos.z });
+                if (it != WorldData.end()) {
+                    currentChunk = &(it->second);
+                }
+                else {
+                    continue; // chunk não carregado
+                }
+
+                for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
+                    int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
+                    Block& block = currentChunk->chunkData[index];
+
+                    if (block.getType() != BlockType::AIR && !foundSolid) {
+                        // Obter o bloco acima (pode estar em outro chunk)
+                        Block* blockAbove = nullptr;
+
+                        if (localY < CHUNKSIZE - 1) {
+                            int aboveIndex = (localY + 1) * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localX;
+                            blockAbove = &currentChunk->chunkData[aboveIndex];
+                        }
+                        else {
+                            // Vai buscar o próximo chunk acima
+                            auto itAbove = WorldData.find({ chunkPos.x, yChunk + 1, chunkPos.z });
+                            if (itAbove != WorldData.end()) {
+                                Chunk& chunkAbove = itAbove->second;
+                                int aboveIndex = 0 * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localX;
+                                blockAbove = &chunkAbove.chunkData[aboveIndex];
+                            }
+                        }
+
+                        if (blockAbove && blockAbove->getType() == BlockType::AIR) {
+                            block.setSkyLight(blockAbove->getSkyLight());
+                        }
+
+                        foundSolid = true;
+                        break; // esse break é OK, pois só queremos o primeiro sólido
+                    }
+                }
+            }
+        }
     }
 }
+
 
 void World::castSunlight(Chunk& chunk) {
     if (chunk.isEmpty) {
@@ -90,7 +137,7 @@ void World::castSunlight(Chunk& chunk) {
                 Chunk& targetChunk = it->second;
 
                 for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
-                    int index = localY * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localX;
+                    int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
 
                     Block& block = targetChunk.chunkData[index];
 
