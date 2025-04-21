@@ -231,9 +231,9 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
         chunk.isChunkEmpty();
         if (chunk.isEmpty) { castSunlight(chunk); continue; }
         if (chunk.needsMeshUpdate) {
-            
             calculateChunkLighting(chunk);
             chunk.regenMesh(WorldData, highestChunkY);
+            
             chunk.needsMeshUpdate = false;
         }
         
