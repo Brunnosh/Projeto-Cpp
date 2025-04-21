@@ -199,6 +199,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
         std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
             Chunk chunk(pos);
+            chunk.isChunkEmpty();
             chunk.needsMeshUpdate = true;
             return { pos, std::move(chunk) };
             });
@@ -228,12 +229,11 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
     
 
     for (auto& [pos, chunk] : WorldData) {
-        chunk.isChunkEmpty();
-        if (chunk.isEmpty) { castSunlight(chunk); continue; }
+        
+        if (chunk.isEmpty) { continue; }
         if (chunk.needsMeshUpdate) {
-            calculateChunkLighting(chunk);
+           
             chunk.regenMesh(WorldData, highestChunkY);
-            
             chunk.needsMeshUpdate = false;
         }
         
@@ -273,12 +273,14 @@ void World::removeBlock(RaycastHit& hit) {
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
+    hit.chunk->isChunkEmpty();
     hit.chunk->needsMeshUpdate = true;
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = WorldData.find(neighborPos);
         if (it != WorldData.end()) {
+            it->second.isChunkEmpty();
             it->second.needsMeshUpdate = true;
         }
         };
@@ -331,6 +333,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
     //Operação contida dentro do proprio chunk
     if (hit.chunk->worldPos == newBlockChunkPos) {   
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
+        hit.chunk->isEmpty = false;
         hit.chunk->needsMeshUpdate = true;
     }
     else 
@@ -343,6 +346,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
         Chunk* chunk = &it->second;
         chunk->chunkData[newBlockIndex] = blockToPlace;
+        chunk->isEmpty = false;
         chunk->needsMeshUpdate = true;
         
         

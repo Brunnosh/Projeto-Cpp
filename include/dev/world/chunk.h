@@ -51,6 +51,7 @@ public:
 	bool ready = false;
 	bool isEmpty = false;
 	bool needsMeshUpdate;
+	bool needsLightUpdate;
 	std::vector<Block> chunkData;
 	glm::ivec3 worldPos;
 
@@ -94,6 +95,8 @@ public:
 	void calculateChunkLighting(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash> &highestChunkY);
 
 	bool isChunkEmpty() {
+		
+		
 		for (const Block& block : chunkData) {
 			if (block.getType() != BlockType::AIR) {
 				isEmpty = false;
@@ -102,6 +105,7 @@ public:
 		}
 		isEmpty = true;
 		return true;
+		
 	}
 
 	

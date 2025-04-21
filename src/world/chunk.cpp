@@ -71,7 +71,7 @@ void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData
     this->generated = false;
 
     genChunkFaces(WorldData);
-
+    
     if (isEmpty) { return; }
     
 
