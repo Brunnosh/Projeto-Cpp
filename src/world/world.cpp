@@ -160,7 +160,7 @@ void World::castSunlight(Chunk& chunk) {
 
 void World::genWorld(Camera& camera, unsigned int modelLoc) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
-    playerChunkPos = glm::ivec3(0, 3, 0);
+
     short renderDist = camera.renderDist;
 
     for (int x = -renderDist; x <= renderDist; x++) {
