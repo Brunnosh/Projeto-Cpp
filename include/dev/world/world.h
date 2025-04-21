@@ -29,6 +29,8 @@ public:
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
+    float sunAngle = 0.0f; // Começa no leste
+    float sunSpeed = 5.0f;
 
 
 

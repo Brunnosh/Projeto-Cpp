@@ -1,9 +1,9 @@
 #include <world.h>
 #include <shader.h>
 #include <camera.h>
+#include <queue>
 
-float saveTimer = 0.0f;
-float saveFrequency = 30.0f;
+float timerLoadLight = 0.0f;
 
 World::World() {
     //futuro:
@@ -11,11 +11,35 @@ World::World() {
 }
 
 void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
+    timerLoadLight +=  deltaTime;
     
-    genWorld(camera, modelLoc);
+    if (timerLoadLight >= 5.0f) {
+         
+        calculateLight();
+        
 
+    }
+    
+
+    sunAngle += sunSpeed * deltaTime;
+    if (sunAngle >= 360.0f)
+        sunAngle -= 360.0f;
+
+    float sunRadians = glm::radians(sunAngle + 180.0f);
+    glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
+    float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
+    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
+    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
+    glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
+    glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
+
+    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
+    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
+
+
+    genWorld(camera, modelLoc);
     renderWorld(modelLoc, drawCallCount);
-    calculateLight();
+    
     tick();
 }
 
@@ -102,7 +126,7 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
 
 void World::calculateLight() {
-    //flood fill cubic chunks
+    std::queue<std::tuple<glm::ivec3, glm::ivec3, uint8_t>> lightQueue;
 }
 
 

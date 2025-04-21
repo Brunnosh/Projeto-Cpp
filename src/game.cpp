@@ -169,8 +169,7 @@ void Game::run() {
 
     fpsStartTime = std::chrono::steady_clock::now();
     
-    float sunAngle = 0.0f; // Começa no leste
-    float sunSpeed = 5.0f;
+
     
     
     while (!window.shouldClose()) {
@@ -181,25 +180,7 @@ void Game::run() {
         updateCameraMatrices(window, Shaders[shaderType::MAIN]);
         
 
-        sunAngle += sunSpeed * deltaTime;
-        if (sunAngle >= 360.0f)
-            sunAngle -= 360.0f;
-        
-        float sunRadians = glm::radians(sunAngle + 180.0f);
-        
-        glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
-        
 
-        float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
-
-
-        //futuro calcular ambientlight conforme estado do mundo (dia, noite, weather...)
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
-        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
-        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
         
         
@@ -217,7 +198,7 @@ void Game::run() {
 
    
 
-        drawGui(mundoTeste,window,crosshair, begin, end, sunAngle);
+        drawGui(mundoTeste,window,crosshair, begin, end, mundoTeste.sunAngle);
 
         calcDrawCalls();
         endFrame();
