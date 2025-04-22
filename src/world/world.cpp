@@ -3,7 +3,8 @@
 #include <camera.h>
 
 
-
+float lightWaitTime = 10.0f;
+float timer = 0.0f;
 
 
 World::World() {
@@ -12,7 +13,7 @@ World::World() {
 }
 
 void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
-
+    timer += deltaTime;
     
 
     sunAngle += sunSpeed * deltaTime;
@@ -34,7 +35,13 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
 
     Shaders[shaderType::MAIN].use();
 
-    updateWorldLight();
+    
+
+    if (timer >= lightWaitTime) {
+        
+        updateWorldLight();
+    }
+    
 
     renderWorld(modelLoc, drawCallCount);
     
@@ -48,7 +55,8 @@ void World::tick() {
 //Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo. talvez mudar isso depois.
 void World::updateWorldLight() {
 
-    //in the future make so light updates start from player
+    //in the future make so light updates start from edited chunk (removeBLock & placeBLock functions)->
+    //
 
     //--------------------------------------------------------------------------
     //Add chunks in queue that need update in skyLight/ skyPropagation
@@ -59,6 +67,7 @@ void World::updateWorldLight() {
         std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
 
         bool sunlightAlreadyQueued = sunlightQueueControl.find(chunkXZ) != sunlightQueueControl.end();
+        bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
 
         //later: find a way to separate this function on light updates that dont need sky (torch on caves for example)
 
@@ -68,7 +77,12 @@ void World::updateWorldLight() {
 
             //ex if(player not have acess to sky)
             // {call only the flood/fill }
-
+            /*
+            if (!ffAlreadyQueued) {
+                floodFillQueue.push(chunkXZ);
+                floodFillQueueControl.insert(chunkXZ);
+            }
+            */
         }
     }
     //--------------------------------------------------------------------------
@@ -76,7 +90,7 @@ void World::updateWorldLight() {
     //--------------------------------------------------------------------------
     //Queue to update the skyLIght -> makes the air light level 15 when it has acess to sky,
     // if encounters a solid block, all blocks under have light = 0
-    int iterations = 8;
+    int iterations = 9;
     while (iterations-- > 0 && !sunlightQueue.empty()) {
         int size = sunlightQueue.size();
         while (size-- > 0) {
@@ -100,7 +114,7 @@ void World::updateWorldLight() {
             
             castSunlight(*highestChunk);
             
-
+            
             floodFillQueue.push(chunkXZ);
             floodFillQueueControl.insert(chunkXZ);
             
@@ -133,11 +147,7 @@ void World::updateWorldLight() {
 
             floodFill(*highestChunk);
 
-            bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
-            if (!ffAlreadyQueued) {
-                floodFillQueue.push(chunkXZ);
-                floodFillQueueControl.insert(chunkXZ);
-            }
+
 
         }
     }
@@ -153,6 +163,7 @@ void World::castSunlight(Chunk& chunk) {
     
     while (true) {
         currentChunk->needsLightUpdate = false;
+        currentChunk->sunlightCalculated = true;
         currentChunk->needsMeshUpdate = true;
 
         if (currentChunk->isEmpty) {
@@ -207,8 +218,48 @@ void World::castSunlight(Chunk& chunk) {
 
 //Calculates light propagation in blocks.
 void World::floodFill(Chunk& chunk) {
+    //this chunk is the top most one in its X-Z coordinates, keep going down applying algorithm.
+    glm::ivec3 topChunkPos = chunk.worldPos;
 
-    //check if adjacent chunks have calculated the sunlightCasting, if not, skip iteration and put back in queue.
+    std::vector<glm::ivec3> directions = {
+    {  0, 0, -1 }, // N
+    {  0, 0,  1 }, // S
+    {  1, 0,  0 }, // E
+    { -1, 0,  0 }, // W
+    {  1, 0, -1 }, // NE
+    { -1, 0, -1 }, // NW
+    {  1, 0,  1 }, // SE
+    { -1, 0,  1 }  // SW
+    };
+
+    bool needsNeighbors = false;
+
+    for (const glm::ivec3& dir : directions) {
+        glm::ivec3 neighborPos = topChunkPos + dir;
+
+        auto it = WorldData.find(neighborPos);
+        if (it != WorldData.end()) {
+            Chunk& neighbor = it->second;
+
+            if (!neighbor.sunlightCalculated) {
+                sunlightQueue.push(std::pair(neighbor.worldPos.x, neighbor.worldPos.z));
+                sunlightQueueControl.insert(std::pair(neighbor.worldPos.x, neighbor.worldPos.z));
+                needsNeighbors = true;
+            }
+        }
+    }
+    if (needsNeighbors) {
+        floodFillQueue.push(std::pair(chunk.worldPos.x, chunk.worldPos.z));
+        floodFillQueueControl.insert(std::pair(chunk.worldPos.x, chunk.worldPos.z));
+        return;
+    }
+    
+    std::cout << "Chunk floodfill: " << chunk.worldPos.x << "," <<  chunk.worldPos.y << "," << chunk.worldPos.z << "\n";
+
+
+
+
+    //check if adjacent chunks have calculated the sunlightCasting, if non, put all chunks that need in the queue, including this one, and skip iteration.
     
 
     /*
@@ -284,11 +335,11 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
                 
-
+                //Create separate function to add non generated chunk to queue, so it can be called elsewhere
                 bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
                 bool alreadyQueued = chunkRequested.find(chunkWorldPos) != chunkRequested.end();
 
-
+                
                 if (!inWorld && !alreadyQueued) {
                     chunkQueue.push_back(chunkWorldPos);
                     chunkRequested.insert(chunkWorldPos);
@@ -387,7 +438,7 @@ void World::removeBlock(RaycastHit& hit) {
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
-    hit.chunk->needsMeshUpdate = true;
+    hit.chunk->needsLightUpdate = true;
     hit.chunk->needsMeshUpdate = true;
 
     auto tryMark = [&](glm::ivec3 offset) {
@@ -408,6 +459,8 @@ void World::removeBlock(RaycastHit& hit) {
 
     if (hit.blockRelativePos.z == 0)         tryMark(glm::ivec3(0, 0, -1));
     else if (hit.blockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
+
+    //
 
 }
 

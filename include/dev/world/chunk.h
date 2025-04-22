@@ -54,6 +54,8 @@ public:
 	bool needsMeshUpdate;
 	bool needsLightUpdate;
 
+	bool sunlightCalculated = false;
+	
 
 	std::vector<Block> chunkData;
 	glm::ivec3 worldPos;
