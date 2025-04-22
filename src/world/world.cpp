@@ -413,6 +413,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         }
 
         Chunk* chunk = &it->second;
+        //std::cout << "Light level do bloco substituido: " << (int)chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
         chunk->needsLightUpdate = true;
