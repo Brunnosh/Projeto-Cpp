@@ -45,7 +45,7 @@ void World::tick() {
     // Future entity ticking logic
 }
 
-//Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo.
+//Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo. talvez mudar isso depois.
 void World::updateWorldLight() {
     
     int iterations = 8;
@@ -64,15 +64,13 @@ void World::updateWorldLight() {
             auto it = WorldData.find({ chunkXZ.first , maxChunkY, chunkXZ.second });
 
             if (it == WorldData.end()) {
-                lightCalculationQueue.push(chunkXZ);
-                lightQueueControl.insert(chunkXZ);
                 continue;
             }
             Chunk* highestChunk = &it->second;
             std::cout << "Highest chunk on X: " << highestChunk->worldPos.x << " , Z: " << highestChunk->worldPos.z << " --> " << highestChunk->worldPos.y << "\n";
 
             
-            //Passar chunk do topo para as funções.
+            castSunlight(*highestChunk);
             
         }
     }
@@ -84,7 +82,7 @@ void World::updateWorldLight() {
         std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
 
         bool alreadyQueued = lightQueueControl.find(chunkXZ) != lightQueueControl.end();
-        if (chunk.needsLightUpdate ) {
+        if (chunk.needsLightUpdate && !alreadyQueued) {
 
             lightCalculationQueue.push(chunkXZ);
             lightQueueControl.insert(chunkXZ);
@@ -97,8 +95,12 @@ void World::updateWorldLight() {
 void World::castSunlight(Chunk& chunk) {
     //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
     Chunk* currentChunk = &chunk;
-
+    
+    
     while (true) {
+        currentChunk->needsLightUpdate = false;
+        currentChunk->needsMeshUpdate = true;
+
         if (currentChunk->isEmpty) {
             for (int i = 0; i < currentChunk->chunkData.size(); i++) {
                 currentChunk->chunkData[i].setSkyLight(15);
@@ -113,6 +115,8 @@ void World::castSunlight(Chunk& chunk) {
         if (it == WorldData.end()) {
             break; 
         }
+
+        
 
         currentChunk = &it->second;
     }
@@ -336,12 +340,14 @@ void World::removeBlock(RaycastHit& hit) {
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
     hit.chunk->needsMeshUpdate = true;
+    hit.chunk->needsMeshUpdate = true;
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = WorldData.find(neighborPos);
         if (it != WorldData.end()) {
             it->second.isChunkEmpty();
+            it->second.needsLightUpdate = true;
             it->second.needsMeshUpdate = true;
         }
         };
@@ -395,6 +401,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
     if (hit.chunk->worldPos == newBlockChunkPos) {   
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
+        hit.chunk->needsLightUpdate = true;
         hit.chunk->needsMeshUpdate = true;
     }
     else 
@@ -408,6 +415,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         Chunk* chunk = &it->second;
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
+        chunk->needsLightUpdate = true;
         chunk->needsMeshUpdate = true;
         
         
@@ -419,6 +427,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         auto neighborPos = newBlockChunkPos + offset;
         auto it = WorldData.find(neighborPos);
         if (it != WorldData.end()) {
+            it->second.needsLightUpdate = true;
             it->second.needsMeshUpdate = true;
             
         }
