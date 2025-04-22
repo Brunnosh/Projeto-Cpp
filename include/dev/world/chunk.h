@@ -50,8 +50,11 @@ public:
 	bool generated = false;
 	bool ready = false;
 	bool isEmpty = false;
+
 	bool needsMeshUpdate;
 	bool needsLightUpdate;
+
+
 	std::vector<Block> chunkData;
 	glm::ivec3 worldPos;
 

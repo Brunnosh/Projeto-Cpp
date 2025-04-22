@@ -22,8 +22,12 @@ class World {
 private:
     //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-    std::queue<std::pair<int,int>> lightCalculationQueue;
-    std::set<std::pair<int, int>> lightQueueControl;
+
+    std::queue<std::pair<int,int>> sunlightQueue;
+    std::set<std::pair<int, int>> sunlightQueueControl;
+
+    std::queue<std::pair<int, int>> floodFillQueue;
+    std::set<std::pair<int, int>> floodFillQueueControl;
 
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
@@ -58,7 +62,7 @@ public:
 
     void World::updateWorldLight();
 
-    void World::skyLightFloodFill(Chunk& chunk);
+    void World::floodFill(Chunk& chunk);
 
     void World::castSunlight(Chunk& chunk);
 
