@@ -20,8 +20,13 @@ struct RaycastHit;
 
 class World {
 private:
-    //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
+    std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
+    std::vector<glm::ivec3> chunkQueue;
+    std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
+    std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
+
+    std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY;
 
     std::queue<std::pair<int,int>> sunlightQueue;
     std::set<std::pair<int, int>> sunlightQueueControl;
@@ -29,10 +34,8 @@ private:
     std::queue<std::pair<int, int>> floodFillQueue;
     std::set<std::pair<int, int>> floodFillQueueControl;
 
-    std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
-    std::vector<glm::ivec3> chunkQueue;
-    std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
-    std::unordered_map<std::pair<int,int>, int, PairHash> highestChunkY;
+    
+    
     
 
 public:
@@ -46,6 +49,8 @@ public:
 public:
     World();
 
+    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
+
     void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
 
     void World::genWorld(Camera& camera, unsigned int modelLoc);
@@ -54,17 +59,28 @@ public:
 
     void World::tick();
 
-    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
-
     void World::removeBlock(RaycastHit& hit);
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
 
-    void World::updateWorldLight();
+    void World::updateWorldLight(Camera & camera);
 
     void World::floodFill(Chunk& chunk);
 
     void World::castSunlight(Chunk& chunk);
+
+    void World::addToChunkGenQueue(glm::vec3 chunkToAdd);
+
+    void World::addToSunCastQueue(std::pair<int, int> chunkToAdd) {
+        sunlightQueue.push(chunkToAdd);
+        sunlightQueueControl.insert(chunkToAdd);
+    }
+
+    void World::addToLightPropagationQueue(std::pair<int, int> chunkToAdd) {
+        floodFillQueue.push(chunkToAdd);
+        floodFillQueueControl.insert(chunkToAdd);
+    }
+
 
     //basicamente inutil, so usa pra GUI, 
     int getMaxChunkY(int x, int z) {

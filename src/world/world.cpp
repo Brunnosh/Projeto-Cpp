@@ -39,7 +39,7 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
 
     if (timer >= lightWaitTime) {
         
-        updateWorldLight();
+        updateWorldLight(camera);
     }
     
 
@@ -53,7 +53,7 @@ void World::tick() {
 }
 
 //Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo. talvez mudar isso depois.
-void World::updateWorldLight() {
+void World::updateWorldLight(Camera & camera) {
 
     //in the future make so light updates start from edited chunk (removeBLock & placeBLock functions)->
     //
@@ -61,20 +61,15 @@ void World::updateWorldLight() {
     //--------------------------------------------------------------------------
     //Add chunks in queue that need update in skyLight/ skyPropagation
     for (auto& [pos, chunk] : WorldData) {
-
-        
-
         std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
-
         bool sunlightAlreadyQueued = sunlightQueueControl.find(chunkXZ) != sunlightQueueControl.end();
         bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
 
-        //later: find a way to separate this function on light updates that dont need sky (torch on caves for example)
-
         if (chunk.needsLightUpdate && !sunlightAlreadyQueued) {
-            sunlightQueue.push(chunkXZ);
-            sunlightQueueControl.insert(chunkXZ);
+            addToSunCastQueue(chunkXZ);
+        }
 
+        
             //ex if(player not have acess to sky)
             // {call only the flood/fill }
             /*
@@ -83,7 +78,7 @@ void World::updateWorldLight() {
                 floodFillQueueControl.insert(chunkXZ);
             }
             */
-        }
+        
     }
     //--------------------------------------------------------------------------
 
@@ -114,9 +109,8 @@ void World::updateWorldLight() {
             
             castSunlight(*highestChunk);
             
-            
-            floodFillQueue.push(chunkXZ);
-            floodFillQueueControl.insert(chunkXZ);
+            addToLightPropagationQueue(chunkXZ);
+
             
 
         }
@@ -334,22 +328,8 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
+                addToChunkGenQueue(chunkWorldPos);
                 
-                //Create separate function to add non generated chunk to queue, so it can be called elsewhere
-                bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
-                bool alreadyQueued = chunkRequested.find(chunkWorldPos) != chunkRequested.end();
-
-                
-                if (!inWorld && !alreadyQueued) {
-                    chunkQueue.push_back(chunkWorldPos);
-                    chunkRequested.insert(chunkWorldPos);
-                }
-
-                std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
-                auto it = highestChunkY.find(xzKey);
-                if (it == highestChunkY.end() || chunkWorldPos.y > it->second) {
-                    highestChunkY[xzKey] = chunkWorldPos.y;
-                }
             }
         }
     }
@@ -376,6 +356,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         auto& fut = chunkFutures[i];
         if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
             auto [pos, chunk] = fut.get();
+            
             WorldData.emplace(pos, std::move(chunk));
             chunkFutures.erase(chunkFutures.begin() + i);
             chunkRequested.erase(pos);
@@ -545,8 +526,23 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
     if (newBlockRelativePos.z == 0)         tryMark(glm::ivec3(0, 0, -1));
     else if (newBlockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
 
+}
+
+void World::addToChunkGenQueue(glm::vec3 chunkToAdd) {
+    bool inWorld = WorldData.find(chunkToAdd) != WorldData.end();
+    bool alreadyQueued = chunkRequested.find(chunkToAdd) != chunkRequested.end();
 
 
+    if (!inWorld && !alreadyQueued) {
+        chunkQueue.push_back(chunkToAdd);
+        chunkRequested.insert(chunkToAdd);
+    }
+
+    std::pair<int, int> xzKey = { chunkToAdd.x, chunkToAdd.z };
+    auto it = highestChunkY.find(xzKey);
+    if (it == highestChunkY.end() || chunkToAdd.y > it->second) {
+        highestChunkY[xzKey] = chunkToAdd.y;
+    }
 
 }
 
