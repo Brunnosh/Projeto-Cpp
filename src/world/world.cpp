@@ -60,25 +60,19 @@ void World::updateWorldLight(Camera & camera) {
 
     //--------------------------------------------------------------------------
     //Add chunks in queue that need update in skyLight/ skyPropagation
-    for (auto& [pos, chunk] : WorldData) {
-        std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
-        bool sunlightAlreadyQueued = sunlightQueueControl.find(chunkXZ) != sunlightQueueControl.end();
-        bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
+    for (auto& [chunkXZ, chunkY] : highestChunkY) {
+        
+        
+        auto it = WorldData.find({ chunkXZ.first, chunkY, chunkXZ.second });
 
-        if (chunk.needsLightUpdate && !sunlightAlreadyQueued) {
+        if (it == WorldData.end()) { continue; }
+
+        Chunk* chunk = &it->second;
+        //bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
+
+        if (chunk->needsLightUpdate && !(sunlightQueueControl.find(chunkXZ) != sunlightQueueControl.end())) {
             addToSunCastQueue(chunkXZ);
         }
-
-        
-            //ex if(player not have acess to sky)
-            // {call only the flood/fill }
-            /*
-            if (!ffAlreadyQueued) {
-                floodFillQueue.push(chunkXZ);
-                floodFillQueueControl.insert(chunkXZ);
-            }
-            */
-        
     }
     //--------------------------------------------------------------------------
 
@@ -108,10 +102,7 @@ void World::updateWorldLight(Camera & camera) {
 
             
             castSunlight(*highestChunk);
-            
-            addToLightPropagationQueue(chunkXZ);
-
-            
+      
 
         }
     }
@@ -159,6 +150,7 @@ void World::castSunlight(Chunk& chunk) {
         currentChunk->needsLightUpdate = false;
         currentChunk->sunlightCalculated = true;
         currentChunk->needsMeshUpdate = true;
+        std::cout << "Chunk castSunLight: " << currentChunk->worldPos.x << "," << currentChunk->worldPos.y << "," << currentChunk->worldPos.z << "\n";
 
         if (currentChunk->isEmpty) {
             for (int i = 0; i < currentChunk->chunkData.size(); i++) {
@@ -248,7 +240,7 @@ void World::floodFill(Chunk& chunk) {
         return;
     }
     
-    std::cout << "Chunk floodfill: " << chunk.worldPos.x << "," <<  chunk.worldPos.y << "," << chunk.worldPos.z << "\n";
+    //std::cout << "Chunk floodfill: " << chunk.worldPos.x << "," << chunk.worldPos.y << "," << chunk.worldPos.z << "\n";
 
 
 
@@ -359,7 +351,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
             
             WorldData.emplace(pos, std::move(chunk));
             chunkFutures.erase(chunkFutures.begin() + i);
-            chunkRequested.erase(pos);
+            chunkQueueControl.erase(pos);
         }
         else {
             ++i;
@@ -530,12 +522,12 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
 void World::addToChunkGenQueue(glm::vec3 chunkToAdd) {
     bool inWorld = WorldData.find(chunkToAdd) != WorldData.end();
-    bool alreadyQueued = chunkRequested.find(chunkToAdd) != chunkRequested.end();
+    bool alreadyQueued = chunkQueueControl.find(chunkToAdd) != chunkQueueControl.end();
 
 
     if (!inWorld && !alreadyQueued) {
         chunkQueue.push_back(chunkToAdd);
-        chunkRequested.insert(chunkToAdd);
+        chunkQueueControl.insert(chunkToAdd);
     }
 
     std::pair<int, int> xzKey = { chunkToAdd.x, chunkToAdd.z };

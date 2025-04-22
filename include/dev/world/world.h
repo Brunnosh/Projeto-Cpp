@@ -20,11 +20,12 @@ struct RaycastHit;
 
 class World {
 private:
+    
     std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-    std::vector<glm::ivec3> chunkQueue;
+    std::vector<glm::ivec3> chunkQueue;//transformar isso numa queue real
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
-    std::unordered_set<glm::ivec3, Vec3Hash> chunkRequested;
+    std::unordered_set<glm::ivec3, Vec3Hash> chunkQueueControl;//descobrir porque isso 'e um unordered set e nao um set normal
 
     std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY;
 
@@ -34,17 +35,10 @@ private:
     std::queue<std::pair<int, int>> floodFillQueue;
     std::set<std::pair<int, int>> floodFillQueueControl;
 
-    
-    
-    
-
 public:
 
     float sunAngle = 0.0f; // Começa no leste
     float sunSpeed = 5.0f;
-
-
-
 
 public:
     World();
