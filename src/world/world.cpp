@@ -50,7 +50,11 @@ void World::updateWorldLight() {
 
     //in the future make so light updates start from player
 
+    //--------------------------------------------------------------------------
+    //Add chunks in queue that need update in skyLight/ skyPropagation
     for (auto& [pos, chunk] : WorldData) {
+
+        
 
         std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
 
@@ -59,15 +63,19 @@ void World::updateWorldLight() {
         //later: find a way to separate this function on light updates that dont need sky (torch on caves for example)
 
         if (chunk.needsLightUpdate && !sunlightAlreadyQueued) {
-
-            //ex if(player not have acess to sky){call only the flood/fill for adjacent chunks}
             sunlightQueue.push(chunkXZ);
             sunlightQueueControl.insert(chunkXZ);
 
+            //ex if(player not have acess to sky)
+            // {call only the flood/fill }
+
         }
     }
+    //--------------------------------------------------------------------------
 
-    //makes the air light level 15 when it has acess to sky.
+    //--------------------------------------------------------------------------
+    //Queue to update the skyLIght -> makes the air light level 15 when it has acess to sky,
+    // if encounters a solid block, all blocks under have light = 0
     int iterations = 8;
     while (iterations-- > 0 && !sunlightQueue.empty()) {
         int size = sunlightQueue.size();
@@ -100,8 +108,8 @@ void World::updateWorldLight() {
         }
     }
     
-    //calculates de propagation of light from the sky/emissive sources
-    
+    //--------------------------------------------------------------------------
+    //Queue to update the light propagation, called every time you need a light update.
     while (iterations-- > 0 && !floodFillQueue.empty()) {
         int size = floodFillQueue.size();
         while (size-- > 0) {
@@ -125,7 +133,7 @@ void World::updateWorldLight() {
 
             floodFill(*highestChunk);
 
-            bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != sunlightQueueControl.end();
+            bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
             if (!ffAlreadyQueued) {
                 floodFillQueue.push(chunkXZ);
                 floodFillQueueControl.insert(chunkXZ);
@@ -133,10 +141,10 @@ void World::updateWorldLight() {
 
         }
     }
-
+    //--------------------------------------------------------------------------
 }
 
-//funcao só bota luz=15 pra todo bloco de ar no chunk até bater num bloco sólido. nao checa se tem acesso ao sol.
+
 void World::castSunlight(Chunk& chunk) {
     //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
     Chunk* currentChunk = &chunk;
@@ -197,7 +205,7 @@ void World::castSunlight(Chunk& chunk) {
     }
 }
 
-//Botar os chunks adjacentes para atualizar tbm
+//Calculates light propagation in blocks.
 void World::floodFill(Chunk& chunk) {
 
     //check if adjacent chunks have calculated the sunlightCasting, if not, skip iteration and put back in queue.
