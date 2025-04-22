@@ -15,15 +15,16 @@
 class Camera;
 struct RaycastHit;
 
+struct chunkObject {
 
+};
 
 
 class World {
 private:
     
-    std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-    std::vector<glm::ivec3> chunkQueue;//transformar isso numa queue real
+    std::queue<glm::ivec3> chunkQueue;//transformar isso numa queue real
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkQueueControl;//descobrir porque isso 'e um unordered set e nao um set normal
 
@@ -56,10 +57,6 @@ public:
     void World::removeBlock(RaycastHit& hit);
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
-
-    void World::updateWorldLight(Camera & camera);
-
-    void World::floodFill(Chunk& chunk);
 
     void World::castSunlight(Chunk& chunk);
 

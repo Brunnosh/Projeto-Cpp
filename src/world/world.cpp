@@ -13,7 +13,7 @@ World::World() {
 }
 
 void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
-    timer += deltaTime;
+  
     
 
     sunAngle += sunSpeed * deltaTime;
@@ -32,277 +32,22 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
     genWorld(camera, modelLoc);
+    tick();
+
+    //light
 
     Shaders[shaderType::MAIN].use();
-
-    
-
-    if (timer >= lightWaitTime) {
-        
-        updateWorldLight(camera);
-    }
-    
-
     renderWorld(modelLoc, drawCallCount);
     
-    tick();
+    
 }
 
 void World::tick() {
     // Future entity ticking logic
 }
 
-//Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo. talvez mudar isso depois.
-void World::updateWorldLight(Camera & camera) {
-
-    //in the future make so light updates start from edited chunk (removeBLock & placeBLock functions)->
-    //
-
-    //--------------------------------------------------------------------------
-    //Add chunks in queue that need update in skyLight/ skyPropagation
-    for (auto& [chunkXZ, chunkY] : highestChunkY) {
-        
-        
-        auto it = WorldData.find({ chunkXZ.first, chunkY, chunkXZ.second });
-
-        if (it == WorldData.end()) { continue; }
-
-        Chunk* chunk = &it->second;
-        //bool ffAlreadyQueued = floodFillQueueControl.find(chunkXZ) != floodFillQueueControl.end();
-
-        if (chunk->needsLightUpdate && !(sunlightQueueControl.find(chunkXZ) != sunlightQueueControl.end())) {
-            addToSunCastQueue(chunkXZ);
-        }
-    }
-    //--------------------------------------------------------------------------
-
-    //--------------------------------------------------------------------------
-    //Queue to update the skyLIght -> makes the air light level 15 when it has acess to sky,
-    // if encounters a solid block, all blocks under have light = 0
-    int iterations = 9;
-    while (iterations-- > 0 && !sunlightQueue.empty()) {
-        int size = sunlightQueue.size();
-        while (size-- > 0) {
-            
-            std::pair<int, int> chunkXZ = sunlightQueue.front();
-            sunlightQueue.pop();
-            sunlightQueueControl.erase(chunkXZ);
-     
-            int maxChunkY = highestChunkY[chunkXZ];
-
-            
-
-            auto it = WorldData.find({ chunkXZ.first , maxChunkY, chunkXZ.second });
-
-            if (it == WorldData.end()) {
-                continue;
-            }
-            Chunk* highestChunk = &it->second;
-            //std::cout << "Highest chunk on X: " << highestChunk->worldPos.x << " , Z: " << highestChunk->worldPos.z << " --> " << highestChunk->worldPos.y << "\n";
-
-            
-            castSunlight(*highestChunk);
-      
-
-        }
-    }
-    
-    //--------------------------------------------------------------------------
-    //Queue to update the light propagation, called every time you need a light update.
-    while (iterations-- > 0 && !floodFillQueue.empty()) {
-        int size = floodFillQueue.size();
-        while (size-- > 0) {
-
-            std::pair<int, int> chunkXZ = floodFillQueue.front();
-            floodFillQueue.pop();
-            floodFillQueueControl.erase(chunkXZ);
-
-            int maxChunkY = highestChunkY[chunkXZ];
 
 
-
-            auto it = WorldData.find({ chunkXZ.first , maxChunkY, chunkXZ.second });
-
-            if (it == WorldData.end()) {
-                continue;
-            }
-            Chunk* highestChunk = &it->second;
-            
-
-
-            floodFill(*highestChunk);
-
-
-
-        }
-    }
-    //--------------------------------------------------------------------------
-}
-
-
-void World::castSunlight(Chunk& chunk) {
-    //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
-    Chunk* currentChunk = &chunk;
-    Chunk* chunkAbove = nullptr;
-    
-    
-    while (true) {
-        currentChunk->needsLightUpdate = false;
-        currentChunk->sunlightCalculated = true;
-        currentChunk->needsMeshUpdate = true;
-        std::cout << "Chunk castSunLight: " << currentChunk->worldPos.x << "," << currentChunk->worldPos.y << "," << currentChunk->worldPos.z << "\n";
-
-        if (currentChunk->isEmpty) {
-            for (int i = 0; i < currentChunk->chunkData.size(); i++) {
-                currentChunk->chunkData[i].setSkyLight(15);
-            }
-        }
-        else {
-            // Chunk com blocos - checar se a luz deve continuar com base no chunk acima
-            for (int localX = 0; localX < CHUNKSIZE; ++localX) {
-                for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
-
-                    bool sunlightContinues = true;
-                    for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
-                        int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
-                        Block& block = currentChunk->chunkData[index];
-
-                        if (!sunlightContinues) {
-                            block.setSkyLight(0);
-                            continue;
-                        }
-
-                        if (block.getType() == BlockType::AIR) {
-                            block.setSkyLight(15);
-                        }
-                        else {
-                            sunlightContinues = false;
-                            block.setSkyLight(0);
-                        }
-                    }
-
-                    // Se chunk acima existe, verifica se ele tem luz no topo dessa coluna
-                    if (chunkAbove) {
-                        int aboveIndex = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + 0; // topo do chunk de baixo = fundo do chunk de cima
-                        Block& aboveBlock = chunkAbove->chunkData[aboveIndex];
-                        if (aboveBlock.getSkyLight() < 15) {
-                            // Se não tem luz vindo de cima, desativa luz nessa coluna
-                            sunlightContinues = false;
-                        }
-                    }
-                }
-            }
-        }
-        auto it = WorldData.find({ currentChunk->worldPos.x, currentChunk->worldPos.y - 1, currentChunk->worldPos.z });
-        if (it == WorldData.end()) {
-            break; 
-        }
-        chunkAbove = currentChunk;
-        currentChunk = &it->second;
-    }
-}
-
-//Calculates light propagation in blocks.
-void World::floodFill(Chunk& chunk) {
-    //this chunk is the top most one in its X-Z coordinates, keep going down applying algorithm.
-    glm::ivec3 topChunkPos = chunk.worldPos;
-
-    std::vector<glm::ivec3> directions = {
-    {  0, 0, -1 }, // N
-    {  0, 0,  1 }, // S
-    {  1, 0,  0 }, // E
-    { -1, 0,  0 }, // W
-    {  1, 0, -1 }, // NE
-    { -1, 0, -1 }, // NW
-    {  1, 0,  1 }, // SE
-    { -1, 0,  1 }  // SW
-    };
-
-    bool needsNeighbors = false;
-
-    for (const glm::ivec3& dir : directions) {
-        glm::ivec3 neighborPos = topChunkPos + dir;
-
-        auto it = WorldData.find(neighborPos);
-        if (it != WorldData.end()) {
-            Chunk& neighbor = it->second;
-
-            if (!neighbor.sunlightCalculated) {
-                sunlightQueue.push(std::pair(neighbor.worldPos.x, neighbor.worldPos.z));
-                sunlightQueueControl.insert(std::pair(neighbor.worldPos.x, neighbor.worldPos.z));
-                needsNeighbors = true;
-            }
-        }
-    }
-    if (needsNeighbors) {
-        floodFillQueue.push(std::pair(chunk.worldPos.x, chunk.worldPos.z));
-        floodFillQueueControl.insert(std::pair(chunk.worldPos.x, chunk.worldPos.z));
-        return;
-    }
-    
-    //std::cout << "Chunk floodfill: " << chunk.worldPos.x << "," << chunk.worldPos.y << "," << chunk.worldPos.z << "\n";
-
-
-
-
-    //check if adjacent chunks have calculated the sunlightCasting, if non, put all chunks that need in the queue, including this one, and skip iteration.
-    
-
-    /*
-    glm::ivec3 chunkPos = chunk.worldPos;
-    std::pair<int, int> xzKey = { chunkPos.x, chunkPos.z };
-    int maxChunkY = highestChunkY[xzKey];
-
-    for (int localX = 0; localX < CHUNKSIZE; ++localX) {
-        for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
-
-            bool foundSolid = false;
-
-            for (int yChunk = maxChunkY; yChunk >= chunkPos.y; --yChunk) {
-                Chunk* currentChunk = nullptr;
-                auto it = WorldData.find({ chunkPos.x, yChunk, chunkPos.z });
-                if (it != WorldData.end()) {
-                    currentChunk = &(it->second);
-                }
-                else {
-                    continue; // chunk não carregado
-                }
-
-                for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
-                    int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
-                    Block& block = currentChunk->chunkData[index];
-
-                    if (block.getType() != BlockType::AIR && !foundSolid) {
-                        // Obter o bloco acima (pode estar em outro chunk)
-                        Block* blockAbove = nullptr;
-
-                        if (localY < CHUNKSIZE - 1) {
-                            int aboveIndex = (localY + 1) * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localX;
-                            blockAbove = &currentChunk->chunkData[aboveIndex];
-                        }
-                        else {
-                            // Vai buscar o próximo chunk acima
-                            auto itAbove = WorldData.find({ chunkPos.x, yChunk + 1, chunkPos.z });
-                            if (itAbove != WorldData.end()) {
-                                Chunk& chunkAbove = itAbove->second;
-                                int aboveIndex = 0 * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localX;
-                                blockAbove = &chunkAbove.chunkData[aboveIndex];
-                            }
-                        }
-
-                        if (blockAbove && blockAbove->getType() == BlockType::AIR) {
-                            block.setSkyLight(blockAbove->getSkyLight());
-                        }
-
-                        foundSolid = true;
-                        break; // esse break é OK, pois só queremos o primeiro sólido
-                    }
-                }
-            }
-        }
-    }
-    */
-}
 
 
 
@@ -329,8 +74,8 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
     int chunksPerFrame = 6;
     int generated = 0;
     while (!chunkQueue.empty() && generated < chunksPerFrame) {
-        glm::ivec3 pos = chunkQueue.back();
-        chunkQueue.pop_back();
+        glm::ivec3 pos = chunkQueue.front();
+        chunkQueue.pop();
 
         std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
             Chunk chunk(pos);
@@ -526,7 +271,7 @@ void World::addToChunkGenQueue(glm::vec3 chunkToAdd) {
 
 
     if (!inWorld && !alreadyQueued) {
-        chunkQueue.push_back(chunkToAdd);
+        chunkQueue.push(chunkToAdd);
         chunkQueueControl.insert(chunkToAdd);
     }
 
@@ -538,3 +283,65 @@ void World::addToChunkGenQueue(glm::vec3 chunkToAdd) {
 
 }
 
+
+void World::castSunlight(Chunk& chunk) {
+    //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
+    Chunk* currentChunk = &chunk;
+    Chunk* chunkAbove = nullptr;
+
+
+    while (true) {
+        currentChunk->needsLightUpdate = false;
+        currentChunk->sunlightCalculated = true;
+        currentChunk->needsMeshUpdate = true;
+        std::cout << "Chunk castSunLight: " << currentChunk->worldPos.x << "," << currentChunk->worldPos.y << "," << currentChunk->worldPos.z << "\n";
+
+        if (currentChunk->isEmpty) {
+            for (int i = 0; i < currentChunk->chunkData.size(); i++) {
+                currentChunk->chunkData[i].setSkyLight(15);
+            }
+        }
+        else {
+            // Chunk com blocos - checar se a luz deve continuar com base no chunk acima
+            for (int localX = 0; localX < CHUNKSIZE; ++localX) {
+                for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
+
+                    bool sunlightContinues = true;
+                    for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
+                        int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
+                        Block& block = currentChunk->chunkData[index];
+
+                        if (!sunlightContinues) {
+                            block.setSkyLight(0);
+                            continue;
+                        }
+
+                        if (block.getType() == BlockType::AIR) {
+                            block.setSkyLight(15);
+                        }
+                        else {
+                            sunlightContinues = false;
+                            block.setSkyLight(0);
+                        }
+                    }
+
+                    // Se chunk acima existe, verifica se ele tem luz no topo dessa coluna
+                    if (chunkAbove) {
+                        int aboveIndex = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + 0; // topo do chunk de baixo = fundo do chunk de cima
+                        Block& aboveBlock = chunkAbove->chunkData[aboveIndex];
+                        if (aboveBlock.getSkyLight() < 15) {
+                            // Se não tem luz vindo de cima, desativa luz nessa coluna
+                            sunlightContinues = false;
+                        }
+                    }
+                }
+            }
+        }
+        auto it = WorldData.find({ currentChunk->worldPos.x, currentChunk->worldPos.y - 1, currentChunk->worldPos.z });
+        if (it == WorldData.end()) {
+            break;
+        }
+        chunkAbove = currentChunk;
+        currentChunk = &it->second;
+    }
+}
