@@ -8,6 +8,7 @@
 #include <chunk.h>
 #include <future>
 #include <queue>
+#include <set>
 
 
 
@@ -21,7 +22,8 @@ class World {
 private:
     //std::unordered_map<glm::ivec3, Chunk*, Vec3Hash> activeChunks;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
-    std::queue<glm::ivec2> lightCalculationQueue;
+    std::queue<std::pair<int,int>> lightCalculationQueue;
+    std::set<std::pair<int, int>> lightQueueControl;
 
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
     std::vector<glm::ivec3> chunkQueue;
@@ -60,6 +62,7 @@ public:
 
     void World::castSunlight(Chunk& chunk);
 
+    //basicamente inutil, so usa pra GUI, 
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };
         auto it = highestChunkY.find(xzKey);
@@ -68,7 +71,6 @@ public:
         }
         
     }
-
    
     int World::getNumberChunks() {
         return WorldData.size();

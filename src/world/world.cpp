@@ -45,28 +45,50 @@ void World::tick() {
     // Future entity ticking logic
 }
 
+//Mudou chunk, atualiza TUDO do y mais alto até chunk mais baixo.
 void World::updateWorldLight() {
+    
     int iterations = 8;
     while (iterations-- > 0 && !lightCalculationQueue.empty()) {
         int size = lightCalculationQueue.size();
         while (size-- > 0) {
-            glm::vec2 chunkPos2D = lightCalculationQueue.front();
+            
+            std::pair<int, int> chunkXZ = lightCalculationQueue.front();
             lightCalculationQueue.pop();
-                                                        //chunkPos.y because ivec2 shenanigans, its Z coords tho :(
-            std::pair<int, int> xzKey = { chunkPos2D.x, chunkPos2D.y };
-            int maxChunkY = highestChunkY[xzKey];
+            lightQueueControl.erase(chunkXZ);
+     
+            int maxChunkY = highestChunkY[chunkXZ];
 
-            Chunk* topMostChunk = &WorldData[glm::vec3(chunkPos2D.x, maxChunkY, chunkPos2D.y)];
+            
 
+            auto it = WorldData.find({ chunkXZ.first , maxChunkY, chunkXZ.second });
+
+            if (it == WorldData.end()) {
+                lightCalculationQueue.push(chunkXZ);
+                lightQueueControl.insert(chunkXZ);
+                continue;
+            }
+            Chunk* highestChunk = &it->second;
+            std::cout << "Highest chunk on X: " << highestChunk->worldPos.x << " , Z: " << highestChunk->worldPos.z << " --> " << highestChunk->worldPos.y << "\n";
+
+            
             //Passar chunk do topo para as funções.
+            
         }
     }
-
+    
 
     //in the future make so light updates start from player
     for (auto& [pos, chunk] : WorldData) {
-        if (chunk.needsLightUpdate) {
-            lightCalculationQueue.push(glm::ivec2(chunk.worldPos.x,chunk.worldPos.z));
+
+        std::pair<int, int> chunkXZ = std::pair(chunk.worldPos.x, chunk.worldPos.z);
+
+        bool alreadyQueued = lightQueueControl.find(chunkXZ) != lightQueueControl.end();
+        if (chunk.needsLightUpdate ) {
+
+            lightCalculationQueue.push(chunkXZ);
+            lightQueueControl.insert(chunkXZ);
+
         }
     }
 }
