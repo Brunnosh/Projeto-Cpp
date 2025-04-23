@@ -146,23 +146,27 @@ std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
 
     return RaycastHit{ chunk.get(), blockOffset, blockPos, selectedBlock };
 }
-/*
+
+void World::removeFarChunks(Camera& camera) {
+
+
+
+}
+
+
 void World::removeBlock(RaycastHit& hit) {
     int max = CHUNKSIZE - 1;
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
-    hit.chunk->needsLightUpdate = true;
-    hit.chunk->needsMeshUpdate = true;
+
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
-            it->second.isChunkEmpty();
-            it->second.needsLightUpdate = true;
-            it->second.needsMeshUpdate = true;
+
         }
         };
 
@@ -218,8 +222,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         std::cout << "Light level do bloco substituido (mesmo chunk): " << (int)hit.chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
-        hit.chunk->needsLightUpdate = true;
-        hit.chunk->needsMeshUpdate = true;
+
     }
     else 
     {
@@ -229,12 +232,11 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
             throw std::runtime_error("Construindo em chunk não gerado!.");
         }
 
-        Chunk* chunk = &it->second;
+        std::shared_ptr<Chunk> chunk = it->second.chunk;
         std::cout << "Light level do bloco substituido (outro chunk): " << (int)chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
-        chunk->needsLightUpdate = true;
-        chunk->needsMeshUpdate = true;
+
         
         
 
@@ -245,8 +247,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         auto neighborPos = newBlockChunkPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
-            it->second.needsLightUpdate = true;
-            it->second.needsMeshUpdate = true;
+
             
         }
         };
@@ -262,4 +263,3 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
 }
 
-*/

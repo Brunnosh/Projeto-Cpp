@@ -69,9 +69,9 @@ public:
 
     void World::tick();
 
-    //void World::removeBlock(RaycastHit& hit);
+    void World::removeBlock(RaycastHit& hit);
 
-    //void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
+    void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
 
 
 
