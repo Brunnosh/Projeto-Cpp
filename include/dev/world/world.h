@@ -58,6 +58,8 @@ public:
 
     void World::genChunks();
 
+    void World::removeFarChunks(Camera& camera);
+
     void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
 
     std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);

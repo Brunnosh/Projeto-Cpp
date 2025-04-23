@@ -81,7 +81,7 @@ void World::queueChunks(Camera& camera) {
         }
     }
 
-
+    removeFarChunks(camera);
 
 }
 
