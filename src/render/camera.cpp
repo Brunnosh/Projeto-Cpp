@@ -153,11 +153,11 @@ void Camera::update(World& world, Window & window, int& drawCallCount) {
     //Calc raycast
     
     
-    /*
+    
     raycast([&](glm::ivec3 pos) {
         return world.isBlockAir(pos);
         });
-    */
+    
 
 
     //Draw block outline

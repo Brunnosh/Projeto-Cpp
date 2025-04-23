@@ -51,7 +51,7 @@ public:
 public:
     World();
 
-    //std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
+    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
 
     void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
 

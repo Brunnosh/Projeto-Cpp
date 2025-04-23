@@ -39,7 +39,10 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     Shaders[shaderType::MAIN].use();
     renderWorld(modelLoc, drawCallCount);
     
-    
+    for (auto& [chunkXZ, chunkY] : highestChunkY) {
+
+
+    }
 }
 
 void World::tick() {
@@ -143,29 +146,25 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
 
 
-/*
+
 std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
     glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
     glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
     int blockindex = blockOffset.x * CHUNKSIZE * CHUNKSIZE + blockOffset.z * CHUNKSIZE + blockOffset.y;
 
     auto it = WorldData.find(blockChunkPos);
-    if (it == WorldData.end()) return std::nullopt;
+    if (it == WorldData.end() || !it->second.chunk) return std::nullopt;
 
+    std::shared_ptr<Chunk> chunk = it->second.chunk;
 
-    Chunk* chunk = &it->second;
-    Block* selectedBlock = &chunk->chunkData[blockindex];
-    
-
-    
     if (chunk->chunkData[blockindex].getType() == BlockType::AIR)
         return std::nullopt;
 
-    return RaycastHit{ chunk, blockOffset, blockPos, selectedBlock };
+    Block* selectedBlock = &chunk->chunkData[blockindex];
 
-
+    return RaycastHit{ chunk.get(), blockOffset, blockPos, selectedBlock };
 }
-
+/*
 void World::removeBlock(RaycastHit& hit) {
     int max = CHUNKSIZE - 1;
 
