@@ -10,7 +10,7 @@ private:
     Window window;
 
 public:
-    World* currentWorld = nullptr;
+    std::unique_ptr<World> currentWorld;
     
     bool wireframe = false;
     bool VSYNC = 1;

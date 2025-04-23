@@ -167,7 +167,7 @@ void Game::run() {
     loadTexture(&crosshair, "assets/crosshair.png");
 
     World mundoTeste;
-    this->currentWorld = &mundoTeste; 
+    currentWorld = std::make_unique<World>();
 
     fpsStartTime = std::chrono::steady_clock::now();
     
