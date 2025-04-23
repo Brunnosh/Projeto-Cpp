@@ -1,5 +1,4 @@
-#define HASH_H
-#ifdef HASH_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -45,4 +44,4 @@ struct PairHash {
 
 
 
-#endif // HASH_H
+
