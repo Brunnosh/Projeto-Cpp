@@ -14,15 +14,7 @@ Chunk::Chunk(glm::ivec3 pos) {
     worldPos = pos;
 }
 
-Chunk::~Chunk() {
-    for (int i = 0; i < 2; ++i) {
-        if (buffers[i].VAO != 0) {
-            glDeleteBuffers(1, &buffers[i].VBO);
-            glDeleteBuffers(1, &buffers[i].EBO);
-            glDeleteVertexArrays(1, &buffers[i].VAO);
-        }
-    }
-}
+Chunk::~Chunk() {}
 
 bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData) {
     if (x >= 0 && x < CHUNKSIZE &&

@@ -13,9 +13,6 @@ World::World() {
 }
 
 void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
-  
-    
-
     sunAngle += sunSpeed * deltaTime;
     if (sunAngle >= 360.0f)
         sunAngle -= 360.0f;
@@ -32,12 +29,8 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
     queueChunks(camera);
+
     genChunks();
-
-
-
- 
-
 }
 
 void World::tick() {
