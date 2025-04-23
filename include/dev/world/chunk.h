@@ -22,15 +22,7 @@ struct chunkBuffers {
 
 class Chunk {
 public:
-	bool generated = false;
-	bool ready = false;
 	bool isEmpty = false;
-
-	bool needsMeshUpdate;
-	bool needsLightUpdate;
-
-	bool sunlightCalculated = false;
-	
 
 	std::vector<Block> chunkData;
 	glm::ivec3 worldPos;
@@ -46,31 +38,11 @@ private:
 public:
 
 	Chunk::Chunk(glm::ivec3 pos);
-
 	Chunk::~Chunk();
 
-
-	bool isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData);
-	void genChunkFaces();
-	void render(unsigned int modelLoc);
-	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
-	void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
-	void regenMesh();
-
-
-	bool isChunkEmpty() {
-		
-		
-		for (const Block& block : chunkData) {
-			if (block.getType() != BlockType::AIR) {
-				isEmpty = false;
-				return false;
-			}
-		}
-		isEmpty = true;
-		return true;
-		
-	}
+	bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData);
+	
+	bool Chunk::isChunkEmpty();
 
 	
 };

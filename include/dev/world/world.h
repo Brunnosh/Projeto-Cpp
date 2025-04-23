@@ -1,11 +1,13 @@
-#ifndef WORLD_H
+#pragma once
 #define WORLD_H
+
+#include <chunk.h>
+#include <renderer.h>
 
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
 #include <optional>
-#include <chunk.h>
 #include <future>
 #include <queue>
 #include <set>
@@ -32,11 +34,12 @@ struct chunkObject {
 
 class World {
 private:
-   
-    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> WorldData;
-    std::queue<glm::ivec3> chunkQueue;
+    Renderer worldRenderer;
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData;
+    std::queue<glm::ivec3> chunkGenQueue;
+    std::unordered_set<glm::ivec3, Vec3Hash> chunkGenQueueControl;
     std::vector<std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>>> chunkFutures;
-    std::unordered_set<glm::ivec3, Vec3Hash> chunkQueueControl;//descobrir porque isso 'e um unordered set e nao um set normal
+    
 
     std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; //melhorar isso
 
@@ -51,13 +54,16 @@ public:
 public:
     World();
 
-    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
+    void World::queueChunks(Camera& camera);
+
+    void World::genChunks();
 
     void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
 
-    void World::genWorld(Camera& camera, unsigned int modelLoc);
+    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
 
-    void World::renderWorld(unsigned int modelLoc, int &drawCallCount);
+    
+
 
     void World::tick();
 
@@ -65,7 +71,7 @@ public:
 
     //void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
 
-    //void World::castSunlight(Chunk& chunk);
+
 
 
     //basicamente inutil, so usa pra GUI, 
@@ -79,7 +85,7 @@ public:
     }
    
     int World::getNumberChunks() {
-        return WorldData.size();
+        return worldData.size();
     }
 
 
@@ -88,4 +94,3 @@ public:
 
 };
 
-#endif
