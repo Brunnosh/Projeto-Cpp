@@ -60,13 +60,12 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
-                bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
-                bool alreadyQueued = chunkQueueControl.find(chunkWorldPos) != chunkQueueControl.end();
-
-
-                if (!inWorld && !alreadyQueued) {
-                    chunkQueue.push(chunkWorldPos);
-                    chunkQueueControl.insert(chunkWorldPos);
+                auto obj = WorldData.find(chunkWorldPos);
+                if (obj == WorldData.end()) {
+                    WorldData[chunkWorldPos] = { nullptr, chunkState::LOADING };
+                    if (chunkQueueControl.insert(chunkWorldPos).second) {
+                        chunkQueue.push(chunkWorldPos);
+                    }
                 }
 
                 std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
@@ -86,13 +85,13 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         glm::ivec3 pos = chunkQueue.front();
         chunkQueue.pop();
 
-        std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
-            Chunk chunk(pos);
-            World_Gen::generateChunkData(chunk);
-            chunk.isChunkEmpty();
-            chunk.needsMeshUpdate = true;
-            chunk.needsLightUpdate = true;
-            return { pos, std::move(chunk) };
+        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
+            auto chunk = std::make_shared<Chunk>(pos);
+            World_Gen::generateChunkData(*chunk);
+            chunk->isChunkEmpty();
+            chunk->needsMeshUpdate = true;
+            chunk->needsLightUpdate = true;
+            return { pos, chunk };
             });
 
         chunkFutures.push_back(std::move(fut));
@@ -102,9 +101,13 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
     for (int i = 0; i < chunkFutures.size(); ) {
         auto& fut = chunkFutures[i];
         if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-            auto [pos, chunk] = fut.get();
+            auto [pos, chunkPtr] = fut.get();
             
-            WorldData.emplace(pos, std::move(chunk));
+            chunkObject obj;
+            obj.chunk = chunkPtr;
+            obj.state = chunkState::GENERATED;
+
+            WorldData[pos] = std::move(obj);
             chunkFutures.erase(chunkFutures.begin() + i);
             chunkQueueControl.erase(pos);
         }
@@ -120,15 +123,18 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
     
 
-    for (auto& [pos, chunk] : WorldData) {
-        
-        if (chunk.isEmpty) { continue; }
+    for (auto& [pos, obj] : WorldData) {
+        if (!obj.chunk || obj.state == chunkState::UNLOADED) continue;
+
+        auto& chunk = *obj.chunk;
+        if (chunk.isEmpty) continue;
+
         if (chunk.needsMeshUpdate) {
-           
-            chunk.regenMesh(WorldData, highestChunkY);
+            chunk.regenMesh();
             chunk.needsMeshUpdate = false;
+            obj.state = chunkState::READY;
         }
-        
+
         chunk.render(modelLoc);
         drawCallCount++;
     }
@@ -137,7 +143,7 @@ void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
 
 
 
-
+/*
 std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
     glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
     glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
@@ -337,3 +343,4 @@ void World::castSunlight(Chunk& chunk) {
         currentChunk = &it->second;
     }
 }
+*/

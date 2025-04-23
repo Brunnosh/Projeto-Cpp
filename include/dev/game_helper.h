@@ -172,14 +172,14 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         if (camera.raycastInfo.has_value()) {
-            world.removeBlock(camera.raycastInfo.value());
+            //world.removeBlock(camera.raycastInfo.value());
         }
     }
         
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
         if (camera.raycastInfo.has_value() && camera.selectedBlock != nullptr) {
            
-            world.placeBlock(camera, camera.raycastInfo.value(), *camera.selectedBlock);
+            //world.placeBlock(camera, camera.raycastInfo.value(), *camera.selectedBlock);
         }
 }
 //-----------------------------------------------------------------------------------

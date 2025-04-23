@@ -76,11 +76,11 @@ public:
 
 
 	bool isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData);
-	void genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData);
+	void genChunkFaces();
 	void render(unsigned int modelLoc);
 	std::vector<Block> populateChunk(glm::ivec3 chunkCoords);
 	void addVertxInfo(FACE face, char x, char y, char z, std::vector<Vertex>& vertices, std::vector<unsigned int>& indices, unsigned int& currentVertex, Block storedBlock);
-	void regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash>& highestChunkY);
+	void regenMesh();
 	void calculateChunkLighting(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash> &highestChunkY);
 
 	bool isChunkEmpty() {

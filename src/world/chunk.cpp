@@ -80,13 +80,13 @@ std::vector<Block> Chunk::populateChunk(glm::ivec3 chunkCoords) {
     return tempVec;
 }
 
-void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData, std::unordered_map<std::pair<int, int>, int, PairHash>& highestChunkY) {
+void Chunk::regenMesh() {
     //auto start = std::chrono::high_resolution_clock::now();
     this->vertices.clear();
     this->indices.clear();
     this->generated = false;
 
-    genChunkFaces(WorldData);
+    genChunkFaces();
     
     if (isEmpty) { return; }
     
@@ -140,71 +140,9 @@ void Chunk::regenMesh(std::unordered_map<glm::ivec3, Chunk, Vec3Hash>& WorldData
 
 
 //NAO MODIFICAR ESSE WORLDDATA EM HIPÓTESE ALGUMA SEM IMPLEMENTAR MUTEX---V
-void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &WorldData) {
-
-    glm::ivec3 thisChunk = this->worldPos;
+void Chunk::genChunkFaces() {
 
 
-
-    glm::ivec3 northChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z - 1);
-    glm::ivec3 southChunkPos = glm::ivec3(thisChunk.x, thisChunk.y, thisChunk.z + 1);
-    glm::ivec3 eastChunkPos = glm::ivec3(thisChunk.x + 1, thisChunk.y, thisChunk.z );
-    glm::ivec3 westChunkPos = glm::ivec3(thisChunk.x -1, thisChunk.y, thisChunk.z);
-
-    glm::ivec3 topChunkPos = glm::ivec3(thisChunk.x, thisChunk.y + 1, thisChunk.z);
-    glm::ivec3 botChunkPos = glm::ivec3(thisChunk.x, thisChunk.y -1, thisChunk.z);
-
-    
-    std::vector<Block> northChunk;
-    std::vector<Block> southChunk;
-    std::vector<Block> eastChunk;
-    std::vector<Block> westChunk; 
-    std::vector<Block> topChunk;
-    std::vector<Block> bottomChunk;
-
-    //da maneira que estou gerando o mundo, basicamente apenas os chunks da direita e de tras do chunk vao j'a ter gerado.
-
-    if (WorldData.find(northChunkPos) != WorldData.end()) {
-        northChunk = WorldData.find(northChunkPos)->second.chunkData;
-    }
-    else {
-        northChunk = populateChunk(northChunkPos);
-    }
-
-    if (WorldData.find(southChunkPos) != WorldData.end()) {
-        southChunk = WorldData.find(southChunkPos)->second.chunkData;
-    }
-    else {
-        southChunk = populateChunk(southChunkPos);
-    }
-
-    if (WorldData.find(eastChunkPos) != WorldData.end()) {
-        eastChunk = WorldData.find(eastChunkPos)->second.chunkData;
-    }
-    else {
-        eastChunk = populateChunk(eastChunkPos);
-    }
-
-    if (WorldData.find(westChunkPos) != WorldData.end()) {
-        westChunk = WorldData.find(westChunkPos)->second.chunkData;
-    }
-    else {
-        westChunk = populateChunk(westChunkPos);
-    }
-
-    if (WorldData.find(topChunkPos) != WorldData.end()) {
-        topChunk = WorldData.find(topChunkPos)->second.chunkData;
-    }
-    else {
-        topChunk = populateChunk(topChunkPos);
-    }
-
-    if (WorldData.find(botChunkPos) != WorldData.end()) {
-        bottomChunk = WorldData.find(botChunkPos)->second.chunkData;
-    }
-    else {
-        bottomChunk = populateChunk(botChunkPos);
-    }
 
     unsigned int currentVertex = 0;
 	for (char x = 0; x < CHUNKSIZE; x++) {
@@ -219,43 +157,14 @@ void Chunk::genChunkFaces(std::unordered_map<glm::ivec3, Chunk, Vec3Hash> &World
                 if (storedBlock.getType() == BlockType::AIR)
                     continue;
 
-                
+                addVertxInfo(FACE::NORTH, x, y, z, vertices, indices, currentVertex, storedBlock);
+                addVertxInfo(FACE::SOUTH, x, y, z, vertices, indices, currentVertex, storedBlock);
+                addVertxInfo(FACE::EAST, x, y, z, vertices, indices, currentVertex, storedBlock);
+                addVertxInfo(FACE::WEST, x, y, z, vertices, indices, currentVertex, storedBlock);
+                addVertxInfo(FACE::TOP, x, y, z, vertices, indices, currentVertex, storedBlock);
+                addVertxInfo(FACE::BOTTOM, x, y, z, vertices, indices, currentVertex, storedBlock);
 
-			
-                if (isAirAt(x, y, z - 1, &chunkData, &northChunk)) {
 
-                    addVertxInfo(FACE::NORTH,x,y,z, vertices, indices, currentVertex, storedBlock);
-
-                }
-
-                if(isAirAt(x,y,z+1,&chunkData, &southChunk)){
-
-                    addVertxInfo(FACE::SOUTH, x, y, z, vertices, indices, currentVertex, storedBlock);
-
-                }
-
-                if (isAirAt(x + 1, y, z, &chunkData, &eastChunk)) {
-                    addVertxInfo(FACE::EAST, x, y, z, vertices, indices, currentVertex, storedBlock);
-
-                }
-
-                if (isAirAt(x - 1, y, z, &chunkData, &westChunk)) {
-
-                    addVertxInfo(FACE::WEST, x, y, z, vertices, indices, currentVertex, storedBlock);
-
-                }
-
-                if(isAirAt(x,y+1,z,&chunkData, &topChunk))
-                {
-                    addVertxInfo(FACE::TOP, x, y, z, vertices, indices, currentVertex, storedBlock);
-
-                }
-		
-                if (isAirAt(x, y - 1, z, & chunkData, &bottomChunk)) {
-                    
-                    addVertxInfo(FACE::BOTTOM, x, y, z, vertices, indices, currentVertex, storedBlock);
-
-                }
 			}
 		}
 	}
