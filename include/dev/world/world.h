@@ -2,7 +2,7 @@
 #define WORLD_H
 
 #include <chunk.h>
-#include <renderer.h>
+
 
 #include <vector>
 #include <unordered_map>
@@ -34,7 +34,7 @@ struct chunkObject {
 
 class World {
 private:
-    Renderer worldRenderer;
+    
     std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData;
     std::queue<glm::ivec3> chunkGenQueue;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkGenQueueControl;

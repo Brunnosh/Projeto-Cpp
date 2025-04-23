@@ -3,11 +3,12 @@
 #include <window.h>
 #include <world.h>
 #include <camera.h>
-
+#include <renderer.h>
 
 class Game {
 private:
     Window window;
+    Renderer worldRenderer;
 
 public:
     std::unique_ptr<World> currentWorld;
