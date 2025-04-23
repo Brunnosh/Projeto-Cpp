@@ -69,26 +69,10 @@ private:
 
 
 public:
-	Chunk() {}
 
-	Chunk::Chunk(glm::ivec3 pos) {
-		worldPos = pos;
-		generated = false;
-		ready = false;
-		chunkData = populateChunk(pos);
-		isChunkEmpty();
+	Chunk::Chunk(glm::ivec3 pos);
 
-	}
-
-	~Chunk() {
-		for (int i = 0; i < 2; ++i) {
-			if (buffers[i].VAO != 0) {
-				glDeleteBuffers(1, &buffers[i].VBO);
-				glDeleteBuffers(1, &buffers[i].EBO);
-				glDeleteVertexArrays(1, &buffers[i].VAO);
-			}
-		}
-	}
+	Chunk::~Chunk();
 
 
 	bool isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData);

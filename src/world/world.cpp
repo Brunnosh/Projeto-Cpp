@@ -1,7 +1,7 @@
 #include <world.h>
 #include <shader.h>
 #include <camera.h>
-
+#include <world_gen.h>
 
 float lightWaitTime = 10.0f;
 float timer = 0.0f;
@@ -48,11 +48,6 @@ void World::tick() {
 
 
 
-
-
-
-
-
 //future make world gen start from player
 void World::genWorld(Camera& camera, unsigned int modelLoc) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
@@ -65,7 +60,21 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
-                addToChunkGenQueue(chunkWorldPos);
+                bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
+                bool alreadyQueued = chunkQueueControl.find(chunkWorldPos) != chunkQueueControl.end();
+
+
+                if (!inWorld && !alreadyQueued) {
+                    chunkQueue.push(chunkWorldPos);
+                    chunkQueueControl.insert(chunkWorldPos);
+                }
+
+                std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
+                auto it = highestChunkY.find(xzKey);
+                if (it == highestChunkY.end() || chunkWorldPos.y > it->second) {
+                    highestChunkY[xzKey] = chunkWorldPos.y;
+                }
+
                 
             }
         }
@@ -79,6 +88,7 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
 
         std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
             Chunk chunk(pos);
+            World_Gen::generateChunkData(chunk);
             chunk.isChunkEmpty();
             chunk.needsMeshUpdate = true;
             chunk.needsLightUpdate = true;
@@ -262,24 +272,6 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
     if (newBlockRelativePos.z == 0)         tryMark(glm::ivec3(0, 0, -1));
     else if (newBlockRelativePos.z == max)  tryMark(glm::ivec3(0, 0, 1));
-
-}
-
-void World::addToChunkGenQueue(glm::vec3 chunkToAdd) {
-    bool inWorld = WorldData.find(chunkToAdd) != WorldData.end();
-    bool alreadyQueued = chunkQueueControl.find(chunkToAdd) != chunkQueueControl.end();
-
-
-    if (!inWorld && !alreadyQueued) {
-        chunkQueue.push(chunkToAdd);
-        chunkQueueControl.insert(chunkToAdd);
-    }
-
-    std::pair<int, int> xzKey = { chunkToAdd.x, chunkToAdd.z };
-    auto it = highestChunkY.find(xzKey);
-    if (it == highestChunkY.end() || chunkToAdd.y > it->second) {
-        highestChunkY[xzKey] = chunkToAdd.y;
-    }
 
 }
 

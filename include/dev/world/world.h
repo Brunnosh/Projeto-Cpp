@@ -32,7 +32,7 @@ struct chunkObject {
 
 class World {
 private:
-    
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> testData;
     std::unordered_map<glm::ivec3, Chunk, Vec3Hash> WorldData;
     std::queue<glm::ivec3> chunkQueue;
     std::vector<std::future<std::pair<glm::ivec3, Chunk>>> chunkFutures;
@@ -70,18 +70,6 @@ public:
 
     void World::castSunlight(Chunk& chunk);
 
-    void World::addToChunkGenQueue(glm::vec3 chunkToAdd);
-
-    void World::addToSunCastQueue(std::pair<int, int> chunkToAdd) {
-        sunlightQueue.push(chunkToAdd);
-        sunlightQueueControl.insert(chunkToAdd);
-    }
-
-    void World::addToLightPropagationQueue(std::pair<int, int> chunkToAdd) {
-        floodFillQueue.push(chunkToAdd);
-        floodFillQueueControl.insert(chunkToAdd);
-    }
-
 
     //basicamente inutil, so usa pra GUI, 
     int getMaxChunkY(int x, int z) {
@@ -96,6 +84,11 @@ public:
     int World::getNumberChunks() {
         return WorldData.size();
     }
+
+
+
+
+
 };
 
 #endif

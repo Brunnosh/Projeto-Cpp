@@ -1,5 +1,6 @@
 #include <chunk.h>
 #include <shader.h>
+#include <world_gen.h>
 
 #include <chrono>
 #include <iostream>
@@ -9,7 +10,21 @@
 #include <queue>
 #include <array>
 
+Chunk::Chunk(glm::ivec3 pos) {
+    worldPos = pos;
+    generated = false;
+    ready = false;
+}
 
+Chunk::~Chunk() {
+    for (int i = 0; i < 2; ++i) {
+        if (buffers[i].VAO != 0) {
+            glDeleteBuffers(1, &buffers[i].VBO);
+            glDeleteBuffers(1, &buffers[i].EBO);
+            glDeleteVertexArrays(1, &buffers[i].VAO);
+        }
+    }
+}
 
 bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData) {
     if (x >= 0 && x < CHUNKSIZE &&
@@ -21,6 +36,7 @@ bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vec
         return (*chunkData)[index].getType() == BlockType::AIR;
     }
     else {
+        
         // Acessar chunk vizinho — ajustar a coordenada
         int nx = (x + CHUNKSIZE) % CHUNKSIZE;
         int ny = (y + CHUNKSIZE) % CHUNKSIZE;
