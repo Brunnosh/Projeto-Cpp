@@ -12,7 +12,9 @@ World::World() {
     //ler pos do player salvo, renderizar chunks em torno do player primeiro, depois começar o update.
 }
 
-void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
+void World::update(Camera & camera, float deltaTime) {
+
+    
     sunAngle += sunSpeed * deltaTime;
     if (sunAngle >= 360.0f)
         sunAngle -= 360.0f;
@@ -28,9 +30,7 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
-    queueChunks(camera);
-
-    genChunks();
+ 
 }
 
 void World::tick() {
@@ -117,12 +117,38 @@ void World::genChunks() {
 }
 
 
+bool World::isAirAt(int x, int y, int z) {
+    glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(x,y,z) / float(CHUNKSIZE)));
+
+
+
+    if (x >= 0 && x < CHUNKSIZE &&
+        y >= 0 && y < CHUNKSIZE &&
+        z >= 0 && z < CHUNKSIZE) {
+
+        // Dentro do chunk atual
+        int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y;
+        return (*chunkData)[index].getType() == BlockType::AIR;
+    }
+    else {
+
+        // Acessar chunk vizinho — ajustar a coordenada
+        int nx = (x + CHUNKSIZE) % CHUNKSIZE;
+        int ny = (y + CHUNKSIZE) % CHUNKSIZE;
+        int nz = (z + CHUNKSIZE) % CHUNKSIZE;
+
+        int index = nx * CHUNKSIZE * CHUNKSIZE + nz * CHUNKSIZE + ny;
+        return (*nextChunkData)[index].getType() == BlockType::AIR;
+    }
+
+    // Não tem chunk vizinho  considere ar (para forçar renderização da face)
+    return true;
+}
 
 
 
 
-
-std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
+std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos) {
     glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
     glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
     int blockindex = blockOffset.x * CHUNKSIZE * CHUNKSIZE + blockOffset.z * CHUNKSIZE + blockOffset.y;

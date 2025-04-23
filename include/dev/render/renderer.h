@@ -1,4 +1,3 @@
-// Renderer.h
 #pragma once
 
 #include <unordered_map>
@@ -18,6 +17,7 @@ struct ChunkRenderData {
     chunkBuffers buffers;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+    bool uploaded = false;
 };
 
 class Renderer {
@@ -27,12 +27,14 @@ private:
 
 public:
 
-    void rebuildDirtyChunks();
-    void renderChunks(const Camera& camera);
+    void rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData);
+    void renderChunks();
     void cleanup();
 
+    void generateAndUploadMesh(const glm::ivec3 pos, Chunk& chunk);
+
 private:
-    void generateMesh(const Chunk& chunk, ChunkRenderData& renderData);
+    void generateMesh(Chunk& chunk, ChunkRenderData& renderData);
     void uploadToGPU(ChunkRenderData& renderData);
     bool isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);
 };

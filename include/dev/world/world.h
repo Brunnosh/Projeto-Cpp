@@ -18,37 +18,35 @@ class Camera;
 struct RaycastHit;
 
 enum class chunkState {
-    UNLOADED, //Chunk does not exist (chunk = nullptr)
+    INVALID, //Chunk does not exist (chunk = nullptr)
     LOADING, // in process of loading/generating chunkData.
     GENERATED, //chunkData is loaded, chunk is not meshed and not prepared.
-    
-    READY // Chunk is meshed and light is calculated -> ready to render.
+    DIRTY, //chunk queued for meshing
+    READY // Chunk is meshed and light is calculated -> will render.
 
 };
 
 struct chunkObject {
     std::shared_ptr<Chunk> chunk = nullptr;
-    chunkState state = chunkState::UNLOADED;
+    chunkState state = chunkState::INVALID;
 };
 
 
 class World {
 private:
-    
-    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData;
+    //std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData; // chunks stored in memory, once removed from render distance store here, then after some time store to disk then remove from memory
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData; //basically chunks inside players render distance
     std::queue<glm::ivec3> chunkGenQueue;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkGenQueueControl;
     std::vector<std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>>> chunkFutures;
     
 
-    std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; //melhorar isso
+    std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; 
 
-    //Queue mesh recalculation.
-    //Queue light calculation
 
 public:
 
-    float sunAngle = 0.0f; // Começa no leste
+    float sunAngle = 0.0f; 
     float sunSpeed = 5.0f;
 
 public:
@@ -60,9 +58,11 @@ public:
 
     void World::removeFarChunks(Camera& camera);
 
-    void World::update(Camera& camera, float deltaTime, unsigned int modelLoc, int& drawCallCount);
+    void World::update(Camera& camera, float deltaTime);
 
-    std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos);
+    bool World::isAirAt(int x, int y, int z);
+
+    std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos);
 
     
 

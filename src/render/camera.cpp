@@ -155,7 +155,7 @@ void Camera::update(World& world, Window & window, int& drawCallCount) {
     
     
     raycast([&](glm::ivec3 pos) {
-        return world.isBlockAir(pos);
+        return world.returnRayCastHit(pos);
         });
     
 

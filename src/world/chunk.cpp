@@ -16,6 +16,10 @@ Chunk::Chunk(glm::ivec3 pos) {
 
 Chunk::~Chunk() {}
 
+Block Chunk::getBlock(int x, int y, int z) {
+    return chunkData[x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y];
+}
+
 bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData) {
     if (x >= 0 && x < CHUNKSIZE &&
         y >= 0 && y < CHUNKSIZE &&

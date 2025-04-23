@@ -1,29 +1,22 @@
 #include "Renderer.h"
 #include <glad/glad.h>
+#include <shader.h>
 
-
-
-
-
-
-void Renderer::rebuildDirtyChunks() {
+void Renderer::rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();
         dirtyChunks.pop();
 
-        auto obj = world->getChunk(pos);
-        if (!obj || obj->isEmpty) continue;
+        auto it = worldData.find(pos);
+        if (it == worldData.end() || !it->second.chunk || it->second.chunk->isEmpty) continue;
 
-        auto& data = chunkRenderMap[pos];
-        generateMesh(*obj, data);
-        uploadToGPU(data);
+        generateAndUploadMesh(pos, *it->second.chunk);
     }
 }
 
-void Renderer::renderChunks(const Camera& camera) {
+void Renderer::renderChunks() {
     for (auto& [pos, data] : chunkRenderMap) {
         if (!data.uploaded) continue;
-
         glBindVertexArray(data.buffers.VAO);
         glDrawElements(GL_TRIANGLES, data.indices.size(), GL_UNSIGNED_INT, 0);
     }
@@ -39,7 +32,14 @@ void Renderer::cleanup() {
     chunkRenderMap.clear();
 }
 
-void Renderer::generateMesh(const Chunk& chunk, ChunkRenderData& renderData) {
+void Renderer::generateAndUploadMesh(const glm::ivec3 pos, Chunk& chunk) {
+    ChunkRenderData renderData;
+    generateMesh(chunk, renderData);
+    uploadToGPU(renderData);
+    chunkRenderMap[pos] = renderData;
+}
+
+void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
     renderData.vertices.clear();
     renderData.indices.clear();
     unsigned int indexOffset = 0;
@@ -74,10 +74,8 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderData.buffers.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderData.indices.size() * sizeof(unsigned int), renderData.indices.data(), GL_STATIC_DRAW);
 
-    // Atributos de vértice: posição, normal, UV etc
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
-    // Adicione outros atributos conforme seu Vertex
 
     glBindVertexArray(0);
     renderData.uploaded = true;
@@ -88,13 +86,16 @@ bool Renderer::isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FA
     switch (face) {
     case FACE::NORTH: offset.z = -1; break;
     case FACE::SOUTH: offset.z = 1; break;
-    case FACE::EAST: offset.x = 1; break;
-    case FACE::WEST: offset.x = -1; break;
-    case FACE::TOP: offset.y = 1; break;
-    case FACE::BOTTOM: offset.y = -1; break;
+    case FACE::EAST:  offset.x = 1; break;
+    case FACE::WEST:  offset.x = -1; break;
+    case FACE::TOP:   offset.y = 1; break;
+    case FACE::BOTTOM:offset.y = -1; break;
     }
     glm::ivec3 neighborPos = glm::ivec3(x, y, z) + offset;
 
-    const Block& neighborBlock = world->getBlockGlobal(chunkPos * CHUNKSIZE + neighborPos);
+
+
+
+    const Block& neighborBlock = (chunkPos * CHUNKSIZE + neighborPos);
     return neighborBlock.getType() == BlockType::AIR;
 }
