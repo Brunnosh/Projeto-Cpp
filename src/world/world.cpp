@@ -89,10 +89,13 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
         glm::ivec3 pos = chunkGenQueue.front();
         chunkGenQueue.pop();
 
-        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
+        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos, &worldRenderer]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
             auto chunk = std::make_shared<Chunk>(pos);
+
             World_Gen::generateChunkData(*chunk);
-            //Create chunk mesh ( on thread)
+            
+            worldRenderer.genFaces(pos, *chunk);
+            
             chunk->isChunkEmpty();
             return { pos, chunk };
             });
