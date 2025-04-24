@@ -203,12 +203,15 @@ void Game::loop() {
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
         currentWorld->queueChunks(camera);
-        currentWorld->genChunks();
+
+        currentWorld->genChunks(worldRenderer);
+
         currentWorld->tick();
         
         currentWorld->update(camera, deltaTime);//light updates
 
         //worldRender.regenDirtyChunks();
+        
         //worldRenderer.renderChunks();
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();

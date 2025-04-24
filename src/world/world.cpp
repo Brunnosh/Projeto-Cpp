@@ -2,6 +2,7 @@
 #include <shader.h>
 #include <camera.h>
 #include <world_gen.h>
+#include <renderer.h>
 
 float lightWaitTime = 10.0f;
 float timer = 0.0f;
@@ -56,6 +57,7 @@ void World::queueChunks(Camera& camera) {
 
                 //Future: look in world file first for the chunk, if not, then continue with adding it to queue.
 
+                //Process chunks retrieved from file first
 
                 auto obj = worldData.find(chunkWorldPos);
                 if (obj == worldData.end()) {
@@ -80,7 +82,7 @@ void World::queueChunks(Camera& camera) {
 
 }
 
-void World::genChunks() {
+void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
     int chunksPerFrame = 6;
     int generated = 0;
     while (!chunkGenQueue.empty() && generated < chunksPerFrame) {
@@ -90,6 +92,7 @@ void World::genChunks() {
         std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
             auto chunk = std::make_shared<Chunk>(pos);
             World_Gen::generateChunkData(*chunk);
+            //Create chunk mesh ( on thread)
             chunk->isChunkEmpty();
             return { pos, chunk };
             });
@@ -107,7 +110,10 @@ void World::genChunks() {
             obj.chunk = chunkPtr;
             obj.state = chunkState::GENERATED;
 
+            
+
             worldData[pos] = std::move(obj);
+            //upload mesh to GPU/ out of thread
             chunkFutures.erase(chunkFutures.begin() + i);
             chunkGenQueueControl.erase(pos);
         }
@@ -142,7 +148,7 @@ std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos) {
 }
 
 void World::removeFarChunks(Camera& camera) {
-
+    //remove from worldData and renderer->chunkRenderMap
 
 
 }

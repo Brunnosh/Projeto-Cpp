@@ -13,7 +13,7 @@
 #include <set>
 
 
-
+class Renderer;
 class Camera;
 struct RaycastHit;
 
@@ -54,7 +54,7 @@ public:
 
     void World::queueChunks(Camera& camera);
 
-    void World::genChunks();
+    void World::genChunks(Renderer& worldRenderer);
 
     void World::removeFarChunks(Camera& camera);
 
