@@ -187,34 +187,32 @@ bool Game::setup() {
 //Check game_helper.h (function de-clutter,( callbacks, setups))
 void Game::loop() {
     while (!window.shouldClose()) {
-        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        
         drawCallCount = 0;
 
         frameSetups();
 
         perFrameLogic();
-
+        
         processInput(*this, deltaTime);
 
-        updateCameraMatrices(window, Shaders[shaderType::MAIN]);
-        
         camera.update(*currentWorld, window, drawCallCount);
+        
+        updateCameraMatrices(window, Shaders[shaderType::MAIN]);
 
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
         currentWorld->queueChunks(camera);
         currentWorld->genChunks();
         currentWorld->tick();
         
-        
-        
-        currentWorld->update(camera, deltaTime);//light updates, save "dirty" chunks
+        currentWorld->update(camera, deltaTime);//light updates
 
         //worldRender.regenDirtyChunks();
         //worldRenderer.renderChunks();
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);
-
         calcDrawCalls();
         endFrame();
     }

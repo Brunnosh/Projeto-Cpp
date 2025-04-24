@@ -44,9 +44,9 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
     renderData.indices.clear();
     unsigned int indexOffset = 0;
 
-    for (int x = 0; x < CHUNKSIZE; ++x)
-        for (int y = 0; y < CHUNKSIZE; ++y)
-            for (int z = 0; z < CHUNKSIZE; ++z) {
+    for (int x = 0; x < CHUNKSIZE -1; ++x)
+        for (int y = 0; y < CHUNKSIZE - 1; ++y)
+            for (int z = 0; z < CHUNKSIZE - 1; ++z) {
                 const Block& block = chunk.getBlock(x, y, z);
                 if (block.getType() == BlockType::AIR) continue;
 
@@ -93,9 +93,7 @@ bool Renderer::isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FA
     }
     glm::ivec3 neighborPos = glm::ivec3(x, y, z) + offset;
 
+    //INCOMPLETE FUNCTION, NEEDS TO ACCOUNT FOR CHUNK BOUNDARIES
 
-
-
-    const Block& neighborBlock = (chunkPos * CHUNKSIZE + neighborPos);
-    return neighborBlock.getType() == BlockType::AIR;
+    return true;
 }
