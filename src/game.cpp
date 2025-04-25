@@ -208,10 +208,30 @@ void Game::loop() {
 
         currentWorld->tick();
         
-        currentWorld->update(camera, deltaTime);//light updates
+        //currentWorld->update(camera, deltaTime);//light updates
 
         worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
         
+        currentWorld->sunAngle += currentWorld->sunSpeed * deltaTime;
+        if (currentWorld->sunAngle >= 360.0f)
+            currentWorld->sunAngle -= 360.0f;
+
+        float sunRadians = glm::radians(currentWorld->sunAngle + 180.0f);
+        glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
+        float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
+
+        Shaders[shaderType::MAIN].use();
+
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
+
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
+
+        
+
         worldRenderer.renderChunks();
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
