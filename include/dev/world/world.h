@@ -60,18 +60,17 @@ public:
 
     void World::update(Camera& camera, float deltaTime);
 
-    bool World::isAirAt(int x, int y, int z);
-
     std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos);
 
-    
+    void markChunkDirty(const glm::ivec3& pos);
+
 
 
     void World::tick();
 
-    void World::removeBlock(RaycastHit& hit);
+    void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer);
 
-    void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace);
+    void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace, Renderer & worldRenderer);
 
 
 

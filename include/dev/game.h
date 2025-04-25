@@ -34,7 +34,13 @@ public:
     }
     Window& Game::getWindow(){
         return window;
+
     }
+
+    Renderer& Game::getRenderer() {
+        return worldRenderer;
+    }
+
     void Game::endFrame() {
         
         ImGui::Render();

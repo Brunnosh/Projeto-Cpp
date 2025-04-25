@@ -159,19 +159,19 @@ void World::removeFarChunks(Camera& camera) {
 }
 
 
-void World::removeBlock(RaycastHit& hit) {
+void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
     int max = CHUNKSIZE - 1;
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
-
+    worldRenderer.markChunkDirty(hit.chunk->worldPos);
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
-
+            worldRenderer.markChunkDirty(neighborPos);
         }
         };
 
@@ -188,7 +188,7 @@ void World::removeBlock(RaycastHit& hit) {
 
 }
 
-void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
+void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Renderer& worldRenderer) {
     int max = CHUNKSIZE - 1;
     glm::ivec3 newBlockPos;
     FACE face = hit.blockFace;
@@ -227,7 +227,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         std::cout << "Light level do bloco substituido (mesmo chunk): " << (int)hit.chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
-
+        worldRenderer.markChunkDirty(hit.chunk->worldPos);
     }
     else 
     {
@@ -241,7 +241,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         std::cout << "Light level do bloco substituido (outro chunk): " << (int)chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
-
+        worldRenderer.markChunkDirty(chunk->worldPos);
         
         
 
@@ -252,7 +252,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         auto neighborPos = newBlockChunkPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
-
+            worldRenderer.markChunkDirty(neighborPos);
             
         }
         };

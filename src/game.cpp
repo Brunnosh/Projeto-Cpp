@@ -223,7 +223,7 @@ void Game::loop() {
         Shaders[shaderType::MAIN].use();
 
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
-        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 15);
         glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
         glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
 
@@ -239,9 +239,9 @@ void Game::loop() {
         calcDrawCalls();
         endFrame();
     }
-
+    worldRenderer.cleanup();
     cleanup();
-
+    
 
 }
 

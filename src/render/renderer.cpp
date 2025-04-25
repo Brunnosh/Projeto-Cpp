@@ -5,6 +5,10 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+void Renderer::markChunkDirty(const glm::ivec3& pos) {
+    dirtyChunks.push(pos);
+}
+
 void Renderer::rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();

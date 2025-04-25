@@ -30,7 +30,7 @@ private:
     std::queue<glm::ivec3> dirtyChunks;
 
 public:
-    
+    void markChunkDirty(const glm::ivec3& pos);
     void rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
     void renderChunks(unsigned int modelLoc);
     void cleanup();
