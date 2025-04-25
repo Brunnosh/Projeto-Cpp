@@ -19,6 +19,8 @@ struct ChunkRenderData {
     chunkBuffers buffers;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+    //watervertices
+    //waterindices
     bool uploaded = false;
 };
 
@@ -37,6 +39,7 @@ public:
     void uploadToGPU(const glm::ivec3& pos);
 
 private:
+    void Renderer::setVertex(int x, int y, int z, Block& storedBlock, FACE face, ChunkRenderData& renderData, unsigned int& currentVertex);
     void generateMesh(Chunk& chunk, ChunkRenderData& renderData);
     void uploadToGPU(ChunkRenderData& renderData);
     bool isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);

@@ -210,9 +210,9 @@ void Game::loop() {
         
         currentWorld->update(camera, deltaTime);//light updates
 
-        //worldRender.regenDirtyChunks();
+        worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
         
-        //worldRenderer.renderChunks();
+        worldRenderer.renderChunks();
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);

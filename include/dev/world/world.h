@@ -91,7 +91,9 @@ public:
     }
 
 
-
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& getWorldDataRef() {
+        return worldData;
+    }
 
 
 };

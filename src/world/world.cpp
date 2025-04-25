@@ -116,6 +116,8 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
             
 
             worldData[pos] = std::move(obj);
+
+            worldRenderer.uploadToGPU(pos);
             //upload mesh to GPU/ out of thread
             chunkFutures.erase(chunkFutures.begin() + i);
             chunkGenQueueControl.erase(pos);
