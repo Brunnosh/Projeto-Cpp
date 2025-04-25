@@ -1,6 +1,9 @@
 #include "Renderer.h"
 #include <glad/glad.h>
 #include <shader.h>
+#include <glm/fwd.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void Renderer::rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
@@ -15,12 +18,13 @@ void Renderer::rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObje
     }
 }
 
-void Renderer::renderChunks() {
+void Renderer::renderChunks(unsigned int modelLoc) {
     for (auto& [pos, data] : chunkRenderMap) {
         if (!data.uploaded) continue;
 
         //differentiate water rendering here
-
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos * CHUNKSIZE));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
         glBindVertexArray(data.buffers.VAO);
         glDrawElements(GL_TRIANGLES, data.indices.size(), GL_UNSIGNED_INT, 0);
@@ -85,9 +89,9 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
     renderData.indices.clear();
 
     unsigned int currentVertex = 0;
-    for (int x = 0; x < CHUNKSIZE -1; ++x)
-        for (int y = 0; y < CHUNKSIZE - 1; ++y)
-            for (int z = 0; z < CHUNKSIZE - 1; ++z) {
+    for (int x = 0; x < CHUNKSIZE ; ++x)
+        for (int y = 0; y < CHUNKSIZE ; ++y)
+            for (int z = 0; z < CHUNKSIZE ; ++z) {
                 Block& storedBlock = chunk.getBlock(x, y, z);
                 if (storedBlock.getType() == BlockType::AIR) continue;
 

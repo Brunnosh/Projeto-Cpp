@@ -32,7 +32,7 @@ private:
 public:
     
     void rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
-    void renderChunks();
+    void renderChunks(unsigned int modelLoc);
     void cleanup();
 
     void genFaces(const glm::ivec3& pos, Chunk& chunk);
