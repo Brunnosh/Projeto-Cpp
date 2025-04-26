@@ -232,7 +232,7 @@ void Game::loop() {
 
         
 
-        worldRenderer.renderChunks(modelLoc);
+        worldRenderer.renderChunks(modelLoc, drawCallCount);
         
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);

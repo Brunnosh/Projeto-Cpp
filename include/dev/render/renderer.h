@@ -22,6 +22,7 @@ struct ChunkRenderData {
     //watervertices
     //waterindices
     bool uploaded = false;
+    bool isEmpty = false;
 };
 
 class Renderer {
@@ -31,16 +32,16 @@ private:
 
 public:
     void markChunkDirty(const glm::ivec3& pos);
-    void rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
-    void renderChunks(unsigned int modelLoc);
+    void rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
+    void renderChunks(unsigned int modelLoc, int& drawcallCount);
     void cleanup();
 
-    void genFaces(const glm::ivec3& pos, Chunk& chunk);
+    void genFaces(const glm::ivec3& pos, Chunk& chunk, std::unordered_map<glm::ivec3,  chunkObject, Vec3Hash>& worldData);
     void uploadToGPU(const glm::ivec3& pos);
 
 private:
     void Renderer::setVertex(int x, int y, int z, Block& storedBlock, FACE face, ChunkRenderData& renderData, unsigned int& currentVertex);
-    void generateMesh(Chunk& chunk, ChunkRenderData& renderData);
+    void generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData);
     void uploadToGPU(ChunkRenderData& renderData);
     bool isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);
 };

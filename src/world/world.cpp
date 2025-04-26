@@ -85,18 +85,22 @@ void World::queueChunks(Camera& camera) {
 void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
     int chunksPerFrame = 6;
     int generated = 0;
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldDataRef = this->worldData;
+
     while (!chunkGenQueue.empty() && generated < chunksPerFrame) {
         glm::ivec3 pos = chunkGenQueue.front();
         chunkGenQueue.pop();
 
-        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos, &worldRenderer]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
+        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos, &worldRenderer, &worldDataRef]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
             auto chunk = std::make_shared<Chunk>(pos);
 
             World_Gen::generateChunkData(*chunk);
-            
-            worldRenderer.genFaces(pos, *chunk);
-            
+
             chunk->isChunkEmpty();
+            
+            worldRenderer.genFaces(pos, *chunk, worldDataRef);
+            
+            
             return { pos, chunk };
             });
 
@@ -171,6 +175,7 @@ void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
+            it->second.chunk->isChunkEmpty();
             worldRenderer.markChunkDirty(neighborPos);
         }
         };

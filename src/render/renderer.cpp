@@ -9,22 +9,27 @@ void Renderer::markChunkDirty(const glm::ivec3& pos) {
     dirtyChunks.push(pos);
 }
 
-void Renderer::rebuildDirtyChunks(const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
+void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();
         dirtyChunks.pop();
 
         auto it = worldData.find(pos);
-        if (it == worldData.end() || !it->second.chunk || it->second.chunk->isEmpty) continue;
+        if (it == worldData.end() || !it->second.chunk ) continue;
 
-        genFaces(pos, *it->second.chunk);
+        if (it->second.chunk->isEmpty) {
+            std::cout << " chunk vazio:" << pos.x << "," << pos.y << "," << pos.z << " \n";
+        }
+
+        genFaces(pos, *it->second.chunk, worldData);
         uploadToGPU(pos);
     }
 }
 
-void Renderer::renderChunks(unsigned int modelLoc) {
+void Renderer::renderChunks(unsigned int modelLoc, int& drawcallCount) {
     for (auto& [pos, data] : chunkRenderMap) {
-        if (!data.uploaded) continue;
+        if (!data.uploaded || data.isEmpty) { continue; }
+        
 
         //differentiate water rendering here
         glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(pos * CHUNKSIZE));
@@ -32,6 +37,7 @@ void Renderer::renderChunks(unsigned int modelLoc) {
 
         glBindVertexArray(data.buffers.VAO);
         glDrawElements(GL_TRIANGLES, data.indices.size(), GL_UNSIGNED_INT, 0);
+        drawcallCount++;
     }
     glBindVertexArray(0);
 }
@@ -81,16 +87,20 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
     renderData.uploaded = true;
 }
 
-void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
+void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     ChunkRenderData renderData;
-    generateMesh(chunk, renderData);
+    generateMesh(chunk, renderData, worldData);
     chunkRenderMap[pos] = renderData;
+    
 }
 
 
-void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
+void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData) {
     renderData.vertices.clear();
     renderData.indices.clear();
+    if (chunk.isEmpty) {
+        renderData.isEmpty = true; 
+    }
 
     unsigned int currentVertex = 0;
     for (int x = 0; x < CHUNKSIZE ; ++x)
@@ -106,10 +116,6 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
                 for (int f = 0; f < 6; ++f) {
                     if (isFaceVisible(chunk.worldPos, x, y, z, FACE(f))) {
                         setVertex(x,y,z, storedBlock, FACE(f), renderData, currentVertex);
-                        // Adicionar aqui os vertices e indices do bloco para a face `f`.
-                        // renderData.vertices.push_back(...);
-                        // renderData.indices.push_back(indexOffset + ...);
-                        // indexOffset += 4;
                     }
                 }
             }
@@ -128,6 +134,13 @@ bool Renderer::isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FA
     case FACE::BOTTOM:offset.y = -1; break;
     }
     glm::ivec3 neighborPos = glm::ivec3(x, y, z) + offset;
+
+
+
+
+
+    //const Block& neighborBlock = getBlockGlobal(chunkPos * CHUNKSIZE + neighborPos);
+    //return neighborBlock.getType() == BlockType::AIR;
 
     //INCOMPLETE FUNCTION, NEEDS TO ACCOUNT FOR CHUNK BOUNDARIES
 
