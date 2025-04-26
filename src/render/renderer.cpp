@@ -110,7 +110,7 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unor
                 if (storedBlock.getType() == BlockType::AIR) continue;
 
                 //future checks for water blocks, transparent blocks (ADD TO renderData as "WaterVertices" or "Transparentvertices idk"
-
+                //LIXO
 
 
                 for (int f = 0; f < 6; ++f) {
