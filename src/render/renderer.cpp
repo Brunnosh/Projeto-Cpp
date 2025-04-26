@@ -21,8 +21,22 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
             std::cout << " chunk vazio:" << pos.x << "," << pos.y << "," << pos.z << " \n";
         }
 
-        genFaces(pos, *it->second.chunk, worldData);
+        genFaces(pos, *it->second.chunk);
         uploadToGPU(pos);
+    }
+}
+
+void Renderer::processPendingChunks() {
+    int pendingCount = pendingChunks.size();
+    for (int i = 0; i < pendingCount; ++i) {
+        glm::ivec3 pos = pendingChunks.front();
+        pendingChunks.pop();
+
+
+        auto it = worldReference->getWorldDataRef().find(pos);
+        if (it != worldReference->getWorldDataRef().end() && it->second.chunk) {
+            genFaces(pos, *it->second.chunk);
+        }
     }
 }
 
@@ -87,20 +101,35 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
     renderData.uploaded = true;
 }
 
-void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
+void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
+
+    if (!canGenerateFaces(pos)) {
+        pendingChunks.push(pos);
+        return;
+    }
+
     ChunkRenderData renderData;
-    generateMesh(chunk, renderData, worldData);
+
+    if (chunk.isEmpty) {
+        renderData.isEmpty = true;
+        renderData.vertices.clear();
+        renderData.indices.clear();
+        chunkRenderMap[pos] = renderData;
+        uploadToGPU(pos);
+        return;
+    }
+
+
+    generateMesh(chunk, renderData);
     chunkRenderMap[pos] = renderData;
-    
+    uploadToGPU(pos);
 }
 
 
-void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData) {
+void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
     renderData.vertices.clear();
     renderData.indices.clear();
-    if (chunk.isEmpty) {
-        renderData.isEmpty = true; 
-    }
+
 
     unsigned int currentVertex = 0;
     for (int x = 0; x < CHUNKSIZE ; ++x)
@@ -269,4 +298,23 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     }
+}
+
+bool Renderer::canGenerateFaces(const glm::ivec3& chunkPos) {
+    static const glm::ivec3 neighborOffsets[6] = {
+        { 1, 0, 0 }, {-1, 0, 0 },
+        { 0, 1, 0 }, { 0,-1, 0 },
+        { 0, 0, 1 }, { 0, 0,-1 }
+    };
+
+    for (const auto& offset : neighborOffsets) {
+        glm::ivec3 neighborChunk = chunkPos + offset;
+
+        if ((int)worldReference->getChunkState(neighborChunk) < 2) {
+            // Se qualquer vizinho ainda não existir ou não estiver gerado
+            return false;
+        }
+    }
+
+    return true; // Todos vizinhos prontos
 }

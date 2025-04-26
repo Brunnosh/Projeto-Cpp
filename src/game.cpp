@@ -214,7 +214,7 @@ void Game::loop() {
         
         //currentWorld->update(camera, deltaTime);//light updates
 
-        worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
+        
         
         currentWorld->sunAngle += currentWorld->sunSpeed * deltaTime;
         if (currentWorld->sunAngle >= 360.0f)
@@ -234,7 +234,9 @@ void Game::loop() {
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
-        
+        worldRenderer.processPendingChunks();
+
+        worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
 
         worldRenderer.renderChunks(modelLoc, drawCallCount);
         

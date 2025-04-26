@@ -29,8 +29,10 @@ class Renderer {
 private:
     std::unordered_map<glm::ivec3, ChunkRenderData, Vec3Hash> chunkRenderMap;
     std::queue<glm::ivec3> dirtyChunks;
+    
 
 public:
+    std::queue<glm::ivec3> pendingChunks;
     World* worldReference;
 
 public:
@@ -38,13 +40,14 @@ public:
     void rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
     void renderChunks(unsigned int modelLoc, int& drawcallCount);
     void cleanup();
-
-    void genFaces(const glm::ivec3& pos, Chunk& chunk, std::unordered_map<glm::ivec3,  chunkObject, Vec3Hash>& worldData);
+    void Renderer::processPendingChunks();
+    void genFaces(const glm::ivec3& pos, Chunk& chunk);
     void uploadToGPU(const glm::ivec3& pos);
 
 private:
     void Renderer::setVertex(int x, int y, int z, Block& storedBlock, FACE face, ChunkRenderData& renderData, unsigned int& currentVertex);
-    void generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData);
+    void generateMesh(Chunk& chunk, ChunkRenderData& renderData);
     void uploadToGPU(ChunkRenderData& renderData);
     bool shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);
+    bool Renderer::canGenerateFaces(const glm::ivec3& chunkPos);
 };
