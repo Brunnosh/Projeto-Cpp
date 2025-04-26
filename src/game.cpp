@@ -242,6 +242,7 @@ void Game::loop() {
         drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);
         calcDrawCalls();
         endFrame();
+
     }
     worldRenderer.cleanup();
     cleanup();

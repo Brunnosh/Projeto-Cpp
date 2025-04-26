@@ -17,9 +17,6 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
         auto it = worldData.find(pos);
         if (it == worldData.end() || !it->second.chunk ) continue;
 
-        if (it->second.chunk->isEmpty) {
-            std::cout << " chunk vazio:" << pos.x << "," << pos.y << "," << pos.z << " \n";
-        }
 
         genFaces(pos, *it->second.chunk, worldData);
         uploadToGPU(pos);
@@ -100,6 +97,7 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unor
     renderData.indices.clear();
     if (chunk.isEmpty) {
         renderData.isEmpty = true; 
+        return;
     }
 
     unsigned int currentVertex = 0;
@@ -140,19 +138,34 @@ bool Renderer::shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z,
         neighborPos.y >= 0 && neighborPos.y < CHUNKSIZE &&
         neighborPos.z >= 0 && neighborPos.z < CHUNKSIZE) 
     {
-
+        //inside chunk
         return worldReference->isBlockAir(chunkPos, neighborPos.x, neighborPos.y, neighborPos.z);
 
     }
+    else {
+        glm::ivec3 offsetChunkPos = chunkPos + offset;
 
 
 
+        // Acessar chunk vizinho — ajustar a coordenada
+        int nx = (x + CHUNKSIZE) % CHUNKSIZE;
+        int ny = (y + CHUNKSIZE) % CHUNKSIZE;
+        int nz = (z + CHUNKSIZE) % CHUNKSIZE;
+
+
+        if ((int)worldReference->checkChunkState(offsetChunkPos) >= 2 ) { //at least already generated
+            return worldReference->isBlockAir(offsetChunkPos, nx, ny, nz);
+        }
+        else {
+            return true;
+        }
 
 
 
-  
-    
-    return true;
+        
+        
+    }
+
 }
 
 void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, ChunkRenderData& renderData, unsigned int & currentVertex) {
