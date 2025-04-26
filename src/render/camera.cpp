@@ -151,9 +151,14 @@ void Camera::raycast(const std::function<std::optional<RaycastHit>(glm::ivec3)>&
 
 void Camera::update(World& world, Window & window, int& drawCallCount) {
     //Calc raycast
+    
+    
+    
     raycast([&](glm::ivec3 pos) {
-        return world.isBlockAir(pos);
+        return world.returnRayCastHit(pos);
         });
+    
+
 
     //Draw block outline
     drawBlockOutline(window, drawCallCount);

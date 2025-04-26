@@ -7,7 +7,7 @@
 #include <game_helper.h>
 
 
-
+unsigned int atlas, crosshair;
 
 void loadShaders() {
     Shaders[shaderType::MAIN] = Shader("assets/shaders/texture/mainShaderVertex.glsl", "assets/shaders/texture/mainShaderFragment.glsl");
@@ -136,13 +136,22 @@ void perFrameLogic() {
 
 }
 
+bool Game::init() {
+    if (!window.init("Voxel Game")) {
+        std::cerr << "Failed to initialize window" << std::endl;
+        return false;
+    }
+    if (!window.glInit()) {
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
+        return false;
+    }
+    return true;
+}
 
-
-//Check game_helper.h (function de-clutter,( callbacks, setups))
-void Game::run() {
+bool Game::setup() {
     loadShaders();
+
     
-    unsigned int atlas, crosshair;
     modelLoc = glGetUniformLocation(Shaders[shaderType::MAIN].ID, "model");
     initBlockUVs();
 
@@ -156,58 +165,87 @@ void Game::run() {
     glfwSwapInterval(VSYNC);
     setupImgui(*this);
 
-    
+
 
     glActiveTexture(GL_TEXTURE0);
     loadTexture(&atlas, "assets/atlas.png");
- 
+
     Shaders[shaderType::MAIN].setInt("atlas", 0);
 
     glActiveTexture(GL_TEXTURE1);
     loadTexture(&crosshair, "assets/crosshair.png");
 
     World mundoTeste;
-    this->currentWorld = &mundoTeste; 
+    currentWorld = std::make_unique<World>();
 
     fpsStartTime = std::chrono::steady_clock::now();
-    
 
-    
-    
+    worldRenderer.worldReference = currentWorld.get();
+
+    return true;
+}
+
+//Check game_helper.h (function de-clutter,( callbacks, setups))
+void Game::loop() {
     while (!window.shouldClose()) {
+        
         drawCallCount = 0;
+
         frameSetups();
+
         perFrameLogic();
+        
         processInput(*this, deltaTime);
+
+        camera.update(*currentWorld, window, drawCallCount);
+        
         updateCameraMatrices(window, Shaders[shaderType::MAIN]);
-        
 
 
 
-        
-        
-        
+
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+        currentWorld->queueChunks(camera);
+
+        currentWorld->genChunks(worldRenderer);
+
+        currentWorld->tick();
         
-       
+        //currentWorld->update(camera, deltaTime);//light updates
+
+        worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
         
-        mundoTeste.update(camera, deltaTime, modelLoc, drawCallCount);
+        currentWorld->sunAngle += currentWorld->sunSpeed * deltaTime;
+        if (currentWorld->sunAngle >= 360.0f)
+            currentWorld->sunAngle -= 360.0f;
+
+        float sunRadians = glm::radians(currentWorld->sunAngle + 180.0f);
+        glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
+        float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
+
+        Shaders[shaderType::MAIN].use();
+
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 15);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
+        glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
+
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
+        glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
+
+        
+
+        worldRenderer.renderChunks(modelLoc, drawCallCount);
+        
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-
-
-        
-        camera.update(mundoTeste, window, drawCallCount);
-
-   
-
-        drawGui(mundoTeste,window,crosshair, begin, end, mundoTeste.sunAngle);
-
+        drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);
         calcDrawCalls();
         endFrame();
     }
-
+    worldRenderer.cleanup();
     cleanup();
-
+    
 
 }
 

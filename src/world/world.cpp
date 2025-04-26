@@ -2,6 +2,7 @@
 #include <shader.h>
 #include <camera.h>
 #include <world_gen.h>
+#include <renderer.h>
 
 float lightWaitTime = 10.0f;
 float timer = 0.0f;
@@ -12,10 +13,9 @@ World::World() {
     //ler pos do player salvo, renderizar chunks em torno do player primeiro, depois começar o update.
 }
 
-void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int& drawCallCount) {
-  
-    
+void World::update(Camera & camera, float deltaTime) {
 
+    
     sunAngle += sunSpeed * deltaTime;
     if (sunAngle >= 360.0f)
         sunAngle -= 360.0f;
@@ -31,15 +31,9 @@ void World::update(Camera & camera, float deltaTime, unsigned int modelLoc, int&
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
     glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
-    genWorld(camera, modelLoc);
-    tick();
 
-    //light
-
-    Shaders[shaderType::MAIN].use();
-    renderWorld(modelLoc, drawCallCount);
     
-    
+ 
 }
 
 void World::tick() {
@@ -49,24 +43,28 @@ void World::tick() {
 
 
 //future make world gen start from player
-void World::genWorld(Camera& camera, unsigned int modelLoc) {
+void World::queueChunks(Camera& camera) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
 
     short renderDist = camera.renderDist;
 
     for (int x = -renderDist; x <= renderDist; x++) {
         for (int z = -renderDist; z <= renderDist; z++) {
-            for (int y = playerChunkPos.y - renderDist / 2; y <= playerChunkPos.y + renderDist; y++) {
+            for (int y = playerChunkPos.y - renderDist/2; y <= playerChunkPos.y + renderDist; y++) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
-                bool inWorld = WorldData.find(chunkWorldPos) != WorldData.end();
-                bool alreadyQueued = chunkQueueControl.find(chunkWorldPos) != chunkQueueControl.end();
 
+                //Future: look in world file first for the chunk, if not, then continue with adding it to queue.
 
-                if (!inWorld && !alreadyQueued) {
-                    chunkQueue.push(chunkWorldPos);
-                    chunkQueueControl.insert(chunkWorldPos);
+                //Process chunks retrieved from file first
+
+                auto obj = worldData.find(chunkWorldPos);
+                if (obj == worldData.end()) {
+                    worldData[chunkWorldPos] = { nullptr, chunkState::LOADING };
+                    if (chunkGenQueueControl.insert(chunkWorldPos).second) {
+                        chunkGenQueue.push(chunkWorldPos);
+                    }
                 }
 
                 std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
@@ -80,19 +78,30 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
         }
     }
 
+    removeFarChunks(camera);
+
+}
+
+void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
     int chunksPerFrame = 6;
     int generated = 0;
-    while (!chunkQueue.empty() && generated < chunksPerFrame) {
-        glm::ivec3 pos = chunkQueue.front();
-        chunkQueue.pop();
+    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldDataRef = this->worldData;
 
-        std::future<std::pair<glm::ivec3, Chunk>> fut = std::async(std::launch::async, [pos, this]() -> std::pair<glm::ivec3, Chunk> {
-            Chunk chunk(pos);
-            World_Gen::generateChunkData(chunk);
-            chunk.isChunkEmpty();
-            chunk.needsMeshUpdate = true;
-            chunk.needsLightUpdate = true;
-            return { pos, std::move(chunk) };
+    while (!chunkGenQueue.empty() && generated < chunksPerFrame) {
+        glm::ivec3 pos = chunkGenQueue.front();
+        chunkGenQueue.pop();
+
+        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos, &worldRenderer, &worldDataRef]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
+            auto chunk = std::make_shared<Chunk>(pos);
+
+            World_Gen::generateChunkData(*chunk);
+
+            chunk->isChunkEmpty();
+            
+            
+            
+            
+            return { pos, chunk };
             });
 
         chunkFutures.push_back(std::move(fut));
@@ -102,80 +111,74 @@ void World::genWorld(Camera& camera, unsigned int modelLoc) {
     for (int i = 0; i < chunkFutures.size(); ) {
         auto& fut = chunkFutures[i];
         if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-            auto [pos, chunk] = fut.get();
-            
-            WorldData.emplace(pos, std::move(chunk));
+            auto [pos, chunkPtr] = fut.get();
+
+            std::shared_ptr<Chunk> chunk = chunkPtr;
+
+            chunkObject obj;
+            obj.chunk = chunkPtr;
+            obj.state = chunkState::GENERATED;
+
+            worldData[pos] = std::move(obj);
+
+            worldRenderer.genFaces(pos, *chunk, worldDataRef);
+
+            worldRenderer.uploadToGPU(pos);
+            //upload mesh to GPU/ out of thread
             chunkFutures.erase(chunkFutures.begin() + i);
-            chunkQueueControl.erase(pos);
+            chunkGenQueueControl.erase(pos);
         }
         else {
             ++i;
         }
     }
 
-
-}
-
-void World::renderWorld(unsigned int modelLoc, int &drawCallCount) {
-
-    
-
-    for (auto& [pos, chunk] : WorldData) {
-        
-        if (chunk.isEmpty) { continue; }
-        if (chunk.needsMeshUpdate) {
-           
-            chunk.regenMesh(WorldData, highestChunkY);
-            chunk.needsMeshUpdate = false;
-        }
-        
-        chunk.render(modelLoc);
-        drawCallCount++;
-    }
 }
 
 
 
 
 
-std::optional<RaycastHit> World::isBlockAir(glm::ivec3 blockPos) {
+
+std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos) {
     glm::ivec3 blockChunkPos = glm::ivec3(glm::floor(glm::vec3(blockPos) / float(CHUNKSIZE)));
     glm::ivec3 blockOffset = blockPos - blockChunkPos * CHUNKSIZE;
     int blockindex = blockOffset.x * CHUNKSIZE * CHUNKSIZE + blockOffset.z * CHUNKSIZE + blockOffset.y;
 
-    auto it = WorldData.find(blockChunkPos);
-    if (it == WorldData.end()) return std::nullopt;
+    auto it = worldData.find(blockChunkPos);
+    if (it == worldData.end() || !it->second.chunk) return std::nullopt;
 
+    std::shared_ptr<Chunk> chunk = it->second.chunk;
 
-    Chunk* chunk = &it->second;
-    Block* selectedBlock = &chunk->chunkData[blockindex];
-    
-
-    
     if (chunk->chunkData[blockindex].getType() == BlockType::AIR)
         return std::nullopt;
 
-    return RaycastHit{ chunk, blockOffset, blockPos, selectedBlock };
+    Block* selectedBlock = &chunk->chunkData[blockindex];
+
+    return RaycastHit{ chunk.get(), blockOffset, blockPos, selectedBlock };
+}
+
+void World::removeFarChunks(Camera& camera) {
+    //remove from worldData and renderer->chunkRenderMap
 
 
 }
 
-void World::removeBlock(RaycastHit& hit) {
+
+void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
     int max = CHUNKSIZE - 1;
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
-    hit.chunk->needsLightUpdate = true;
-    hit.chunk->needsMeshUpdate = true;
+    worldRenderer.markChunkDirty(hit.chunk->worldPos);
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
-        auto it = WorldData.find(neighborPos);
-        if (it != WorldData.end()) {
-            it->second.isChunkEmpty();
-            it->second.needsLightUpdate = true;
-            it->second.needsMeshUpdate = true;
+        auto it = worldData.find(neighborPos);
+        if (it != worldData.end()) {
+            it->second.chunk->isChunkEmpty();
+            worldRenderer.markChunkDirty(neighborPos);
         }
         };
 
@@ -192,7 +195,7 @@ void World::removeBlock(RaycastHit& hit) {
 
 }
 
-void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
+void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Renderer& worldRenderer) {
     int max = CHUNKSIZE - 1;
     glm::ivec3 newBlockPos;
     FACE face = hit.blockFace;
@@ -231,23 +234,21 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
         std::cout << "Light level do bloco substituido (mesmo chunk): " << (int)hit.chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
-        hit.chunk->needsLightUpdate = true;
-        hit.chunk->needsMeshUpdate = true;
+        worldRenderer.markChunkDirty(hit.chunk->worldPos);
     }
     else 
     {
-        auto it = WorldData.find(newBlockChunkPos);
-        if (it == WorldData.end()) {
+        auto it = worldData.find(newBlockChunkPos);
+        if (it == worldData.end()) {
             std::cerr << "[ERRO] Construindo em chunk não gerado!" << std::endl;
             throw std::runtime_error("Construindo em chunk não gerado!.");
         }
 
-        Chunk* chunk = &it->second;
+        std::shared_ptr<Chunk> chunk = it->second.chunk;
         std::cout << "Light level do bloco substituido (outro chunk): " << (int)chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
-        chunk->needsLightUpdate = true;
-        chunk->needsMeshUpdate = true;
+        worldRenderer.markChunkDirty(chunk->worldPos);
         
         
 
@@ -256,10 +257,9 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = newBlockChunkPos + offset;
-        auto it = WorldData.find(neighborPos);
-        if (it != WorldData.end()) {
-            it->second.needsLightUpdate = true;
-            it->second.needsMeshUpdate = true;
+        auto it = worldData.find(neighborPos);
+        if (it != worldData.end()) {
+            worldRenderer.markChunkDirty(neighborPos);
             
         }
         };
@@ -275,65 +275,14 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace) {
 
 }
 
-
-void World::castSunlight(Chunk& chunk) {
-    //this chunk is the top most one in its X-Z coordinates, keep going down until solid ground is hit.
-    Chunk* currentChunk = &chunk;
-    Chunk* chunkAbove = nullptr;
+bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z) {
+ 
+   
 
 
-    while (true) {
-        currentChunk->needsLightUpdate = false;
-        currentChunk->sunlightCalculated = true;
-        currentChunk->needsMeshUpdate = true;
-        std::cout << "Chunk castSunLight: " << currentChunk->worldPos.x << "," << currentChunk->worldPos.y << "," << currentChunk->worldPos.z << "\n";
+    auto it = worldData.find(chunkPos);
+    if (it == worldData.end()) return true;
 
-        if (currentChunk->isEmpty) {
-            for (int i = 0; i < currentChunk->chunkData.size(); i++) {
-                currentChunk->chunkData[i].setSkyLight(15);
-            }
-        }
-        else {
-            // Chunk com blocos - checar se a luz deve continuar com base no chunk acima
-            for (int localX = 0; localX < CHUNKSIZE; ++localX) {
-                for (int localZ = 0; localZ < CHUNKSIZE; ++localZ) {
+     return it->second.chunk->isAirAt(x,y,z);
 
-                    bool sunlightContinues = true;
-                    for (int localY = CHUNKSIZE - 1; localY >= 0; --localY) {
-                        int index = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + localY;
-                        Block& block = currentChunk->chunkData[index];
-
-                        if (!sunlightContinues) {
-                            block.setSkyLight(0);
-                            continue;
-                        }
-
-                        if (block.getType() == BlockType::AIR) {
-                            block.setSkyLight(15);
-                        }
-                        else {
-                            sunlightContinues = false;
-                            block.setSkyLight(0);
-                        }
-                    }
-
-                    // Se chunk acima existe, verifica se ele tem luz no topo dessa coluna
-                    if (chunkAbove) {
-                        int aboveIndex = localX * CHUNKSIZE * CHUNKSIZE + localZ * CHUNKSIZE + 0; // topo do chunk de baixo = fundo do chunk de cima
-                        Block& aboveBlock = chunkAbove->chunkData[aboveIndex];
-                        if (aboveBlock.getSkyLight() < 15) {
-                            // Se não tem luz vindo de cima, desativa luz nessa coluna
-                            sunlightContinues = false;
-                        }
-                    }
-                }
-            }
-        }
-        auto it = WorldData.find({ currentChunk->worldPos.x, currentChunk->worldPos.y - 1, currentChunk->worldPos.z });
-        if (it == WorldData.end()) {
-            break;
-        }
-        chunkAbove = currentChunk;
-        currentChunk = &it->second;
-    }
 }

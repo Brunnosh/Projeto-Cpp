@@ -45,11 +45,11 @@ void main()
     */
        
     
-
+    float BlockLightLevel = 15;
     
     vec3 result = mix(0.05, 1.0, (BlockLightLevel/15))   * texColor.rgb;
 
     FragColor = vec4(result, texColor.a);  
-
+    
   
 }
