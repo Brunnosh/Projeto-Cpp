@@ -18,10 +18,10 @@ class Camera;
 struct RaycastHit;
 
 enum class chunkState {
-    INVALID = 0, //Chunk does not exist (chunk = nullptr)
+    INVALID, //Chunk does not exist (chunk = nullptr)
     LOADING, // in process of loading/generating chunkData.
     GENERATED, //chunkData is loaded, chunk is not meshed and not prepared.
-    MESHED, //chunk is meshed
+    DIRTY, //chunk queued for meshing
     READY // Chunk is meshed and light is calculated -> will render.
 
 };
@@ -70,7 +70,7 @@ public:
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace, Renderer & worldRenderer);
 
-    chunkState World::checkChunkState(glm::ivec3 chunkPos);
+
 
 
     //basicamente inutil, so usa pra GUI, 

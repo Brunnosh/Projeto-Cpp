@@ -124,8 +124,6 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
             worldRenderer.genFaces(pos, *chunk, worldDataRef);
 
             worldRenderer.uploadToGPU(pos);
-
-            obj.state = chunkState::MESHED;
             //upload mesh to GPU/ out of thread
             chunkFutures.erase(chunkFutures.begin() + i);
             chunkGenQueueControl.erase(pos);
@@ -287,12 +285,4 @@ bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z) {
 
      return it->second.chunk->isAirAt(x,y,z);
 
-}
-
-chunkState World::checkChunkState(glm::ivec3 chunkPos) {
-    auto it = worldData.find(chunkPos);
-
-    if (it == worldData.end()) return chunkState::INVALID;
-
-    return it->second.state;
 }
