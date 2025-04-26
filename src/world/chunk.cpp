@@ -20,28 +20,17 @@ Block Chunk::getBlock(int x, int y, int z) {
     return chunkData[x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y];
 }
 
-bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData) {
-    if (x >= 0 && x < CHUNKSIZE &&
-        y >= 0 && y < CHUNKSIZE &&
-        z >= 0 && z < CHUNKSIZE) {
+bool Chunk::isAirAt(int x, int y, int z) {
 
-        // Dentro do chunk atual
-        int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y;
-        return (*chunkData)[index].getType() == BlockType::AIR;
-    }
-    else {
-        
-        // Acessar chunk vizinho — ajustar a coordenada
-        int nx = (x + CHUNKSIZE) % CHUNKSIZE;
-        int ny = (y + CHUNKSIZE) % CHUNKSIZE;
-        int nz = (z + CHUNKSIZE) % CHUNKSIZE;
+  
 
-        int index = nx * CHUNKSIZE * CHUNKSIZE + nz * CHUNKSIZE + ny;
-        return (*nextChunkData)[index].getType() == BlockType::AIR;
-    }
 
-    // Não tem chunk vizinho  considere ar (para forçar renderização da face)
-    return true;
+    int index = x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y;
+
+   
+
+    return chunkData[index].getType() == BlockType::AIR;
+
 }
 
 bool Chunk::isChunkEmpty() {

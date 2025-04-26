@@ -39,7 +39,7 @@ public:
 
     bool escDown = false;
     bool lDown = false;
-    short renderDist = 2;
+    short renderDist = 6;
     float moveSpeed = 10.0f;
     float mouseSensitivity = 0.1f;
     bool menu = false;

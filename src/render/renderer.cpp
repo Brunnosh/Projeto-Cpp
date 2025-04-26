@@ -114,7 +114,7 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unor
 
 
                 for (int f = 0; f < 6; ++f) {
-                    if (isFaceVisible(chunk.worldPos, x, y, z, FACE(f))) {
+                    if (shouldRenderFace(chunk.worldPos, x, y, z, FACE(f))) {
                         setVertex(x,y,z, storedBlock, FACE(f), renderData, currentVertex);
                     }
                 }
@@ -123,7 +123,8 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unor
 
 
 
-bool Renderer::isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FACE face) {
+bool Renderer::shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z, FACE face) {
+  
     glm::ivec3 offset = { 0, 0, 0 };
     switch (face) {
     case FACE::NORTH: offset.z = -1; break;
@@ -135,15 +136,22 @@ bool Renderer::isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FA
     }
     glm::ivec3 neighborPos = glm::ivec3(x, y, z) + offset;
 
+    if (neighborPos.x >= 0 && neighborPos.x < CHUNKSIZE &&
+        neighborPos.y >= 0 && neighborPos.y < CHUNKSIZE &&
+        neighborPos.z >= 0 && neighborPos.z < CHUNKSIZE) 
+    {
+
+        return worldReference->isBlockAir(chunkPos, neighborPos.x, neighborPos.y, neighborPos.z);
+
+    }
 
 
 
 
-    //const Block& neighborBlock = getBlockGlobal(chunkPos * CHUNKSIZE + neighborPos);
-    //return neighborBlock.getType() == BlockType::AIR;
 
-    //INCOMPLETE FUNCTION, NEEDS TO ACCOUNT FOR CHUNK BOUNDARIES
 
+  
+    
     return true;
 }
 

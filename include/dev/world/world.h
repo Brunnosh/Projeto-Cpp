@@ -62,9 +62,7 @@ public:
 
     std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos);
 
-    void markChunkDirty(const glm::ivec3& pos);
-
-
+    bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z);
 
     void World::tick();
 

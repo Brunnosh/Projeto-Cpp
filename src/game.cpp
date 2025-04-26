@@ -180,6 +180,7 @@ bool Game::setup() {
 
     fpsStartTime = std::chrono::steady_clock::now();
 
+    worldRenderer.worldReference = currentWorld.get();
 
     return true;
 }
@@ -199,6 +200,9 @@ void Game::loop() {
         camera.update(*currentWorld, window, drawCallCount);
         
         updateCameraMatrices(window, Shaders[shaderType::MAIN]);
+
+
+
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 

@@ -50,7 +50,7 @@ void World::queueChunks(Camera& camera) {
 
     for (int x = -renderDist; x <= renderDist; x++) {
         for (int z = -renderDist; z <= renderDist; z++) {
-            for (int y = playerChunkPos.y - renderDist / 2; y <= playerChunkPos.y + renderDist; y++) {
+            for (int y = playerChunkPos.y - renderDist/2; y <= playerChunkPos.y + renderDist; y++) {
                 glm::ivec3 offset(x, y, z);
                 glm::ivec3 chunkWorldPos = glm::ivec3(playerChunkPos.x, 0, playerChunkPos.z) + offset;
 
@@ -98,7 +98,7 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
 
             chunk->isChunkEmpty();
             
-            worldRenderer.genFaces(pos, *chunk, worldDataRef);
+            
             
             
             return { pos, chunk };
@@ -113,13 +113,15 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
         if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
             auto [pos, chunkPtr] = fut.get();
 
+            std::shared_ptr<Chunk> chunk = chunkPtr;
+
             chunkObject obj;
             obj.chunk = chunkPtr;
             obj.state = chunkState::GENERATED;
 
-            
-
             worldData[pos] = std::move(obj);
+
+            worldRenderer.genFaces(pos, *chunk, worldDataRef);
 
             worldRenderer.uploadToGPU(pos);
             //upload mesh to GPU/ out of thread
@@ -273,3 +275,14 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
 
 }
 
+bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z) {
+ 
+   
+
+
+    auto it = worldData.find(chunkPos);
+    if (it == worldData.end()) return true;
+
+     return it->second.chunk->isAirAt(x,y,z);
+
+}

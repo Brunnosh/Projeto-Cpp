@@ -31,6 +31,9 @@ private:
     std::queue<glm::ivec3> dirtyChunks;
 
 public:
+    World* worldReference;
+
+public:
     void markChunkDirty(const glm::ivec3& pos);
     void rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
     void renderChunks(unsigned int modelLoc, int& drawcallCount);
@@ -43,5 +46,5 @@ private:
     void Renderer::setVertex(int x, int y, int z, Block& storedBlock, FACE face, ChunkRenderData& renderData, unsigned int& currentVertex);
     void generateMesh(Chunk& chunk, ChunkRenderData& renderData, std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData);
     void uploadToGPU(ChunkRenderData& renderData);
-    bool isFaceVisible(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);
+    bool shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z, FACE face);
 };

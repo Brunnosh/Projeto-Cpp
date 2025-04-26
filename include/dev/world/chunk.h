@@ -24,7 +24,7 @@ public:
 	Chunk::Chunk(glm::ivec3 pos);
 	Chunk::~Chunk();
 
-	bool Chunk::isAirAt(int x, int y, int z, std::vector<Block>* chunkData, std::vector<Block>* nextChunkData);
+	bool Chunk::isAirAt(int x, int y, int z);
 	
 	bool Chunk::isChunkEmpty();
 
