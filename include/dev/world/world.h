@@ -70,7 +70,7 @@ public:
 
     void World::placeBlock(Camera& camera, RaycastHit& hit, Block blockToPlace, Renderer & worldRenderer);
 
-
+    chunkState World::getChunkState(glm::ivec3 pos);
 
 
     //basicamente inutil, so usa pra GUI, 

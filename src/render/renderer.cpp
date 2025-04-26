@@ -136,6 +136,8 @@ bool Renderer::shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z,
     }
     glm::ivec3 neighborPos = glm::ivec3(x, y, z) + offset;
 
+
+    //INSIDE CHUNK
     if (neighborPos.x >= 0 && neighborPos.x < CHUNKSIZE &&
         neighborPos.y >= 0 && neighborPos.y < CHUNKSIZE &&
         neighborPos.z >= 0 && neighborPos.z < CHUNKSIZE) 
@@ -144,14 +146,34 @@ bool Renderer::shouldRenderFace(const glm::ivec3& chunkPos, int x, int y, int z,
         return worldReference->isBlockAir(chunkPos, neighborPos.x, neighborPos.y, neighborPos.z);
 
     }
+    else {
+        glm::ivec3 neighborChunkPos = chunkPos;
+        if (neighborPos.x < 0) neighborChunkPos.x -= 1;
+        else if (neighborPos.x >= CHUNKSIZE) neighborChunkPos.x += 1;
+
+        if (neighborPos.y < 0) neighborChunkPos.y -= 1;
+        else if (neighborPos.y >= CHUNKSIZE) neighborChunkPos.y += 1;
+
+        if (neighborPos.z < 0) neighborChunkPos.z -= 1;
+        else if (neighborPos.z >= CHUNKSIZE) neighborChunkPos.z += 1;
+
+        // Agora, qual posição local dentro do chunk vizinho?
+        int nx = (neighborPos.x + CHUNKSIZE) % CHUNKSIZE;
+        int ny = (neighborPos.y + CHUNKSIZE) % CHUNKSIZE;
+        int nz = (neighborPos.z + CHUNKSIZE) % CHUNKSIZE;
+
+       
+
+        if ((int)worldReference->getChunkState(neighborChunkPos) < 2) {
+            return true;
+        }
+
+        // Se o chunk vizinho existe, checa o bloco dele
+        return worldReference->isBlockAir(neighborChunkPos, nx, ny, nz);
+
+    }
 
 
-
-
-
-
-  
-    
     return true;
 }
 

@@ -286,3 +286,11 @@ bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z) {
      return it->second.chunk->isAirAt(x,y,z);
 
 }
+
+chunkState World::getChunkState(glm::ivec3 pos) {
+    auto it = worldData.find(pos);
+    if (it == worldData.end()) return chunkState::INVALID;
+
+    return it->second.state;
+
+}
