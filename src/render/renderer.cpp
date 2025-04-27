@@ -7,6 +7,12 @@
 
 void Renderer::markChunkDirty(const glm::ivec3& pos) {
     dirtyChunks.push(pos);
+
+    if (dirtyChunksControl.find(pos) == dirtyChunksControl.end()) {
+        dirtyChunks.push(pos);
+        dirtyChunksControl.insert(pos);
+    }
+
 }
 
 void Renderer::markChunkDirty(std::queue<glm::ivec3>& tempQueue) {

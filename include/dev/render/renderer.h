@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <queue>
 #include <vector>
+#include <set>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
@@ -29,6 +30,7 @@ class Renderer {
 private:
     std::unordered_map<glm::ivec3, ChunkRenderData, Vec3Hash> chunkRenderMap;
     std::queue<glm::ivec3> dirtyChunks;
+    std::unordered_set<glm::ivec3, Vec3Hash> dirtyChunksControl;
     
 
 public:

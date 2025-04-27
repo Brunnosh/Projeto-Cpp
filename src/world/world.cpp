@@ -86,9 +86,6 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
 
             chunk->isChunkEmpty();
             
-            
-            
-            
             return { pos, chunk };
             });
 
@@ -108,8 +105,6 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
             obj.state = chunkState::GENERATED;
 
             worldData[pos] = std::move(obj);
-
-            
 
             worldRenderer.pendingChunks.push(pos);
             
