@@ -16,7 +16,7 @@ World::World() {
 
 void World::update(Camera & camera, float deltaTime) {
     
-    //Lighting::initializeChunkLight(highestChunkY, worldData);
+    std::cout << Lighting::checkChunkColumn(*this, std::pair(0, 0)) << "\n";
 
 }
 
@@ -29,7 +29,7 @@ void World::tick() {
 //future make world gen start from player
 void World::queueChunks(Camera& camera) {
     glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
-
+  
     short renderDist = camera.renderDist;
 
     for (int x = -renderDist; x <= renderDist; x++) {
@@ -278,7 +278,7 @@ bool World::isBlockAir(const glm::ivec3 &chunkPos, int x, int y, int z) {
 
 chunkState World::getChunkState(glm::ivec3 pos) {
     auto it = worldData.find(pos);
-    if (it == worldData.end()) return chunkState::INVALID;
+    if (it == worldData.end()) return chunkState::OUTSIDE_RENDER_DISTANCE;
 
     return it->second.state;
 

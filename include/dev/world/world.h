@@ -19,6 +19,7 @@ class Camera;
 struct RaycastHit;
 
 enum class chunkState {
+    OUTSIDE_RENDER_DISTANCE = -1,
     INVALID, //Chunk does not exist (chunk = nullptr)
     LOADING, // in process of loading/generating chunkData.
     GENERATED, //chunkData is loaded, chunk is not meshed and not prepared.
@@ -74,7 +75,7 @@ public:
     chunkState World::getChunkState(glm::ivec3 pos);
 
 
-    //basicamente inutil, so usa pra GUI, 
+  
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };
         auto it = highestChunkY.find(xzKey);

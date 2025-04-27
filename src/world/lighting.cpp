@@ -15,5 +15,31 @@ namespace Lighting {
         
     }
 
+    bool checkChunkColumn(World& world, const std::pair<int, int>& xz) {
+        auto& worldData = world.getWorldDataRef();
+        int highestY = world.getMaxChunkY(xz.first, xz.second);
+
+        int chunkY = highestY;
+        while (true) {
+            glm::ivec3 chunkPos = { xz.first, chunkY, xz.second };
+
+            
+
+            auto it = worldData.find(chunkPos);
+            if (it == worldData.end() ) {
+                // Se não existe chunk, está tudo bem, terminamos aqui
+                return true;
+            }
+
+           
+
+            if (!it->second.chunk || it->second.state != chunkState::READY) {
+                // Chunk ainda não pronto
+                return false;
+            }
+
+            chunkY--;
+        }
+    }
 
 }

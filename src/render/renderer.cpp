@@ -138,6 +138,7 @@ void Renderer::genFaces(const glm::ivec3& pos, chunkObject& chunkObject) {
         renderData.indices.clear();
         chunkRenderMap[pos] = renderData;
         uploadToGPU(pos);
+        chunkObject.state = chunkState::READY;
         return;
     }
 
@@ -333,7 +334,7 @@ bool Renderer::canGenerateFaces(const glm::ivec3& chunkPos) {
     for (const auto& offset : neighborOffsets) {
         glm::ivec3 neighborChunk = chunkPos + offset;
 
-        if ((int)worldReference->getChunkState(neighborChunk) < 2) {
+        if ((int)worldReference->getChunkState(neighborChunk) < 2 && (int)worldReference->getChunkState(neighborChunk) != -1) {
             // Se qualquer vizinho ainda não existir ou não estiver gerado
             return false;
         }

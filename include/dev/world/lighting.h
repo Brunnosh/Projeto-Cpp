@@ -10,4 +10,5 @@ namespace Lighting {
 
     void queueColumnForLightingUpdate(int x, int z);
 
+    bool checkChunkColumn(World& world, const std::pair<int, int>& xz);
 }
