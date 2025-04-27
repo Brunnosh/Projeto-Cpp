@@ -16,5 +16,6 @@ Apenas abra a pasta no visual studio, compile com "CTRL + SHIFT + B" e procure a
 ## Estrutura do projeto -> 
 ### Entry point : main.cpp
 ### Game loop : game.cpp/ game.h
-### World generation (Quais chunks criar) : World.cpp/ world.h
-### Chunk Generation/Render : Chunk.cpp/ chunk.h
+### World generation : World.cpp/ world.h
+### Rendering : Rendering.cpp/h
+
