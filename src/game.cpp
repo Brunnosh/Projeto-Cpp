@@ -214,7 +214,7 @@ void Game::loop() {
 
         currentWorld->tick();
         
-        currentWorld->update(camera, deltaTime);
+        currentWorld->update(camera, deltaTime, worldRenderer);
 
         
         

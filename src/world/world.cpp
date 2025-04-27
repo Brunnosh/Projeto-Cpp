@@ -14,9 +14,9 @@ World::World() {
     //ler pos do player salvo, renderizar chunks em torno do player primeiro, depois começar o update.
 }
 
-void World::update(Camera & camera, float deltaTime) {
+void World::update(Camera & camera, float deltaTime, Renderer & worldRenderer) {
     
-   
+    Lighting::processPendingColumns(*this, worldRenderer);
 
 }
 
@@ -161,6 +161,7 @@ void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
     worldRenderer.markChunkDirty(hit.chunk->worldPos);
+    Lighting::queueColumnForLightingUpdate(hit.chunk->worldPos.x, hit.chunk->worldPos.z);
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
@@ -168,6 +169,7 @@ void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
         if (it != worldData.end()) {
             it->second.chunk->isChunkEmpty();
             worldRenderer.markChunkDirty(neighborPos);
+            Lighting::queueColumnForLightingUpdate(it->second.chunk->worldPos.x, it->second.chunk->worldPos.z);
         }
         };
 
@@ -224,6 +226,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
         worldRenderer.markChunkDirty(hit.chunk->worldPos);
+        Lighting::queueColumnForLightingUpdate(hit.chunk->worldPos.x, hit.chunk->worldPos.z);
     }
     else 
     {
@@ -238,7 +241,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
         worldRenderer.markChunkDirty(chunk->worldPos);
-        
+        Lighting::queueColumnForLightingUpdate(chunk->worldPos.x, chunk->worldPos.z);
         
 
     }
@@ -249,7 +252,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
             worldRenderer.markChunkDirty(neighborPos);
-            
+            Lighting::queueColumnForLightingUpdate(it->second.chunk->worldPos.x, it->second.chunk->worldPos.z);
         }
         };
 

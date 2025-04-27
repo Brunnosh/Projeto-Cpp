@@ -9,6 +9,15 @@ void Renderer::markChunkDirty(const glm::ivec3& pos) {
     dirtyChunks.push(pos);
 }
 
+void Renderer::markChunkDirty(std::queue<glm::ivec3>& tempQueue) {
+    while (!tempQueue.empty()) {
+        glm::ivec3 pos = tempQueue.front();
+        tempQueue.pop();
+        markChunkDirty(pos);
+    }
+
+}
+
 void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();
@@ -17,9 +26,6 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
         auto it = worldData.find(pos);
         if (it == worldData.end() || !it->second.chunk ) continue;
 
-        if (it->second.chunk->isEmpty) {
-            std::cout << " chunk vazio:" << pos.x << "," << pos.y << "," << pos.z << " \n";
-        }
 
         genFaces(pos, it->second);
         uploadToGPU(pos);

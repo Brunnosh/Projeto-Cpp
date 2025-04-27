@@ -16,7 +16,7 @@ Chunk::Chunk(glm::ivec3 pos) {
 
 Chunk::~Chunk() {}
 
-Block Chunk::getBlock(int x, int y, int z) {
+Block &Chunk::getBlock(int x, int y, int z) {
     return chunkData[x * CHUNKSIZE * CHUNKSIZE + z * CHUNKSIZE + y];
 }
 

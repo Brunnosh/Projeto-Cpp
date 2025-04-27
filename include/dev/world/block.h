@@ -84,18 +84,18 @@ public:
     }
 
     uint8_t getSkyLight() {
-        return skyLight;
+        return skyLight ;
     }
 
     uint8_t getBlockLight() {
-        return blockLight;
+        return blockLight ;
     }
 
     void setSkyLight(uint8_t level) {
-        skyLight = level;
+        this->skyLight = level ;
     }
     void setBlockLight(uint8_t level) {
-        blockLight = level;
+        this->blockLight = level ;
     }
 
 };

@@ -60,7 +60,7 @@ public:
 
     void World::removeFarChunks(Camera& camera);
 
-    void World::update(Camera& camera, float deltaTime);
+    void World::update(Camera& camera, float deltaTime, Renderer & worldRenderer);
 
     std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos);
 
