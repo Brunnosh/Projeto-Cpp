@@ -47,6 +47,10 @@ void World::queueChunks(Camera& camera) {
                 if (obj == worldData.end()) {
                     worldData[chunkWorldPos] = { nullptr, chunkState::LOADING };
                     if (chunkGenQueueControl.insert(chunkWorldPos).second) {
+
+                        
+                        Lighting::queueColumnForLightingUpdate(chunkWorldPos.x,chunkWorldPos.z);
+
                         chunkGenQueue.push(chunkWorldPos);
                     }
                 }

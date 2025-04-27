@@ -5,7 +5,9 @@
 #include <world.h>
 
 namespace Lighting {
-	void initializeChunkLight(const std::unordered_map<std::pair<int, int>, int, PairHash> & highestChunkY, const std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> & worldData);
+    extern std::stack<std::pair<int,int>> pendingColumns;
+    extern std::set<std::pair<int,int>> columnsPendingControl;
 
+    void queueColumnForLightingUpdate(int x, int z);
 
 }
