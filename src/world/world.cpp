@@ -3,6 +3,7 @@
 #include <camera.h>
 #include <world_gen.h>
 #include <renderer.h>
+#include <lighting.h>
 
 float lightWaitTime = 10.0f;
 float timer = 0.0f;
@@ -14,26 +15,9 @@ World::World() {
 }
 
 void World::update(Camera & camera, float deltaTime) {
-
     
-    sunAngle += sunSpeed * deltaTime;
-    if (sunAngle >= 360.0f)
-        sunAngle -= 360.0f;
+    //Lighting::initializeChunkLight(highestChunkY, worldData);
 
-    float sunRadians = glm::radians(sunAngle + 180.0f);
-    glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
-    float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
-    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
-    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 0.15f);
-    glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "lightDir"), 1, &sunDirection[0]);
-    glUniform3fv(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "viewPos"), 1, &camera.position[0]);
-
-    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
-    glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
-
-
-    
- 
 }
 
 void World::tick() {
@@ -121,8 +105,9 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
 
             worldData[pos] = std::move(obj);
 
-            worldRenderer.genFaces(pos, *chunk);
+            
 
+            worldRenderer.pendingChunks.push(pos);
             
             //upload mesh to GPU/ out of thread
             chunkFutures.erase(chunkFutures.begin() + i);

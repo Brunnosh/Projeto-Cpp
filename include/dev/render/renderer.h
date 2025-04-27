@@ -41,7 +41,7 @@ public:
     void renderChunks(unsigned int modelLoc, int& drawcallCount);
     void cleanup();
     void Renderer::processPendingChunks();
-    void genFaces(const glm::ivec3& pos, Chunk& chunk);
+    void genFaces(const glm::ivec3& pos, chunkObject& chunkObject);
     void uploadToGPU(const glm::ivec3& pos);
 
 private:

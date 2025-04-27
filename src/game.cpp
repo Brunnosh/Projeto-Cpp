@@ -182,6 +182,8 @@ bool Game::setup() {
 
     worldRenderer.worldReference = currentWorld.get();
 
+    
+
     return true;
 }
 
@@ -212,7 +214,7 @@ void Game::loop() {
 
         currentWorld->tick();
         
-        //currentWorld->update(camera, deltaTime);//light updates
+        currentWorld->update(camera, deltaTime);
 
         
         
@@ -224,7 +226,7 @@ void Game::loop() {
         glm::vec3 sunDirection = glm::normalize(glm::vec3(cos(sunRadians), sin(sunRadians), 0.0f));
         float sunHeight = sunDirection.y;  // Pega a componente Y da direção do sol
 
-        Shaders[shaderType::MAIN].use();
+        
 
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "sunHeight"), sunHeight);
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "ambientStrength"), 15);
@@ -238,8 +240,12 @@ void Game::loop() {
 
         worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
 
+        Shaders[shaderType::MAIN].use();
         worldRenderer.renderChunks(modelLoc, drawCallCount);
         
+
+
+
         std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
         drawGui(*currentWorld,window,crosshair, begin, end, currentWorld->sunAngle);
         calcDrawCalls();

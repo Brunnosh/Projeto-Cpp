@@ -21,7 +21,7 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
             std::cout << " chunk vazio:" << pos.x << "," << pos.y << "," << pos.z << " \n";
         }
 
-        genFaces(pos, *it->second.chunk);
+        genFaces(pos, it->second);
         uploadToGPU(pos);
     }
 }
@@ -35,7 +35,8 @@ void Renderer::processPendingChunks() {
 
         auto it = worldReference->getWorldDataRef().find(pos);
         if (it != worldReference->getWorldDataRef().end() && it->second.chunk) {
-            genFaces(pos, *it->second.chunk);
+            it->second.state = chunkState::DIRTY;
+            genFaces(pos, it->second);
         }
     }
 }
@@ -115,7 +116,7 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
     renderData.uploaded = true;
 }
 
-void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
+void Renderer::genFaces(const glm::ivec3& pos, chunkObject& chunkObject) {
 
     if (!canGenerateFaces(pos)) {
         pendingChunks.push(pos);
@@ -131,7 +132,7 @@ void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
 
     ChunkRenderData renderData;
 
-    if (chunk.isEmpty) {
+    if (chunkObject.chunk->isEmpty) {
         renderData.isEmpty = true;
         renderData.vertices.clear();
         renderData.indices.clear();
@@ -141,9 +142,10 @@ void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
     }
 
 
-    generateMesh(chunk, renderData);
+    generateMesh(*chunkObject.chunk, renderData);
     chunkRenderMap[pos] = renderData;
     uploadToGPU(pos);
+    chunkObject.state = chunkState::READY;
 }
 
 

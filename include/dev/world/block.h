@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-enum class BlockType  {
+enum class BlockType : uint8_t  {
     AIR = 0, 
     GRASS,
     DIRT,

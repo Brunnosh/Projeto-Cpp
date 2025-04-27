@@ -11,6 +11,7 @@
 #include <future>
 #include <queue>
 #include <set>
+#include <stack>
 
 
 class Renderer;
@@ -42,7 +43,7 @@ private:
     
 
     std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; 
-
+    std::stack<glm::ivec3> lightUpdateStack;
 
 public:
 
