@@ -16,7 +16,7 @@ World::World() {
 
 void World::update(Camera & camera, float deltaTime) {
     
-    std::cout << Lighting::checkChunkColumn(*this, std::pair(0, 0)) << "\n";
+   
 
 }
 
