@@ -42,17 +42,20 @@ struct UV {
 class Block {
 private:
     BlockType type;
-    uint8_t skyLight = 0;
-    uint8_t blockLight = 0;
+    uint8_t skyLight:4;
+    uint8_t blockLight:4;
 
 public:
 
-    Block() : type(BlockType::AIR) {
+    Block() {
         std::cerr << "[ERRO] Construtor default de Block foi chamado!" << std::endl;
         throw std::runtime_error("Uso indevido do construtor default de Block.");
     }
 
-    Block(BlockType type) :type(type) {  }
+    Block(BlockType type) :type(type) { 
+        skyLight = 0;
+        blockLight = 0;
+    }
 
     
     BlockType getType() const {

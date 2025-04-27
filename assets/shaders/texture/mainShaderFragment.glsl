@@ -5,7 +5,8 @@ out vec4 FragColor;
 in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
-in float BlockLightLevel;
+in float SkyLight;
+in float BlockLight;
 //in float materialSpecularStrenght;
 
 uniform sampler2D atlas;
@@ -17,7 +18,9 @@ uniform float sunHeight;
 
 void main()
 {
-    
+   
+
+
     float materialSpecularStrenght = 0.2;
 
 	vec4 texColor = texture(atlas, TexCoord);
@@ -45,9 +48,9 @@ void main()
     */
        
     
-    float BlockLightLevel = 15;
+
     
-    vec3 result = mix(0.05, 1.0, (BlockLightLevel/15))   * texColor.rgb;
+    vec3 result = mix(0.05, 1.0, max(SkyLight,BlockLight)/15)   * texColor.rgb;
 
     FragColor = vec4(result, texColor.a);  
     

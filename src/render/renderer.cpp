@@ -106,8 +106,9 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
     glVertexAttribPointer(2, 3, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normalX));
     glEnableVertexAttribArray(2);
 
-    glVertexAttribPointer(3, 1, GL_BYTE, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, lightLevel));
+    glVertexAttribIPointer(3, 1, GL_UNSIGNED_BYTE, sizeof(Vertex), (void*)offsetof(Vertex, lightByte));
     glEnableVertexAttribArray(3);
+
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, renderData.buffers.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, renderData.indices.size() * sizeof(unsigned int), renderData.indices.data(), GL_STATIC_DRAW);
@@ -163,7 +164,7 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
                 if (storedBlock.getType() == BlockType::AIR) continue;
 
                 //future checks for water blocks, transparent blocks (ADD TO renderData as "WaterVertices" or "Transparentvertices idk"
-                //LIXO
+                
 
 
                 for (int f = 0; f < 6; ++f) {
@@ -239,10 +240,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
 
     switch (face) {
     case FACE::NORTH:
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMax, 0, 0, -1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMax, 0, 0, -1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMax, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMax, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
 
         renderData.indices.push_back(currentVertex + 1);
         renderData.indices.push_back(currentVertex + 0);
@@ -253,10 +254,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     case FACE::SOUTH:
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin, 0, 0, 1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin, 0, 0, 1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax, 0, 0, 1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax, 0, 0, 1, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin, 0, 0, 1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMin, 0, 0, 1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMax, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax, 0, 0, 1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::SOUTH].uMin, blockUVs[storedBlock.getType()][FACE::SOUTH].vMax, 0, 0, 1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
         renderData.indices.push_back(currentVertex + 0);
         renderData.indices.push_back(currentVertex + 1);
         renderData.indices.push_back(currentVertex + 2);
@@ -266,10 +267,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     case FACE::EAST:
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMin, 1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMin, 1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMax, 1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMax, 1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMin, 1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMin, 1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::EAST].uMin, blockUVs[storedBlock.getType()][FACE::EAST].vMax, 1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::EAST].uMax, blockUVs[storedBlock.getType()][FACE::EAST].vMax, 1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
 
         renderData.indices.push_back(currentVertex + 1);
         renderData.indices.push_back(currentVertex + 0);
@@ -280,10 +281,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     case FACE::WEST:
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMin, -1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMin, -1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMax, -1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMax, -1, 0, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMin, -1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMin, -1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::WEST].uMax, blockUVs[storedBlock.getType()][FACE::WEST].vMax, -1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::WEST].uMin, blockUVs[storedBlock.getType()][FACE::WEST].vMax, -1, 0, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
 
         renderData.indices.push_back(currentVertex + 0);
         renderData.indices.push_back(currentVertex + 1);
@@ -294,10 +295,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     case FACE::TOP:
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMax, 0, 1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMax, 0, 1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMin, 0, 1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMin, 0, 1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMax, 0, 1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMax, 0, 1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMax, blockUVs[storedBlock.getType()][FACE::TOP].vMin, 0, 1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 1, z + 1, blockUVs[storedBlock.getType()][FACE::TOP].uMin, blockUVs[storedBlock.getType()][FACE::TOP].vMin, 0, 1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
 
         renderData.indices.push_back(currentVertex + 3);
         renderData.indices.push_back(currentVertex + 2);
@@ -308,10 +309,10 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
         currentVertex += 4;
         break;
     case FACE::BOTTOM:
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin, 0, -1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin, 0, -1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax, 0, -1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
-        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax, 0, -1, 0, std::max(storedBlock.getSkyLight(), storedBlock.getBlockLight())));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin, 0, -1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMin, 0, -1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMax, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax, 0, -1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
+        renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 1, blockUVs[storedBlock.getType()][FACE::BOTTOM].uMin, blockUVs[storedBlock.getType()][FACE::BOTTOM].vMax, 0, -1, 0, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
 
         renderData.indices.push_back(currentVertex + 0);
         renderData.indices.push_back(currentVertex + 1);
