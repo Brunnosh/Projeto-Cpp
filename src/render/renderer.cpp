@@ -70,6 +70,20 @@ void Renderer::uploadToGPU(const glm::ivec3& pos) {
     if (it == chunkRenderMap.end()) return;
 
     ChunkRenderData& renderData = it->second;
+
+    if (renderData.buffers.VAO != 0) {
+        glDeleteVertexArrays(1, &renderData.buffers.VAO);
+        renderData.buffers.VAO = 0;
+    }
+    if (renderData.buffers.VBO != 0) {
+        glDeleteBuffers(1, &renderData.buffers.VBO);
+        renderData.buffers.VBO = 0;
+    }
+    if (renderData.buffers.EBO != 0) {
+        glDeleteBuffers(1, &renderData.buffers.EBO);
+        renderData.buffers.EBO = 0;
+    }
+
     uploadToGPU(renderData);
 }
 
@@ -106,6 +120,13 @@ void Renderer::genFaces(const glm::ivec3& pos, Chunk& chunk) {
     if (!canGenerateFaces(pos)) {
         pendingChunks.push(pos);
         return;
+    }
+
+    auto it = chunkRenderMap.find(pos);
+    if (it != chunkRenderMap.end()) {
+        it->second.vertices.clear();
+        it->second.indices.clear();
+        it->second.uploaded = false; // Resetar se quiser
     }
 
     ChunkRenderData renderData;
