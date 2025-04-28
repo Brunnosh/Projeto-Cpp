@@ -6,7 +6,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 void Renderer::markChunkDirty(const glm::ivec3& pos) {
-    dirtyChunks.push(pos);
 
     if (dirtyChunksControl.find(pos) == dirtyChunksControl.end()) {
         dirtyChunks.push(pos);
@@ -28,10 +27,16 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();
         dirtyChunks.pop();
+        dirtyChunksControl.erase(pos);
 
         auto it = worldData.find(pos);
         if (it == worldData.end() || !it->second.chunk ) continue;
 
+        if (!canGenerateFaces(pos)) {
+            dirtyChunks.push(pos);
+            dirtyChunksControl.insert(pos);
+            return;
+        }
 
         genFaces(pos, it->second);
         uploadToGPU(pos);
@@ -47,6 +52,13 @@ void Renderer::processPendingChunks() {
 
         auto it = worldReference->getWorldDataRef().find(pos);
         if (it != worldReference->getWorldDataRef().end() && it->second.chunk) {
+
+            if (!canGenerateFaces(pos)) {
+                pendingChunks.push(pos);
+                return;
+            }
+
+
             it->second.state = chunkState::DIRTY;
             genFaces(pos, it->second);
         }
@@ -131,10 +143,7 @@ void Renderer::uploadToGPU(ChunkRenderData& renderData) {
 
 void Renderer::genFaces(const glm::ivec3& pos, chunkObject& chunkObject) {
 
-    if (!canGenerateFaces(pos)) {
-        pendingChunks.push(pos);
-        return;
-    }
+
 
     auto it = chunkRenderMap.find(pos);
     if (it != chunkRenderMap.end()) {
@@ -363,7 +372,7 @@ bool Renderer::canGenerateFaces(const glm::ivec3& chunkPos) {
     for (const auto& offset : neighborOffsets) {
         glm::ivec3 neighborChunk = chunkPos + offset;
 
-        if ((int)worldReference->getChunkState(neighborChunk) < 2 && (int)worldReference->getChunkState(neighborChunk) != -1) {
+        if ((int)worldReference->getChunkState(neighborChunk) < 2 && (int)worldReference->getChunkState(neighborChunk) != (int)chunkState::OUTSIDE_RENDER_DISTANCE) {
             // Se qualquer vizinho ainda não existir ou não estiver gerado
             return false;
         }

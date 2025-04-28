@@ -19,12 +19,12 @@ class Camera;
 struct RaycastHit;
 
 enum class chunkState {
-    OUTSIDE_RENDER_DISTANCE = -1,
+    OUTSIDE_RENDER_DISTANCE = -1, //chunk not even instanced in current worldData.
     INVALID, //Chunk does not exist (chunk = nullptr)
     LOADING, // in process of loading/generating chunkData.
     GENERATED, //chunkData is loaded, chunk is not meshed and not prepared.
-    DIRTY, //chunk queued for meshing
-    READY // Chunk is meshed and light is calculated -> will render.
+    DIRTY, //light calculated, queued for meshing.
+    READY // Chunk is meshed -> will render.
 
 };
 
