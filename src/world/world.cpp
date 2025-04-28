@@ -108,7 +108,8 @@ void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
 
 
             //trocar pra dirty chunks
-            worldRenderer.pendingChunks.push(pos);
+            worldRenderer.markChunkDirty(pos);
+            
             
        
             chunkFutures.erase(chunkFutures.begin() + i);

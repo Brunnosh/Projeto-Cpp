@@ -236,7 +236,7 @@ void Game::loop() {
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "specularStrength"), 0.05f);
         glUniform1f(glGetUniformLocation(Shaders[shaderType::MAIN].ID, "shininess"), 8.0f);
 
-        worldRenderer.processPendingChunks();
+        
 
         worldRenderer.rebuildDirtyChunks(currentWorld->getWorldDataRef());
 

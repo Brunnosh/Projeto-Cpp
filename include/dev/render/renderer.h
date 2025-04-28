@@ -34,8 +34,7 @@ private:
     
 
 public:
-    //remover pendingchunks
-    std::queue<glm::ivec3> pendingChunks;
+  
     World* worldReference;
 
 public:
@@ -44,7 +43,6 @@ public:
     void rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
     void renderChunks(unsigned int modelLoc, int& drawcallCount);
     void cleanup();
-    void Renderer::processPendingChunks();
     void genFaces(const glm::ivec3& pos, chunkObject& chunkObject);
     void uploadToGPU(const glm::ivec3& pos);
 

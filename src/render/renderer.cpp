@@ -43,27 +43,6 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
     }
 }
 
-void Renderer::processPendingChunks() {
-    int pendingCount = pendingChunks.size();
-    for (int i = 0; i < pendingCount; ++i) {
-        glm::ivec3 pos = pendingChunks.front();
-        pendingChunks.pop();
-
-
-        auto it = worldReference->getWorldDataRef().find(pos);
-        if (it != worldReference->getWorldDataRef().end() && it->second.chunk) {
-
-            if (!canGenerateFaces(pos)) {
-                pendingChunks.push(pos);
-                return;
-            }
-
-
-            it->second.state = chunkState::DIRTY;
-            genFaces(pos, it->second);
-        }
-    }
-}
 
 void Renderer::renderChunks(unsigned int modelLoc, int& drawcallCount) {
     for (auto& [pos, data] : chunkRenderMap) {
