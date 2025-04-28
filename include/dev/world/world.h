@@ -75,7 +75,7 @@ public:
 
     chunkState World::getChunkState(glm::ivec3 pos);
 
-    void World::markForUpdate();
+    void World::markForUpdate(chunkObject& chunkObj, Renderer& worldRenderer);
   
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };
