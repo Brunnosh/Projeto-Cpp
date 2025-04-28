@@ -23,7 +23,7 @@ void Renderer::markChunkDirty(std::queue<glm::ivec3>& tempQueue) {
     }
 
 }
-
+//arrumar isso pra genreciar todas as updates de mesh
 void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();

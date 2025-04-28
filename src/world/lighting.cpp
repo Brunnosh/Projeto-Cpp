@@ -5,6 +5,32 @@ namespace Lighting {
     std::stack<std::pair<int, int>> pendingColumns;
     std::set<std::pair<int, int>> columnsPendingControl;
 
+
+    void processPendingColumns(World& world, Renderer& worldRenderer) {
+        int pendingCount = pendingColumns.size();
+
+        // Opcional: limitar quantas processa por frame
+        int processLimit = 5;
+        int processed = 0;
+
+        for (int i = 0; i < pendingCount && processed < processLimit; ++i) {
+            std::pair xz = pendingColumns.top();
+            pendingColumns.pop();
+
+            if (!checkChunkColumn(world, xz)) {
+                // Coluna ainda não pronta, volta para pending
+                pendingColumns.push(xz);
+                continue;
+            }
+
+            // Coluna está pronta, inicializa luz
+            columnsPendingControl.erase(xz);
+            initializeLightColumn(world, xz, worldRenderer);
+            processed++;
+        }
+    }
+
+
     void queueColumnForLightingUpdate(int x, int z) {
         std::pair xzCoord = std::pair(x, z);    
 
@@ -32,7 +58,7 @@ namespace Lighting {
             }
 
            
-
+            //MUDAR PRA CHUNKSTATE::GENERATED
             if (!it->second.chunk || it->second.state != chunkState::READY) {
                 // Chunk ainda não pronto
                 return false;
@@ -42,29 +68,7 @@ namespace Lighting {
         }
     }
 
-    void processPendingColumns(World& world, Renderer & worldRenderer) {
-        int pendingCount = pendingColumns.size();
 
-        // Opcional: limitar quantas processa por frame
-        int processLimit = 5;
-        int processed = 0;
-
-        for (int i = 0; i < pendingCount && processed < processLimit; ++i) {
-            std::pair xz = pendingColumns.top();
-            pendingColumns.pop();
-
-            if (!checkChunkColumn(world, xz)) {
-                // Coluna ainda não pronta, volta para pending
-                pendingColumns.push(xz);
-                continue;
-            }
-
-            // Coluna está pronta, inicializa luz
-            columnsPendingControl.erase(xz);
-            initializeLightColumn(world, xz, worldRenderer);
-            processed++;
-        }
-    }
 
 
     void initializeLightColumn(World& world, const std::pair<int, int>& xz, Renderer& worldRenderer) {

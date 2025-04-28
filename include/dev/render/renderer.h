@@ -34,6 +34,7 @@ private:
     
 
 public:
+    //remover pendingchunks
     std::queue<glm::ivec3> pendingChunks;
     World* worldReference;
 
