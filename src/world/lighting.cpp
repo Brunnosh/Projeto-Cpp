@@ -19,7 +19,9 @@ namespace Lighting {
 
             if (!checkChunkColumn(world, xz)) {
                 // Coluna ainda não pronta, volta para pending
+                columnsPendingControl.erase(xz);
                 pendingColumns.push(xz);
+                columnsPendingControl.insert(xz);
                 continue;
             }
 
@@ -203,14 +205,6 @@ namespace Lighting {
         // Marca todos os chunks que atualizamos para redesenhar
         worldRenderer.markChunkRemesh(tempQueue);
     }
-
-
-
-
-
-
-
-
 
 
 

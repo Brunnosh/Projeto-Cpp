@@ -153,20 +153,21 @@ void World::removeBlock(RaycastHit& hit, Renderer& worldRenderer) {
     int max = CHUNKSIZE - 1;
 
     int index = hit.blockRelativePos.x * CHUNKSIZE * CHUNKSIZE + hit.blockRelativePos.z * CHUNKSIZE + hit.blockRelativePos.y;
+
+    auto it = worldData.find(hit.chunk->worldPos);
+
     hit.chunk->chunkData[index] = Blocks[BlockType::AIR];
     hit.chunk->isChunkEmpty();
-    markForUpdate();
-    worldRenderer.markChunkRemesh(hit.chunk->worldPos);
-    Lighting::queueColumnForLightingUpdate(hit.chunk->worldPos.x, hit.chunk->worldPos.z);
+
+    markForUpdate(it->second, worldRenderer);
+
 
     auto tryMark = [&](glm::ivec3 offset) {
         auto neighborPos = hit.chunk->worldPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
             it->second.chunk->isChunkEmpty();
-            
-            worldRenderer.markChunkRemesh(neighborPos);
-            Lighting::queueColumnForLightingUpdate(it->second.chunk->worldPos.x, it->second.chunk->worldPos.z);
+            markForUpdate(it->second, worldRenderer);
         }
         };
 
@@ -219,11 +220,13 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
 
     //Operação contida dentro do proprio chunk
     if (hit.chunk->worldPos == newBlockChunkPos) {   
+
+        auto it = worldData.find(hit.chunk->worldPos);
+
         std::cout << "Light level do bloco substituido (mesmo chunk): " << (int)hit.chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         hit.chunk->chunkData[newBlockIndex] = blockToPlace;
         hit.chunk->isEmpty = false;
-        worldRenderer.markChunkRemesh(hit.chunk->worldPos);
-        Lighting::queueColumnForLightingUpdate(hit.chunk->worldPos.x, hit.chunk->worldPos.z);
+        markForUpdate(it->second, worldRenderer);
     }
     else 
     {
@@ -237,8 +240,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
         std::cout << "Light level do bloco substituido (outro chunk): " << (int)chunk->chunkData[newBlockIndex].getSkyLight() << "\n";
         chunk->chunkData[newBlockIndex] = blockToPlace;
         chunk->isEmpty = false;
-        worldRenderer.markChunkRemesh(chunk->worldPos);
-        Lighting::queueColumnForLightingUpdate(chunk->worldPos.x, chunk->worldPos.z);
+        markForUpdate(it->second, worldRenderer);
         
 
     }
@@ -248,8 +250,7 @@ void World::placeBlock(Camera& camera, RaycastHit & hit, Block blockToPlace, Ren
         auto neighborPos = newBlockChunkPos + offset;
         auto it = worldData.find(neighborPos);
         if (it != worldData.end()) {
-            worldRenderer.markChunkRemesh(neighborPos);
-            Lighting::queueColumnForLightingUpdate(it->second.chunk->worldPos.x, it->second.chunk->worldPos.z);
+            markForUpdate(it->second, worldRenderer);
         }
         };
 
@@ -284,6 +285,32 @@ chunkState World::getChunkState(glm::ivec3 pos) {
 
 }
 
-void World::markForUpdate() {
+void World::markColumnToUpdate(const std::pair<int, int>& xz) {
+    int highestY = getMaxChunkY(xz.first, xz.second);
 
+    int chunkY = highestY;
+    while (true) {
+        glm::ivec3 chunkPos = { xz.first, chunkY, xz.second };
+
+
+
+        auto it = worldData.find(chunkPos);
+        if (it == worldData.end()) {
+            // Se não existe chunk, está tudo bem, terminamos aqui
+            return;
+        }
+
+        it->second.state = chunkState::QUEUED_LIGHT_UPDATE;
+
+        chunkY--;
+    }
 }
+
+void World::markForUpdate(chunkObject& obj, Renderer & worldRenderer) {
+    obj.state = chunkState::QUEUED_LIGHT_UPDATE;
+
+    markColumnToUpdate(std::pair(obj.chunk->worldPos.x, obj.chunk->worldPos.z));
+
+    Lighting::queueColumnForLightingUpdate(obj.chunk->worldPos.x, obj.chunk->worldPos.z);
+}
+
