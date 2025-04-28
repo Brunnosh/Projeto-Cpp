@@ -2,7 +2,7 @@
 #include <renderer.h>
 
 namespace Lighting {
-    std::stack<std::pair<int, int>> pendingColumns;
+    std::queue<std::pair<int, int>> pendingColumns;
     std::set<std::pair<int, int>> columnsPendingControl;
 
 
@@ -14,7 +14,7 @@ namespace Lighting {
         int processed = 0;
 
         for (int i = 0; i < pendingCount && processed < processLimit; ++i) {
-            std::pair xz = pendingColumns.top();
+            std::pair xz = pendingColumns.front();
             pendingColumns.pop();
 
             if (!checkChunkColumn(world, xz)) {

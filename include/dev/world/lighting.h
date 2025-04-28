@@ -7,7 +7,7 @@
 class Renderer;
 
 namespace Lighting {
-    extern std::stack<std::pair<int,int>> pendingColumns;
+    extern std::queue<std::pair<int,int>> pendingColumns;
     extern std::set<std::pair<int,int>> columnsPendingControl;
 
     void queueColumnForLightingUpdate(int x, int z);
