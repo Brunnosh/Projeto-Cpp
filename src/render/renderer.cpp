@@ -249,9 +249,25 @@ void Renderer::setVertex(int x, int y, int z, Block & storedBlock, FACE face, Ch
     float uMin = uv.uMin, uMax = uv.uMax, vMin = uv.vMin, vMax = uv.vMax;
 
     
+    //CALCULATE LIGHTING PER VERTEX BASED ON NEIGHBORING BLOCKS
+    /*
+    
+    Face Norte (Z-)  Pega luz dos blocos para o norte (z-1).
 
+    Face Sul (Z+)  Pega luz dos blocos para o sul (z+1).
+
+    Face Leste (X+)  Pega luz dos blocos para o leste (x+1).
+
+    Face Oeste (X-)  Pega luz dos blocos para o oeste (x-1).
+
+    Face Topo (Y+)  Pega luz dos blocos acima (y+1).
+
+    Face Fundo (Y-)  Pega luz dos blocos abaixo (y-1).
+
+    */
     switch (face) {
     case FACE::NORTH:
+        
         renderData.vertices.push_back(Vertex(x + 0, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMax, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
         renderData.vertices.push_back(Vertex(x + 1, y + 0, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMin, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
         renderData.vertices.push_back(Vertex(x + 1, y + 1, z + 0, blockUVs[storedBlock.getType()][FACE::NORTH].uMin, blockUVs[storedBlock.getType()][FACE::NORTH].vMax, 0, 0, -1, storedBlock.getSkyLight(), storedBlock.getBlockLight()));
