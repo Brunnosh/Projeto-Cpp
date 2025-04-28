@@ -34,13 +34,13 @@ namespace Lighting {
 
 
     void queueColumnForLightingUpdate(int x, int z) {
-        std::pair xzCoord = std::pair(x, z);    
+        std::pair xzCoord = std::pair(x, z);
 
         if (columnsPendingControl.find(xzCoord) == columnsPendingControl.end()) {
             pendingColumns.push(xzCoord);
             columnsPendingControl.insert(xzCoord);
         }
-        
+
     }
 
     bool checkChunkColumn(World& world, const std::pair<int, int>& xz) {
@@ -51,15 +51,15 @@ namespace Lighting {
         while (true) {
             glm::ivec3 chunkPos = { xz.first, chunkY, xz.second };
 
-            
+
 
             auto it = worldData.find(chunkPos);
-            if (it == worldData.end() ) {
+            if (it == worldData.end()) {
                 // Se não existe chunk, está tudo bem, terminamos aqui
                 return true;
             }
 
-           
+
             //MUDAR PRA CHUNKSTATE::GENERATED
             if (!it->second.chunk || it->second.state != chunkState::QUEUED_LIGHT_UPDATE) {
                 // Chunk ainda não pronto
@@ -73,139 +73,49 @@ namespace Lighting {
 
 
 
-    void initializeLightColumn(World& world, const std::pair<int, int>& xz, Renderer& worldRenderer) {
+    void Lighting::initializeLightColumn(World& world, const std::pair<int, int>& xz, Renderer& worldRenderer) {
         auto& worldData = world.getWorldDataRef();
         int highestY = world.getMaxChunkY(xz.first, xz.second);
         std::queue<glm::ivec3> tempQueue;
 
-        int chunkY = highestY;
-        Chunk* aboveChunk = nullptr; // Ponteiro para o chunk de cima
+        bool blocked[CHUNKSIZE][CHUNKSIZE] = {}; // Inicializa todas as colunas como não bloqueadas
 
+        int chunkY = highestY;
         while (true) {
             glm::ivec3 chunkPos = { xz.first, chunkY, xz.second };
             tempQueue.push(chunkPos);
 
             auto it = worldData.find(chunkPos);
             if (it == worldData.end() || !it->second.chunk) {
-                // Se não existe chunk aqui, para o loop
                 break;
             }
 
             it->second.state = chunkState::DIRTY;
             Chunk& chunk = *it->second.chunk;
 
-            // Um bloqueio separado para cada (lx, lz)
-            bool blocked[CHUNKSIZE][CHUNKSIZE] = {};
+            // Para cada posição no chunk
+            for (int y = CHUNKSIZE - 1; y >= 0; --y) {  // De cima para baixo dentro do chunk
+                for (int lx = 0; lx < CHUNKSIZE; ++lx) {
+                    for (int lz = 0; lz < CHUNKSIZE; ++lz) {
+                        Block& block = chunk.getBlock(lx, y, lz);
 
-            if (chunkY == highestY) {
-                // Primeiro chunk (mais alto): sol direto
-                for (int y = CHUNKSIZE - 1; y >= 0; --y) {
-                    for (int lx = 0; lx < CHUNKSIZE; ++lx) {
-                        for (int lz = 0; lz < CHUNKSIZE; ++lz) {
-                            Block& block = chunk.getBlock(lx, y, lz);
+                        if (!blocked[lx][lz]) {
+                            block.setSkyLight(15); // Ainda recebendo luz
 
-                            if (!blocked[lx][lz]) {
-                                if (block.getType() == BlockType::AIR) {
-                                    block.setSkyLight(15);
-                                }
-                                else {
-                                    blocked[lx][lz] = true;
-                                    block.setSkyLight(15);
-                                }
-                            }
-                            else {
-                                block.setSkyLight(0);
+                            if (block.getType() != BlockType::AIR) {
+                                blocked[lx][lz] = true; // A partir daqui, a coluna está bloqueada
                             }
                         }
-                    }
-                }
-            }
-            else {
-                // Chunks abaixo do mais alto
-                if (chunk.isEmpty && aboveChunk) {
-                    // Verifica se toda a face inferior do chunk de cima tem luz 15
-                    bool allAboveFaceFullLight = true;
-
-                    for (int lx = 0; lx < CHUNKSIZE && allAboveFaceFullLight; ++lx) {
-                        for (int lz = 0; lz < CHUNKSIZE && allAboveFaceFullLight; ++lz) {
-                            Block& aboveBlock = aboveChunk->getBlock(lx, 0, lz);
-                            if (aboveBlock.getSkyLight() < 15) {
-                                allAboveFaceFullLight = false;
-                            }
-                        }
-                    }
-
-                    if (allAboveFaceFullLight) {
-                        // Preenche o chunk inteiro com luz 15
-                        for (int y = CHUNKSIZE - 1; y >= 0; --y) {
-                            for (int lx = 0; lx < CHUNKSIZE; ++lx) {
-                                for (int lz = 0; lz < CHUNKSIZE; ++lz) {
-                                    chunk.getBlock(lx, y, lz).setSkyLight(15);
-                                }
-                            }
-                        }
-                        // Como tudo recebeu luz 15, não precisamos alterar 'blocked'
-                    }
-                    else {
-                        // Caso a face superior não esteja toda iluminada, checa por coluna
-                        for (int y = CHUNKSIZE - 1; y >= 0; --y) {
-                            for (int lx = 0; lx < CHUNKSIZE; ++lx) {
-                                for (int lz = 0; lz < CHUNKSIZE; ++lz) {
-                                    Block& block = chunk.getBlock(lx, y, lz);
-                                    Block& aboveBlock = aboveChunk->getBlock(lx, (y == CHUNKSIZE - 1) ? 0 : (y + 1), lz);
-
-                                    if (!blocked[lx][lz]) {
-                                        if (block.getType() == BlockType::AIR && aboveBlock.getSkyLight() == 15) {
-                                            block.setSkyLight(15);
-                                        }
-                                        else {
-                                            blocked[lx][lz] = true;
-                                            block.setSkyLight(15);
-                                        }
-                                    }
-                                    else {
-                                        block.setSkyLight(0);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else if (aboveChunk) {
-                    // Chunk não é vazio: checa normalmente por coluna
-                    for (int y = CHUNKSIZE - 1; y >= 0; --y) {
-                        for (int lx = 0; lx < CHUNKSIZE; ++lx) {
-                            for (int lz = 0; lz < CHUNKSIZE; ++lz) {
-                                Block& block = chunk.getBlock(lx, y, lz);
-                                Block& aboveBlock = aboveChunk->getBlock(lx, (y == CHUNKSIZE - 1) ? 0 : (y + 1), lz);
-
-                                if (!blocked[lx][lz]) {
-                                    if (block.getType() == BlockType::AIR && aboveBlock.getSkyLight() == 15) {
-                                        block.setSkyLight(15);
-                                    }
-                                    else {
-                                        blocked[lx][lz] = true;
-                                        block.setSkyLight(15);
-                                    }
-                                }
-                                else {
-                                    block.setSkyLight(0);
-                                }
-                            }
+                        else {
+                            block.setSkyLight(0); // Coluna já bloqueada, sombra
                         }
                     }
                 }
             }
 
-            // Atualiza o chunk acima para o atual
-            aboveChunk = &chunk;
-            chunkY--; // Anda para o chunk debaixo (pode ser negativo)
+            chunkY--; // Passa para o próximo chunk abaixo
         }
 
-        // Marca todos os chunks que atualizamos para redesenhar
         worldRenderer.markChunkRemesh(tempQueue);
     }
-
-
-
 }
