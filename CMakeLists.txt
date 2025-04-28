@@ -16,6 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/dev/render)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev/render/vertex)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+
 # Definindo os diretórios de bibliotecas
 link_directories(${PROJECT_SOURCE_DIR}/lib)
 

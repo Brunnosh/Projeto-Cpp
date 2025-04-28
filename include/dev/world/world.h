@@ -23,6 +23,7 @@ enum class chunkState {
     INVALID, //Chunk does not exist (chunk = nullptr)
     LOADING, // in process of loading/generating chunkData.
     GENERATED, //chunkData is loaded, chunk is not meshed and not prepared.
+    QUEUED_LIGHT_UPDATE, //duh
     DIRTY, //light calculated, queued for meshing.
     READY // Chunk is meshed -> will render.
 
@@ -74,7 +75,7 @@ public:
 
     chunkState World::getChunkState(glm::ivec3 pos);
 
-
+    void World::markForUpdate();
   
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };

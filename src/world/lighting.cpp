@@ -59,7 +59,7 @@ namespace Lighting {
 
            
             //MUDAR PRA CHUNKSTATE::GENERATED
-            if (!it->second.chunk || it->second.state != chunkState::READY) {
+            if (!it->second.chunk || it->second.state != chunkState::QUEUED_LIGHT_UPDATE) {
                 // Chunk ainda não pronto
                 return false;
             }
@@ -89,6 +89,7 @@ namespace Lighting {
                 break;
             }
 
+            it->second.state = chunkState::DIRTY;
             Chunk& chunk = *it->second.chunk;
 
             // Um bloqueio separado para cada (lx, lz)
@@ -200,7 +201,7 @@ namespace Lighting {
         }
 
         // Marca todos os chunks que atualizamos para redesenhar
-        worldRenderer.markChunkDirty(tempQueue);
+        worldRenderer.markChunkRemesh(tempQueue);
     }
 
 

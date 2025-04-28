@@ -38,9 +38,10 @@ public:
     World* worldReference;
 
 public:
-    void markChunkDirty(const glm::ivec3& pos);
-    void markChunkDirty(std::queue<glm::ivec3> & tempQueue);
-    void rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
+
+    void markChunkRemesh(const glm::ivec3& pos);
+    void markChunkRemesh(std::queue<glm::ivec3> & tempQueue);
+    void remeshMarkedChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData);
     void renderChunks(unsigned int modelLoc, int& drawcallCount);
     void cleanup();
     void genFaces(const glm::ivec3& pos, chunkObject& chunkObject);

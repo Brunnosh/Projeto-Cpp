@@ -5,7 +5,9 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void Renderer::markChunkDirty(const glm::ivec3& pos) {
+void Renderer::markChunkRemesh(const glm::ivec3& pos) {
+
+    //decide via chunkState which kind of update it is.
 
     if (dirtyChunksControl.find(pos) == dirtyChunksControl.end()) {
         dirtyChunks.push(pos);
@@ -14,16 +16,16 @@ void Renderer::markChunkDirty(const glm::ivec3& pos) {
 
 }
 
-void Renderer::markChunkDirty(std::queue<glm::ivec3>& tempQueue) {
+void Renderer::markChunkRemesh(std::queue<glm::ivec3>& tempQueue) {
     while (!tempQueue.empty()) {
         glm::ivec3 pos = tempQueue.front();
         tempQueue.pop();
-        markChunkDirty(pos);
+        markChunkRemesh(pos);
     }
 
 }
 //arrumar isso pra genreciar todas as updates de mesh
-void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
+void Renderer::remeshMarkedChunks( std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldData) {
     while (!dirtyChunks.empty()) {
         glm::ivec3 pos = dirtyChunks.front();
         dirtyChunks.pop();
@@ -32,7 +34,7 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
         auto it = worldData.find(pos);
         if (it == worldData.end() || !it->second.chunk ) continue;
 
-        if (!canGenerateFaces(pos)) {
+        if (it->second.state != chunkState::DIRTY || !canGenerateFaces(pos)) {
             dirtyChunks.push(pos);
             dirtyChunksControl.insert(pos);
             return;
@@ -46,7 +48,7 @@ void Renderer::rebuildDirtyChunks( std::unordered_map<glm::ivec3, chunkObject, V
 
 void Renderer::renderChunks(unsigned int modelLoc, int& drawcallCount) {
     for (auto& [pos, data] : chunkRenderMap) {
-        if (!data.uploaded || data.isEmpty) { continue; }
+        if (!data.uploaded || data.isEmpty ) { continue; }
         
 
         //differentiate water rendering here
@@ -173,6 +175,7 @@ void Renderer::generateMesh(Chunk& chunk, ChunkRenderData& renderData) {
                     }
                 }
             }
+
 }
 
 
