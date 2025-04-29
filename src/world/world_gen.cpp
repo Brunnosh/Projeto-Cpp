@@ -4,6 +4,7 @@
 
 
 void World_Gen::generateChunkData( Chunk & chunk) {
+    chunk.chunkData.reserve(CHUNKSIZE* CHUNKSIZE* CHUNKSIZE);
     //Futuramente usar WorldPos junto com a seed/Noise para gerar os blocos do chunk
     std::vector<Block> tempVec;
     //teste chunk 15x15x15 solido

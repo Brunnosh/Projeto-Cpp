@@ -199,11 +199,13 @@ void Game::loop() {
         
         processInput(*this, deltaTime);
 
+        //muito uso CPU
+
         camera.update(*currentWorld, window, drawCallCount);
         
         updateCameraMatrices(window, Shaders[shaderType::MAIN]);
 
-
+        //muito uso CPU
 
 
         std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();

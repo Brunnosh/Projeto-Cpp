@@ -69,6 +69,7 @@ void World::queueChunks(Camera& camera) {
 
 void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
     int chunksPerFrame = 6;
+
     int generated = 0;
     std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldDataRef = this->worldData;
 

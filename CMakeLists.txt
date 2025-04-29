@@ -13,6 +13,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include/stb)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev/world)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev/render)
+include_directories(${PROJECT_SOURCE_DIR}/include/dev/helper)
 include_directories(${PROJECT_SOURCE_DIR}/include/dev/render/vertex)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 

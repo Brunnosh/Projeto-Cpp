@@ -10,7 +10,7 @@
 #include <hash.h>
 #include <voxelVertex.h>
 
-#define CHUNKSIZE 15
+#define CHUNKSIZE 32
 
 class Chunk {
 public:
