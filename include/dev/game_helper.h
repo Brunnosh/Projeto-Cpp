@@ -4,6 +4,8 @@
 Camera camera(glm::vec3(0.0f, 70.0f, 0.0f));
 std::chrono::steady_clock::time_point fpsStartTime;
 
+
+
 static int drawCallCount = 0;  // Contador de draw calls
 static int drawcallsec = 0;  // Contador de draw calls
 std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();

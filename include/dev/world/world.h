@@ -2,7 +2,7 @@
 #define WORLD_H
 
 #include <chunk.h>
-
+#include <threadPool.h>
 
 #include <vector>
 #include <unordered_map>
@@ -41,11 +41,13 @@ private:
     std::unordered_map<glm::ivec3, chunkObject, Vec3Hash> worldData; //basically chunks inside players render distance
     std::queue<glm::ivec3> chunkGenQueue;
     std::unordered_set<glm::ivec3, Vec3Hash> chunkGenQueueControl;
-    std::vector<std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>>> chunkFutures;
+
     
 
     std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; 
     std::stack<glm::ivec3> lightUpdateStack;
+
+    std::mutex chunkGenMutex;
 
 public:
 
@@ -57,11 +59,11 @@ public:
 
     void World::queueChunks(Camera& camera);
 
-    void World::genChunks(Renderer& worldRenderer);
+    void World::genChunks(Renderer& worldRenderer, ThreadPool & pool);
 
     void World::removeFarChunks(Camera& camera);
 
-    void World::update(Camera& camera, float deltaTime, Renderer & worldRenderer);
+    void World::update(Camera& camera, float deltaTime, Renderer & worldRenderer, ThreadPool& pool);
 
     std::optional<RaycastHit> World::returnRayCastHit(glm::ivec3 blockPos);
 

@@ -14,9 +14,9 @@ World::World() {
     //ler pos do player salvo, renderizar chunks em torno do player primeiro, depois começar o update.
 }
 
-void World::update(Camera & camera, float deltaTime, Renderer & worldRenderer) {
+void World::update(Camera & camera, float deltaTime, Renderer & worldRenderer, ThreadPool& pool) {
     
-    Lighting::processPendingColumns(*this, worldRenderer);
+    Lighting::processPendingColumns(*this, worldRenderer,  pool);
 
 }
 
@@ -51,7 +51,7 @@ void World::queueChunks(Camera& camera) {
                         chunkGenQueue.push(chunkWorldPos);
                     }
                 }
-
+                //Lighting::queueColumnForLightingUpdate(chunkWorldPos.x, chunkWorldPos.z);
                 std::pair<int, int> xzKey = { chunkWorldPos.x, chunkWorldPos.z };
                 auto it = highestChunkY.find(xzKey);
                 if (it == highestChunkY.end() || chunkWorldPos.y > it->second) {
@@ -67,57 +67,30 @@ void World::queueChunks(Camera& camera) {
 
 }
 
-void World::genChunks(Renderer & worldRenderer) { // only for chunk gen
+void World::genChunks(Renderer& worldRenderer, ThreadPool& pool) {
     int chunksPerFrame = 6;
-
     int generated = 0;
-    std::unordered_map<glm::ivec3, chunkObject, Vec3Hash>& worldDataRef = this->worldData;
 
     while (!chunkGenQueue.empty() && generated < chunksPerFrame) {
         glm::ivec3 pos = chunkGenQueue.front();
         chunkGenQueue.pop();
+        chunkGenQueueControl.erase(pos);
 
-        std::future<std::pair<glm::ivec3, std::shared_ptr<Chunk>>> fut = std::async(std::launch::async, [pos]() -> std::pair<glm::ivec3, std::shared_ptr<Chunk>> {
+        pool.enqueue([this, pos]() {
             auto chunk = std::make_shared<Chunk>(pos);
-
             World_Gen::generateChunkData(*chunk);
-
             chunk->isChunkEmpty();
-            
-            return { pos, chunk };
+
+            std::lock_guard<std::mutex> lock(chunkGenMutex);
+            chunkObject obj;
+            obj.chunk = chunk;
+            obj.state = chunkState::QUEUED_LIGHT_UPDATE;
+            worldData[pos] = std::move(obj);
+            Lighting::queueColumnForLightingUpdate(pos.x, pos.z);
             });
 
-        chunkFutures.push_back(std::move(fut));
         generated++;
     }
-
-    for (int i = 0; i < chunkFutures.size(); ) {
-        auto& fut = chunkFutures[i];
-        if (fut.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
-            auto [pos, chunkPtr] = fut.get();
-
-            std::shared_ptr<Chunk> chunk = chunkPtr;
-
-            chunkObject obj;
-            obj.chunk = chunkPtr;
-            obj.state = chunkState::GENERATED;
-
-            
-
-
-            Lighting::queueColumnForLightingUpdate(pos.x, pos.z);
-            obj.state = chunkState::QUEUED_LIGHT_UPDATE;
-            
-            worldData[pos] = std::move(obj);
-       
-            chunkFutures.erase(chunkFutures.begin() + i);
-            chunkGenQueueControl.erase(pos);
-        }
-        else {
-            ++i;
-        }
-    }
-
 }
 
 

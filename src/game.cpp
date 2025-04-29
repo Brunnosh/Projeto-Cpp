@@ -2,12 +2,19 @@
 #include <stb_image.h>
 #include <game.h>
 #include <shader.h>
+#include <threadPool.h>
+
+
 #include <iostream>
 #include <chrono>
 #include <game_helper.h>
 
 
 unsigned int atlas, crosshair;
+int threadCount = int(std::thread::hardware_concurrency() * 3 / 4);
+
+ThreadPool globalPool(threadCount);
+
 
 void loadShaders() {
     Shaders[shaderType::MAIN] = Shader("assets/shaders/texture/mainShaderVertex.glsl", "assets/shaders/texture/mainShaderFragment.glsl");
@@ -152,6 +159,7 @@ bool Game::setup() {
     loadShaders();
 
     
+    
     modelLoc = glGetUniformLocation(Shaders[shaderType::MAIN].ID, "model");
     initBlockUVs();
 
@@ -182,7 +190,7 @@ bool Game::setup() {
 
     worldRenderer.worldReference = currentWorld.get();
 
-    
+
 
     return true;
 }
@@ -212,11 +220,11 @@ void Game::loop() {
 
         currentWorld->queueChunks(camera);
 
-        currentWorld->genChunks(worldRenderer);
+        currentWorld->genChunks(worldRenderer, globalPool);
 
         currentWorld->tick();
         
-        currentWorld->update(camera, deltaTime, worldRenderer); //light updates.
+        currentWorld->update(camera, deltaTime, worldRenderer, globalPool); //light updates.
 
         
         
