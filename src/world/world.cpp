@@ -16,12 +16,12 @@ World::World() {
 
 void World::update(Camera & camera, float deltaTime, Renderer & worldRenderer, ThreadPool& pool) {
     
-    Lighting::processPendingColumns(*this, worldRenderer,  pool);
+    
 
 }
 
 void World::tick() {
-    // Future entity ticking logic
+    
 }
 
 
@@ -68,7 +68,7 @@ void World::queueChunks(Camera& camera) {
 }
 
 void World::genChunks(Renderer& worldRenderer, ThreadPool& pool) {
-    int chunksPerFrame = 6;
+    int chunksPerFrame = 4;
     int generated = 0;
 
     while (!chunkGenQueue.empty() && generated < chunksPerFrame) {
@@ -86,7 +86,7 @@ void World::genChunks(Renderer& worldRenderer, ThreadPool& pool) {
             obj.chunk = chunk;
             obj.state = chunkState::QUEUED_LIGHT_UPDATE;
             worldData[pos] = std::move(obj);
-            Lighting::queueColumnForLightingUpdate(pos.x, pos.z);
+            //Lighting::queueColumnForLightingUpdate(pos.x, pos.z);
             });
 
         generated++;

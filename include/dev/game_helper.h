@@ -1,126 +1,6 @@
 #pragma once
 
-//Variable Declaration--------------------------------------------
-Camera camera(glm::vec3(0.0f, 130.0f, 0.0f));
-std::chrono::steady_clock::time_point fpsStartTime;
-
-
-
-static int drawCallCount = 0;  // Contador de draw calls
-static int drawcallsec = 0;  // Contador de draw calls
-std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
-const double interval = 1.0; // Intervalo de tempo (1 segundo)
-
-float  fps, fpsCount, avgFps, lowestFps, highestFps = 0;
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-unsigned int modelLoc;
-
-//---------------------------------------------------------------
-
-
-//Setups--------------------------------------------------------
-void setupImgui(Game& game) {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplGlfw_InitForOpenGL(game.getWindow().getNativeWindow(), true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-}
-void frameSetups() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-}
-void updateCameraMatrices(Window & window,Shader & shader) {
-    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f);
-    shader.setMat4("projection", projection);
-
-    glm::mat4 view = camera.GetViewMatrix();
-    shader.setMat4("view", view);
-
-};
-void loadTexture(unsigned int* texture, const std::string& path) {
-
-    glGenTextures(1, texture);
-    glBindTexture(GL_TEXTURE_2D, *texture);
-    // set the texture wrapping parameters
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, STBI_rgb_alpha);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-}
-
-//--------------------------------------------------------------------
-
-//Input Processing--------------------------------------------------
-
-void processInput(Game& game, float deltaTime) {
-    GLFWwindow* window = game.getWindow().getNativeWindow();
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        if (!camera.escDown) {
-            camera.menu = !camera.menu;
-            camera.firstMouse = true;
-            glfwSetInputMode(window, GLFW_CURSOR, camera.menu ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-        }
-        camera.escDown = true;
-    }
-    else {
-        camera.escDown = false;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-        if (!camera.lDown) {
-            game.wireframe = !game.wireframe;
-            glPolygonMode(GL_FRONT_AND_BACK, game.wireframe ? GL_FILL : GL_LINE);
-        }
-        camera.lDown = true;
-    }
-    else {
-        camera.lDown = false;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::UP, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        camera.processKeyboard(CameraMovement::DOWN, deltaTime);
-}
+//Callbacks
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     Game* game = static_cast<Game*>(glfwGetWindowUserPointer(window));
@@ -186,56 +66,144 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         }
 }
 //-----------------------------------------------------------------------------------
+//Misc
 
 
-float sunVertices[] = {
-    // frente
-    -0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-     0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
-    -0.5f, -0.5f,  0.5f,
+void frameSetups() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 
-    // trás
-    -0.5f, -0.5f, -0.5f,
-    -0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
+}
+void updateCameraMatrices(Window& window, Shader& shader) {
+    //skip projection matrix if fov/window size is same from last frame
+    glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f);
+    shader.setMat4("projection", projection);
 
-    // esquerda
-    -0.5f,  0.5f,  0.5f,
-    -0.5f,  0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f, -0.5f,
-    -0.5f, -0.5f,  0.5f,
-    -0.5f,  0.5f,  0.5f,
+    glm::mat4 view = camera.GetViewMatrix();
+    shader.setMat4("view", view);
 
-    // direita
-     0.5f,  0.5f,  0.5f,
-     0.5f, -0.5f,  0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f, -0.5f, -0.5f,
-     0.5f,  0.5f, -0.5f,
-     0.5f,  0.5f,  0.5f,
-
-     // topo
-     -0.5f,  0.5f,  0.5f,
-      0.5f,  0.5f,  0.5f,
-      0.5f,  0.5f, -0.5f,
-      0.5f,  0.5f, -0.5f,
-     -0.5f,  0.5f, -0.5f,
-     -0.5f,  0.5f,  0.5f,
-
-     // fundo
-     -0.5f, -0.5f,  0.5f,
-     -0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f, -0.5f,
-      0.5f, -0.5f,  0.5f,
-     -0.5f, -0.5f,  0.5f,
 };
 
+
+
+void calcDrawCalls() {
+
+    // Verifica o tempo desde o último cálculo
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = currentTime - startTime;
+    drawcallsec = drawcallsec + drawCallCount;
+
+    // Se passou o intervalo de tempo definido (1 segundo, por exemplo)
+    if (elapsed.count() >= interval) {
+        // Exibe o número de draw calls por segundo
+
+
+        // Reseta o contador e o tempo
+        drawcallsec = 0;
+        startTime = currentTime;
+    }
+}
+
+void perFrameLogic() {
+    glClearColor(0.5, 0.5, 0.5, 0.5);
+    //per-frame - iterative logic
+    float currentFrame = static_cast<float>(glfwGetTime());
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
+
+
+
+    // FPS Calculations
+    fps = 1.0f / deltaTime;
+    if (lowestFps == -1 || fps < lowestFps)
+        lowestFps = fps;
+    if (highestFps == -1 || fps > highestFps)
+        highestFps = fps;
+    fpsCount++;
+    std::chrono::steady_clock::time_point currentTimePoint = std::chrono::steady_clock::now();
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(currentTimePoint - fpsStartTime).count() > 1000)
+    {
+        avgFps = fpsCount;
+        lowestFps = -1;
+        highestFps = -1;
+        fpsCount = 0;
+        fpsStartTime = currentTimePoint;
+    }
+
+}
+
+
+void drawGui(World& mundoTeste, Window& window, unsigned int crosshair, std::chrono::steady_clock::time_point begin, std::chrono::steady_clock::time_point end, float sunAngle) {
+    glm::ivec3 playerChunkPos = glm::ivec3(glm::floor(camera.position / float(CHUNKSIZE)));
+    //Debug panel
+    ImGui::Begin("WorldDebug");
+    ImGui::Text("FPS: %f (Avg: %f, Min: %f, Max: %f)", fps, avgFps, lowestFps, highestFps);
+    ImGui::Text("FrameTime (ms): %f", deltaTime * 100.0f);
+    ImGui::Text("X %f", camera.position.x);
+    ImGui::Text("Y %f", camera.position.y);
+    ImGui::Text("Z %f", camera.position.z);
+    ImGui::Text("Chunks loaded: %d", mundoTeste.getNumberChunks());
+    ImGui::Text("DrawCalls (sec): %d", drawcallsec);
+    ImGui::Text("DrawCalls (frame): %d", drawCallCount);
+    ImGui::Text("World update time (ms): %f", (float)std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
+    ImGui::Text("Sun Angle: %f", sunAngle);
+    ImGui::Text("Highest Y chunk for (X:%d ,Z:%d) -> %d", playerChunkPos.x, playerChunkPos.z, mundoTeste.getMaxChunkY(playerChunkPos.x, playerChunkPos.z));
+    if (camera.selectedBlock != nullptr) ImGui::Text("Selected Block: %s", (*camera.selectedBlock).getTypeToString());
+    ImGui::End();
+
+
+    ImGui::Begin("LookinAt");
+    if (camera.raycastInfo.has_value()) {
+
+        auto& hit = camera.raycastInfo.value();
+        ImGui::Text("BlockSkyLight %d", hit.copiedBlock->getSkyLight());
+        ImGui::Text("------------------");
+        ImGui::Text("BlockRelativeX %d", hit.blockRelativePos.x);
+        ImGui::Text("BlockRelativeY %d", hit.blockRelativePos.y);
+        ImGui::Text("BlockRelativeZ %d", hit.blockRelativePos.z);
+        ImGui::Text("------------------");
+        ImGui::Text("BlockWorldX %d", hit.blockWorldPos.x);
+        ImGui::Text("BlockWorldY %d", hit.blockWorldPos.y);
+        ImGui::Text("BlockWorldZ %d", hit.blockWorldPos.z);
+        ImGui::Text("------------------");
+        ImGui::Text("ChunkCoordX %d", hit.chunk->worldPos.x);
+        ImGui::Text("ChunkCoordY %d", hit.chunk->worldPos.y);
+        ImGui::Text("ChunkCoordZ %d", hit.chunk->worldPos.z);
+
+
+
+
+    }
+    ImGui::End();
+
+    ImGui::Begin("CameraDebug");
+    ImGui::Text("Yaw %f", camera.yaw);
+    ImGui::Text("Pitch %f", camera.pitch);
+    ImGui::Text("Fov %f", camera.fov);
+    ImGui::Text("FrontX %f", camera.front.x);
+    ImGui::Text("FrontY %f", camera.front.y);
+    ImGui::Text("FrontZ %f", camera.front.z);
+
+    ImGui::Text("RightX %f", camera.right.x);
+    ImGui::Text("RightY %f", camera.right.y);
+    ImGui::Text("RightZ %f", camera.right.z);
+
+    ImGui::Text("UpX %f", camera.up.x);
+    ImGui::Text("UpY %f", camera.up.y);
+    ImGui::Text("UpZ %f", camera.up.z);
+
+    ImGui::End();
+    //Draw crosshair
+    ImDrawList* drawList = ImGui::GetBackgroundDrawList();
+    ImVec2 center(window.WIDHT * 0.5f, window.HEIGHT * 0.5f);
+    float size = 8.0f;
+
+    drawList->AddImage((ImTextureID)(intptr_t)crosshair,
+        ImVec2(center.x - size, center.y - size + 8),
+        ImVec2(center.x + size, center.y + size + 8));
+
+
+}
 
