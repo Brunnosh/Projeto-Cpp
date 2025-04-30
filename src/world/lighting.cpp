@@ -4,42 +4,53 @@
 namespace Lighting {
     std::queue<std::pair<int, int>> pendingColumns;
     std::set<std::pair<int, int>> columnsPendingControl;
+    std::mutex lightMutex;
 
-
-    void processPendingColumns(World& world, Renderer& worldRenderer) {
+    void processPendingColumns(World& world, Renderer& worldRenderer, ThreadPool& pool) {
         int pendingCount = pendingColumns.size();
 
         // Opcional: limitar quantas processa por frame
-        int processLimit = 5;
+        int processLimit = 4;
         int processed = 0;
+
+        lightMutex.lock();
 
         for (int i = 0; i < pendingCount && processed < processLimit; ++i) {
             std::pair xz = pendingColumns.front();
             pendingColumns.pop();
+            columnsPendingControl.erase(xz);
 
             if (!checkChunkColumn(world, xz)) {
                 // Coluna ainda não pronta, volta para pending
-                columnsPendingControl.erase(xz);
+                
                 pendingColumns.push(xz);
                 columnsPendingControl.insert(xz);
                 continue;
             }
 
             // Coluna está pronta, inicializa luz
-            columnsPendingControl.erase(xz);
-            initializeLightColumn(world, xz, worldRenderer);
+            pool.enqueue([&world, &worldRenderer, xz]() {
+                std::lock_guard<std::mutex> lock(world.getMutex());
+                initializeLightColumn(world, xz, worldRenderer);
+                });
             processed++;
         }
+
+        lightMutex.unlock();
     }
 
 
     void queueColumnForLightingUpdate(int x, int z) {
         std::pair xzCoord = std::pair(x, z);
 
+        lightMutex.lock();
+
         if (columnsPendingControl.find(xzCoord) == columnsPendingControl.end()) {
             pendingColumns.push(xzCoord);
             columnsPendingControl.insert(xzCoord);
         }
+
+        lightMutex.unlock();
 
     }
 

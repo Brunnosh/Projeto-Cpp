@@ -161,7 +161,9 @@ void Camera::update(World& world, Window & window, int& drawCallCount) {
 
 
     //Draw block outline
+    
     drawBlockOutline(window, drawCallCount);
+    
     //Collision detection
 
 

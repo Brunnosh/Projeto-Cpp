@@ -248,7 +248,7 @@ void Game::loop() {
 
         
 
-        worldRenderer.remeshMarkedChunks(currentWorld->getWorldDataRef());
+        worldRenderer.remeshMarkedChunks();
 
         Shaders[shaderType::MAIN].use();
         worldRenderer.renderChunks(modelLoc, drawCallCount);

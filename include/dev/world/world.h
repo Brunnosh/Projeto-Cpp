@@ -47,7 +47,7 @@ private:
     std::unordered_map<std::pair<int, int>, int, PairHash> highestChunkY; 
     std::stack<glm::ivec3> lightUpdateStack;
 
-    std::mutex chunkGenMutex;
+    std::mutex worldMutex;
 
 public:
 
@@ -81,6 +81,10 @@ public:
 
     void World::markColumnToUpdate(const std::pair<int, int>& xz);
   
+    std::mutex& World::getMutex() {
+        return worldMutex;
+    }
+
     int getMaxChunkY(int x, int z) {
         std::pair<int, int> xzKey = { x, z };
         auto it = highestChunkY.find(xzKey);

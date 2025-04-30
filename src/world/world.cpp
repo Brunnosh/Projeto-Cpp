@@ -81,7 +81,7 @@ void World::genChunks(Renderer& worldRenderer, ThreadPool& pool) {
             World_Gen::generateChunkData(*chunk);
             chunk->isChunkEmpty();
 
-            std::lock_guard<std::mutex> lock(chunkGenMutex);
+            std::lock_guard<std::mutex> lock(worldMutex);
             chunkObject obj;
             obj.chunk = chunk;
             obj.state = chunkState::QUEUED_LIGHT_UPDATE;
