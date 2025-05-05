@@ -85,6 +85,7 @@ if (WIN32)
 endif()
 
 target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/core/")
 
 #ADD enet version! also don't forget to uncomment enet from above
 #target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE glm glfw 

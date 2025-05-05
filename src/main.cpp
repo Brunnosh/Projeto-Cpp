@@ -1,56 +1,33 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <window.h>
 #include <iostream>
 
 
 
 
-int main(void)
+int main()
 {
-    GLFWwindow* window;
+	Window window;
 
-    /* Initialize the library */
-    if (!glfwInit()) {
-        return -1;
-    }
+	window.init("teste");
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glEnable(GL_DEPTH_TEST);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);
 
+	while (!window.shouldClose()) {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glClearColor(0.5, 0.5, 0.5, 0.5);
 
+		window.pollEvents();
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
+		window.swapBuffers();
 
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
+	}
 
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
-    }
+	window.terminate();
 
-
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
-
-    glfwTerminate();
-    return 0;
+	return 0;
 }
