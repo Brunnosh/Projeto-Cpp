@@ -35,6 +35,13 @@ bool Window::init(const std::string& title) {
         return false;
     }
 
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    glfwSwapInterval(VSYNC ? 1 : 0);
+
     return true;
 }
 

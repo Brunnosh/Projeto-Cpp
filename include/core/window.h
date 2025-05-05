@@ -6,16 +6,13 @@
 class Window {
 public:
     bool init(const std::string& title);
-
-    
-  
     void pollEvents();
     void swapBuffers();
     bool shouldClose() const;
     void terminate();
-
     GLFWwindow* getNativeWindow();
 
+    bool VSYNC = true;
 private:
     GLFWwindow* window = nullptr;
     
