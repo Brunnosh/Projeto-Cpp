@@ -38,7 +38,9 @@ set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(thirdparty/glfw-3.4)
 add_subdirectory(thirdparty/glad)
-add_subdirectory(thirdparty/glm)	
+add_subdirectory(thirdparty/glm)
+add_subdirectory(thirdparty/imgui-docking)
+add_subdirectory(thirdparty/stb_image)
 
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
@@ -90,4 +92,4 @@ target_include_directories("${CMAKE_PROJECT_NAME}" PUBLIC "${CMAKE_CURRENT_SOURC
 
 
 
-target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE  glfw glad glm)
+target_link_libraries("${CMAKE_PROJECT_NAME}" PRIVATE  glfw glad glm imgui stb_image)
