@@ -1,35 +1,31 @@
 
 #include <application.h>
+#include <inputHandler.h>
+
 #include <iostream>
 
 bool Application::initialize() {
-	return initWindow();
+	if (!window.init("VoxelGame")) { return false; }
+
+	//setCallBacks
+
 }
 
 void Application::run() {
 	while (!window.shouldClose()) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		glClearColor(0.5, 0.5, 0.5, 0.5);
 
-		window.pollEvents();
 
+		window.pollEvents();
 		window.swapBuffers();
 
 	}
 
 }
-
-int main()
-{
-	
-	Application voxelGame;
-
-	if (!voxelGame.initialize()) {
-		return -1;
-	}
-	voxelGame.run();
-	voxelGame.shutdown();
-
-	return 0;
+void Application::shutdown() {
+	window.terminate();
 }
+

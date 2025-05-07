@@ -5,14 +5,11 @@
 class Application {
 private:
 	Window window;
+	//struct settings
 
-	bool initWindow() {
-		return window.init("VoxelGame");
-	}
+
 public:
-	bool initialize();
-	void run();
-	void shutdown() {
-		window.terminate();
-	}
+	bool Application::initialize();
+	void Application::run();
+	void Application::shutdown();
 };
