@@ -7,8 +7,15 @@
 bool Application::initialize() {
 	if (!window.init("VoxelGame")) { return false; }
 
-	//setCallBacks
-
+	/*
+	glfwSetKeyCallback(window, keyCallback);
+	glfwSetMouseButtonCallback(window, mouseCallback);
+	glfwSetWindowFocusCallback(window, windowFocusCallback);
+	glfwSetWindowSizeCallback(window, windowSizeCallback);
+	glfwSetCursorPosCallback(window, cursorPositionCallback);
+	glfwSetCharCallback(window, characterCallback);
+	glfwSetScrollCallback(window, scrollCallback);
+	*/
 }
 
 void Application::run() {
