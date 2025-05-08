@@ -15,9 +15,11 @@ bool Application::initialize() {
 
 	if (!window.init("VoxelGame")) { return false; }
 
-	/*
-	glfwSetKeyCallback(window, keyCallback);
-	glfwSetMouseButtonCallback(window, mouseCallback);
+	
+	
+    //glfwSetKeyCallback(window.getNativeWindow(), inputHandler.keyCallback);
+    /*
+    glfwSetMouseButtonCallback(window, mouseCallback);
 	glfwSetWindowFocusCallback(window, windowFocusCallback);
 	glfwSetWindowSizeCallback(window, windowSizeCallback);
 	glfwSetCursorPosCallback(window, cursorPositionCallback);
@@ -38,6 +40,10 @@ void Application::run() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.5, 0.5, 0.5, 0.5);
 	    
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
 		//--------------------update main shader matrices----------------------//
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)window.WIDHT / (float)window.HEIGHT, 0.01f, 5000.0f);
 		Shaders[shaderType::MAIN].setMat4("projection", projection);
@@ -46,13 +52,10 @@ void Application::run() {
 		Shaders[shaderType::MAIN].setMat4("view", view);
 		//--------------------update main shader matrices----------------------//
 
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+
 
         processInput(deltaTime);
 
-		std::cout << camera.position.x << "\n";
 
 		window.pollEvents();
 		window.swapBuffers();
@@ -81,8 +84,8 @@ void Application::processInput( float deltaTime) {
 
     if (glfwGetKey(window.getNativeWindow(), GLFW_KEY_L) == GLFW_PRESS) {
         if (!camera.lDown) {
-            wireframe = wireframe;
-            glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_FILL : GL_LINE);
+            appSettings.wireframe = appSettings.wireframe;
+            glPolygonMode(GL_FRONT_AND_BACK, appSettings.wireframe ? GL_FILL : GL_LINE);
         }
         camera.lDown = true;
     }
