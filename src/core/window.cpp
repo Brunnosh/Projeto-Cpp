@@ -14,8 +14,7 @@ bool Window::init(const std::string& title) {
 
     GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
-    int WIDHT = 1280;
-    int HEIGHT = 720;
+
 
     //const GLFWvidmode* mode = glfwGetVideoMode(monitor);
      //WIDHT = mode->width;

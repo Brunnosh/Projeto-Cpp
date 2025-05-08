@@ -5,6 +5,9 @@
 
 class Window {
 public:
+    int WIDHT = 1280;
+    int HEIGHT = 720;
+public:
     bool init(const std::string& title);
     void pollEvents();
     void swapBuffers();
